@@ -171,6 +171,15 @@ th,tfoot td{background:var(--soft2)}
 .tcard .sw{height:70px;border-radius:11px;margin-bottom:6px;background:var(--patw) 0 0/110px,linear-gradient(135deg,var(--p),var(--p2));display:grid;place-items:center;font-size:30px}
 .tcard span{display:block;padding:0 4px 2px;font-size:13px}
 
+
+/* stepper form transaksi */
+#stepper{display:flex;margin:10px 0 4px}
+#stepper .sd{flex:1;text-align:center;font-size:12px;color:var(--mut);font-weight:600}
+#stepper .sd i{display:grid;place-items:center;width:30px;height:30px;margin:0 auto 4px;border-radius:50%;background:var(--soft);color:var(--mut);font-style:normal;font-weight:700;font-size:14px}
+#stepper .sd.on i{background:var(--surf);color:var(--ptx);box-shadow:inset 0 0 0 2px var(--p)}
+#stepper .sd.done i{background:var(--p);color:#fff}
+#stepper .sd.on,#stepper .sd.done{color:var(--tx)}
+.stp{display:none}.stp.on{display:block}
 /* ====== PENGATURAN, STRUK, CETAK ====== */
 :root{--fs:1}
 html[data-fs="l"]{--fs:1.14}html[data-fs="xl"]{--fs:1.3}
@@ -342,6 +351,7 @@ function toggleSound() {
 function modal(title, html, onSubmit, okText) {
   $('#mTitle').textContent = title; $('#mBody').innerHTML = html;
   $('#mOk').textContent = okText || 'Simpan';
+  const gb = $('#modal .mfoot .btn.ghost'); gb.textContent = 'Batal'; gb.onclick = closeModal;
   modalSubmit = onSubmit; $('#modal').classList.add('show');
 }
 function closeModal() { $('#modal').classList.remove('show'); }
@@ -398,7 +408,7 @@ async function logout() {
   sess.del('ppob_pin'); pin = ''; page = 'home'; fq = ''; fs = ''; fd = ''; cq = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
 
 /* ====== PENGATURAN ====== */
-const APP_VER = '2.1';
+const APP_VER = '2.2';
 let appName = store.get('ppob_appname') || 'PPOB Kasir', tokoName = store.get('ppob_toko') || '', tokoWa = store.get('ppob_wa') || '';
 const sett = () => db.settings || {};
 const favs = () => sett().fav || [];
@@ -453,7 +463,7 @@ function pickFav(id) {
   const l = document.querySelectorAll('.itm');
   if (l.length === 1 && !l[0].querySelector('.iTuj').value.trim()) setItemProd(l[0], id); else addItem(id);
 }
-function quickTrx(id) { trxForm(); if ($('#itemsBox')) pickFav(id); }
+function quickTrx(id) { trxForm(); if ($('#itemsBox')) { pickFav(id); goStep(2); } }
 
 /* --- Cetak: struk & laporan PDF --- */
 function printHtml(html, size, margin) {
@@ -638,16 +648,58 @@ function pTrx() {
 }
 
 /* --- Form transaksi --- */
+let trxStep = 1;
 function trxForm() {
   if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
-  modal('Transaksi Baru', favChips() +
-    field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama) — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>') +
-    '<div class="mut" style="margin-top:10px"><b>Daftar item</b></div><div id="itemsBox"></div>' +
-    '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">+ Tambah item</button>' +
-    '<div class="ok" id="fTot"></div>' +
-    field('Status pembayaran', '<div class="seg"><label><input type="radio" name="st" value="Lunas" checked>✅ Lunas</label><label><input type="radio" name="st" value="Belum Bayar">⏳ Belum Bayar</label></div>') +
-    field('Catatan (opsional)', '<input id="fCat">'), saveTrx, 'Simpan Transaksi');
-  addItem();
+  const sd = (n, t) => '<div class="sd" data-s="' + n + '"><i>' + n + '</i><span>' + t + '</span></div>';
+  modal('Transaksi Baru',
+    '<div id="stepper">' + sd(1, 'Customer') + sd(2, 'Item') + sd(3, 'Bayar') + '</div>' +
+    '<div class="stp" data-s="1">' + field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama) — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>') +
+      '<div class="mut" style="margin-top:8px">Kosongkan jika tanpa nama (Umum).</div></div>' +
+    '<div class="stp" data-s="2">' + favChips() + '<div class="mut" style="margin-top:10px"><b>Daftar item</b></div><div id="itemsBox"></div>' +
+      '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">+ Tambah item lagi</button><div class="ok" id="fTot"></div></div>' +
+    '<div class="stp" data-s="3"><div class="card" id="sumBox" style="margin-top:10px"></div>' +
+      field('Status pembayaran', '<div class="seg"><label><input type="radio" name="st" value="Lunas" checked>✅ Lunas</label><label><input type="radio" name="st" value="Belum Bayar">⏳ Belum Bayar</label></div>') +
+      field('Catatan (opsional)', '<input id="fCat">') + '</div>',
+    async function () {
+      if (trxStep === 1) { stepCustomer(); goStep(2); return false; }
+      if (trxStep === 2) { stepItems(); goStep(3); return false; }
+      return saveTrx();
+    }, 'Lanjut');
+  trxStep = 1; addItem(); goStep(1);
+}
+function goStep(n) {
+  trxStep = n;
+  document.querySelectorAll('.stp').forEach(e => e.classList.toggle('on', Number(e.dataset.s) === n));
+  document.querySelectorAll('#stepper .sd').forEach(e => { const k = Number(e.dataset.s); e.classList.toggle('on', k === n); e.classList.toggle('done', k < n); });
+  $('#mOk').textContent = n < 3 ? 'Lanjut' : 'Simpan Transaksi';
+  const gb = $('#modal .mfoot .btn.ghost'); gb.textContent = n > 1 ? 'Kembali' : 'Batal';
+  gb.onclick = n > 1 ? function () { goStep(n - 1); } : closeModal;
+  if (n === 3) fillSummary();
+  const sh = document.querySelector('#modal .sheet'); if (sh) sh.scrollTop = 0;
+}
+function stepCustomer() {
+  const ct = $('#fCustTxt').value.trim();
+  if (!$('#fCust').value && ct) {
+    const m = db.customers.filter(c => c.nama.toLowerCase() === ct.toLowerCase());
+    if (m.length === 1) pickCust(m[0].id); else throw new Error('Pilih customer dari daftar yang muncul');
+  }
+}
+function stepItems() {
+  const l = document.querySelectorAll('.itm');
+  if (!l.length) throw new Error('Tambahkan minimal 1 item');
+  l.forEach((el, i) => { if (!el.querySelector('.iProd').value) throw new Error('Item ' + (i + 1) + ': pilih aplikasi dan produk'); });
+}
+function fillSummary() {
+  let j = 0, m = 0;
+  const rows = Array.prototype.map.call(document.querySelectorAll('.itm'), function (el) {
+    const p = db.products.filter(x => x.id === el.querySelector('.iProd').value)[0], a = db.apps.filter(x => x.id === el.querySelector('.iApp').value)[0];
+    const jl = numOf(el.querySelector('.iJual')), md = numOf(el.querySelector('.iMod')), tj = el.querySelector('.iTuj').value.trim();
+    j += jl; m += md;
+    return '<div class="row s" style="border-top:1px solid var(--bd);padding-top:8px"><div><b>' + esc(p ? p.nama : '-') + '</b><div class="mut">' + esc((a ? a.nama : '') + (tj ? ' • ' + tj : '')) + '</div></div><b>' + rp(jl) + '</b></div>';
+  });
+  $('#sumBox').innerHTML = '<div class="mut">👤 ' + esc($('#fCustTxt').value.trim() || 'Umum') + '</div>' + rows.join('') +
+    '<div class="row s" style="border-top:1px solid var(--bd);padding-top:8px"><b>Total</b><b>' + rp(j) + '</b></div><div class="ok">Total laba: ' + rp(j - m) + '</div>';
 }
 /* --- Item transaksi (banyak item) --- */
 const numOf = el => Number(String(el.value).replace(/\D/g, '')) || 0;
