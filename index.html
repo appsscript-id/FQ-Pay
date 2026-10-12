@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<meta name="theme-color" content="#4f46e5">
+<title>PPOB Kasir</title>
+<style>
+:root{color-scheme:light only;--p:#4f46e5;--p2:#7c3aed;--bg:#f3f5fb;--card:#ffffff;--tx:#1e2235;--mut:#6b7280;--bd:#e6e9f2;--ok:#059669;--okbg:#d1fae5;--warn:#b45309;--warnbg:#fef3c7;--bad:#dc2626;--badbg:#fee2e2;--r:16px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:light;background:#f3f5fb}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+button,input,select,textarea{font-family:inherit;font-size:16px;color:var(--tx);background:#fff;color-scheme:light}
+b{font-weight:650}
+.mut{color:var(--mut);font-size:13px}
+.ok{color:var(--ok);font-weight:600}
+.bad{color:var(--bad);font-weight:600}
+
+/* layout */
+.side{display:none;position:fixed;inset:0 auto 0 0;width:248px;background:#fff;border-right:1px solid var(--bd);padding:20px 14px;flex-direction:column;gap:6px;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;padding:4px 10px 18px}
+.brand i{font-style:normal;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:20px}
+.nav{display:flex;align-items:center;gap:12px;border:0;background:none;padding:11px 14px;border-radius:12px;cursor:pointer;font-weight:600;color:#4b5266;text-align:left;width:100%}
+.nav:hover{background:#f1f2fb}
+.nav.on{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 6px 16px rgba(79,70,229,.3)}
+.nav .cnt{margin-left:auto;background:var(--bad);color:#fff;border-radius:99px;padding:0 8px;font-size:12px;min-width:22px;text-align:center}
+.side .sp{flex:1}
+main{min-height:100vh}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
+.top h1{margin:0;font-size:19px;flex:1}
+.top button{border:0;background:rgba(255,255,255,.2);color:#fff;border-radius:12px;width:40px;height:40px;cursor:pointer;font-size:18px}
+#view{padding:16px;max-width:1100px;margin:0 auto}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;overflow-x:auto;background:#fff;border-top:1px solid var(--bd);padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px;scrollbar-width:none}
+.bottom::-webkit-scrollbar{display:none}
+.bottom .nav{flex:0 0 auto;flex-direction:column;gap:2px;width:auto;min-width:72px;padding:6px 8px;font-size:11px;align-items:center;position:relative;text-align:center}
+.bottom .nav span.ic{font-size:20px}
+.bottom .nav.on{box-shadow:none}
+.bottom .nav .cnt{position:absolute;top:0;right:8px;margin:0;font-size:10px;min-width:18px;padding:0 5px}
+.fab{position:fixed;right:18px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:25;width:58px;height:58px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:30px;box-shadow:0 10px 24px rgba(79,70,229,.45);cursor:pointer}
+@media(min-width:900px){.side{display:flex}.bottom,.fab{display:none}main{margin-left:248px}#view{padding:24px}.top{padding:18px 24px}}
+@media(max-width:899px){main{padding-bottom:90px}}
+
+/* components */
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(310px,1fr))}
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px}
+.stat .l{color:var(--mut);font-size:12.5px}
+.stat .v{font-size:20px;font-weight:750;margin-top:4px;word-break:break-word}
+.stat.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:0}
+.stat.hero .l{color:rgba(255,255,255,.8)}
+.item,.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 2px rgba(20,25,60,.04)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.row.s{margin-top:8px;align-items:center;flex-wrap:wrap}
+.r{text-align:right}
+.badge{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:700}
+.badge.g{background:var(--okbg);color:var(--ok)}
+.badge.o{background:var(--warnbg);color:var(--warn)}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:650;cursor:pointer;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:10px}
+.btn.ghost{background:#eef0fb;color:var(--p)}
+.btn.red{background:var(--badbg);color:var(--bad)}
+.btn.green{background:var(--okbg);color:var(--ok)}
+.btn.wa{background:#dcfce7;color:#15803d;text-decoration:none;display:inline-block}
+.sec{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;gap:10px;flex-wrap:wrap}
+.sec h2{margin:0;font-size:17px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tools input,.tools select{flex:1;min-width:130px}
+input,select,textarea{width:100%;border:1px solid var(--bd);border-radius:12px;padding:11px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+label.f{display:block;font-size:13px;font-weight:600;margin:12px 0 5px;color:#4b5266}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:8px}
+.seg label{flex:1;text-align:center;border:1px solid var(--bd);border-radius:12px;padding:10px;cursor:pointer;font-weight:650;background:#fff}
+.seg input{display:none}
+.seg input:checked+span{display:block}
+.seg label:has(input:checked){border-color:var(--p);background:#eef0fb;color:var(--p)}
+.empty{text-align:center;color:var(--mut);padding:36px 10px;background:#fff;border:1px dashed var(--bd);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r)}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap;font-size:14px}
+th:first-child,td:first-child{text-align:left}
+th{background:#f6f7fd;color:#4b5266;font-size:12.5px}
+tfoot td{font-weight:750;background:#f6f7fd}
+.bar{height:8px;background:#eceffa;border-radius:99px;overflow:hidden;margin-top:6px}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:99px}
+.barrow{margin-bottom:14px}
+
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
+#modal.show{display:flex}
+.sheet{background:#fff;border-radius:22px;width:min(520px,100%);max-height:92vh;overflow:auto;padding:18px}
+.sheet h3{margin:0 0 4px;font-size:18px}
+.mfoot{display:flex;gap:10px;margin-top:18px}
+.mfoot .btn{flex:1}
+@media(max-width:599px){#modal{align-items:flex-end;padding:0}.sheet{border-radius:22px 22px 0 0;max-height:94vh}}
+#busy{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;align-items:center;justify-content:center;z-index:80}
+#busy.show{display:flex}
+.spin{width:44px;height:44px;border:5px solid #dfe2f7;border-top-color:var(--p);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-90px);background:#111827;color:#fff;padding:12px 20px;border-radius:14px;z-index:90;transition:.3s;max-width:90vw;text-align:center;font-weight:600}
+#toast.show{transform:translate(-50%,0)}
+#toast.err{background:var(--bad)}
+#toast.good{background:var(--ok)}
+#login{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--p),var(--p2));padding:20px}
+#login.show{display:flex}
+#login .box{background:#fff;border-radius:22px;padding:26px;width:min(380px,100%);text-align:center}
+#login .big{font-size:44px}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside class="side" id="side"></aside>
+  <main>
+    <header class="top">
+      <h1 id="title">Beranda</h1>
+      <button id="btnSound" onclick="toggleSound()" title="Suara">🔊</button>
+      <button onclick="reload()" title="Muat ulang">⟳</button>
+    </header>
+    <div id="view"></div>
+  </main>
+  <nav class="bottom" id="bottom"></nav>
+</div>
+<button class="fab" onclick="trxForm()" aria-label="Transaksi baru">+</button>
+
+<div id="modal"><div class="sheet"><h3 id="mTitle"></h3><div id="mBody"></div>
+  <div class="mfoot"><button class="btn ghost" onclick="closeModal()">Batal</button><button class="btn" id="mOk" onclick="submitModal()">Simpan</button></div></div></div>
+<div id="busy"><div class="spin"></div></div>
+<div id="toast"></div>
+<div id="login"><div class="box"><div class="big">🔐</div><h2 style="margin:6px 0">PPOB Kasir</h2>
+  <p class="mut">Masukkan PIN untuk masuk</p>
+  <input id="pinIn" type="password" inputmode="numeric" placeholder="PIN" onkeydown="if(event.key==='Enter')doLogin()">
+  <button class="btn" style="width:100%;margin-top:14px" onclick="doLogin()">Masuk</button></div></div>
+
+<script>
+/* ====== KONFIGURASI ====== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwiJwddPtszCwX8FN_3xXKcDjYmI1QaUfv_k-SMPnSiddW9EoLlCHrc-fYI-DgIr7PY/exec';   // URL Web App dari Apps Script (berakhiran /exec)
+
+/* ====== UTIL ====== */
+const $ = s => document.querySelector(s);
+const rp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const ymd = () => new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Jakarta'});
+const sum = (a, k) => a.reduce((s, x) => s + Number(x[k] || 0), 0);
+
+let db = {customers:[], apps:[], products:[], trx:[]};
+let page = 'home', pin = store.get('ppob_pin') || '';
+let fq = '', fs = '', fd = '';
+let rekapMonth = ymd().slice(0, 7);
+let soundOn = store.get('ppob_sound') !== '0';
+let modalSubmit = null;
+
+const NAV = [
+  ['home','🏠','Beranda'], ['trx','🧾','Transaksi'], ['unpaid','⏳','Belum Bayar'],
+  ['cust','👥','Customer'], ['apps','📱','Aplikasi'], ['prod','📦','Produk'],
+  ['rekap','📊','Rekapitulasi'], ['laba','💰','Laba']
+];
+
+/* ====== API ====== */
+async function api(action, data) {
+  if (API_URL.indexOf('GANTI') >= 0) throw new Error('API_URL belum diisi di index.html');
+  const r = await fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify({action: action, pin: pin, data: data || {}})
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan');
+  return j.data;
+}
+function setBusy(b){ $('#busy').classList.toggle('show', b); }
+let tt;
+function toast(msg, type) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'show ' + (type || '');
+  clearTimeout(tt); tt = setTimeout(() => t.className = '', 2600);
+}
+async function load() {
+  setBusy(true);
+  try { db = await api('getAll'); render(); }
+  finally { setBusy(false); }
+}
+async function reload() {
+  try { await load(); toast('Data dimuat ulang'); } catch (e) { toast(e.message, 'err'); }
+}
+
+/* ====== SUARA ====== */
+let audioCtx;
+function unlockAudio() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if ('speechSynthesis' in window) { speechSynthesis.getVoices(); }
+  } catch (e) {}
+}
+document.addEventListener('click', unlockAudio);
+document.addEventListener('touchstart', unlockAudio, {passive: true});
+function chime() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  [[880, 0], [1319, 0.13]].forEach(function (p) {
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = p[0];
+    o.connect(g); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.0001, t + p[1]);
+    g.gain.exponentialRampToValueAtTime(0.25, t + p[1] + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + p[1] + 0.4);
+    o.start(t + p[1]); o.stop(t + p[1] + 0.45);
+  });
+}
+function sayBerhasil() {
+  if (!soundOn) return;
+  try { chime(); } catch (e) {}
+  try {
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance('Transaksi Berhasil');
+      u.lang = 'id-ID'; u.rate = 1; u.volume = 1;
+      const v = speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().indexOf('id') === 0)[0];
+      if (v) u.voice = v;
+      setTimeout(() => speechSynthesis.speak(u), 250);
+    }
+  } catch (e) {}
+}
+function toggleSound() {
+  soundOn = !soundOn; store.set('ppob_sound', soundOn ? '1' : '0');
+  $('#btnSound').textContent = soundOn ? '🔊' : '🔇';
+  toast(soundOn ? 'Suara aktif' : 'Suara dimatikan');
+  if (soundOn) sayBerhasil();
+}
+
+/* ====== MODAL ====== */
+function modal(title, html, onSubmit, okText) {
+  $('#mTitle').textContent = title; $('#mBody').innerHTML = html;
+  $('#mOk').textContent = okText || 'Simpan';
+  modalSubmit = onSubmit; $('#modal').classList.add('show');
+}
+function closeModal() { $('#modal').classList.remove('show'); }
+async function submitModal() {
+  try {
+    setBusy(true);
+    const ok = await modalSubmit();
+    if (ok !== false) closeModal();
+  } catch (e) { toast(e.message, 'err'); }
+  finally { setBusy(false); }
+}
+const field = (l, h) => '<label class="f">' + l + '</label>' + h;
+
+/* ====== LOGIN ====== */
+function showLogin() { $('#login').classList.add('show'); setTimeout(() => $('#pinIn').focus(), 50); }
+async function doLogin() {
+  pin = $('#pinIn').value.trim();
+  if (!pin) return;
+  try {
+    await load();
+    store.set('ppob_pin', pin);
+    $('#login').classList.remove('show');
+  } catch (e) { toast(e.message, 'err'); if (/PIN/.test(e.message)) $('#pinIn').value = ''; }
+}
+function logout() { store.del('ppob_pin'); pin = ''; showLogin(); }
+
+/* ====== NAVIGASI ====== */
+function buildNav() {
+  const mk = n => '<button class="nav" data-nav="' + n[0] + '" onclick="go(\'' + n[0] + '\')"><span class="ic">' + n[1] + '</span><span>' + n[2] + '</span>' + (n[0] === 'unpaid' ? '<span class="cnt" data-cnt style="display:none"></span>' : '') + '</button>';
+  $('#side').innerHTML = '<div class="brand"><i>💳</i>PPOB Kasir</div>' + NAV.map(mk).join('') +
+    '<div class="sp"></div><button class="btn" onclick="trxForm()">+ Transaksi Baru</button>' +
+    '<button class="nav" onclick="logout()"><span class="ic">🚪</span><span>Keluar</span></button>';
+  $('#bottom').innerHTML = NAV.map(mk).join('');
+}
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+
+/* ====== RENDER ====== */
+function render() {
+  document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === page));
+  $('#title').textContent = NAV.filter(n => n[0] === page)[0][2];
+  const pages = {home: pHome, trx: pTrx, unpaid: pUnpaid, cust: pCust, apps: pApps, prod: pProd, rekap: pRekap, laba: pLaba};
+  $('#view').innerHTML = pages[page]();
+  const nb = db.trx.filter(t => t.status === 'Belum Bayar').length;
+  document.querySelectorAll('[data-cnt]').forEach(e => { e.textContent = nb; e.style.display = nb ? '' : 'none'; });
+}
+
+function trxCard(t) {
+  const belum = t.status === 'Belum Bayar';
+  return '<div class="item"><div class="row"><div><b>' + esc(t.produk) + '</b><div class="mut">' + esc(t.aplikasi) + ' • ' + esc(t.tujuan || '-') + '</div></div>' +
+    '<div class="r"><b>' + rp(t.jual) + '</b><div class="ok" style="font-size:13px">Laba ' + rp(t.laba) + '</div></div></div>' +
+    '<div class="row s"><span class="mut">👤 ' + esc(t.customer || 'Umum') + ' • ' + esc(t.tanggal) + ' ' + esc(t.jam) + '</span>' +
+    '<span class="badge ' + (belum ? 'o' : 'g') + '">' + esc(t.status) + '</span></div>' +
+    (t.catatan ? '<div class="mut" style="margin-top:6px">📝 ' + esc(t.catatan) + '</div>' : '') +
+    '<div class="acts">' + (belum ? '<button class="btn sm green" onclick="payIds([\'' + t.id + '\'])">✔ Lunasi</button>' : '') +
+    '<button class="btn sm red" onclick="delTrx(\'' + t.id + '\')">Hapus</button></div></div>';
+}
+const sorted = a => a.slice().sort((x, y) => (y.tanggal + y.jam + y.id).localeCompare(x.tanggal + x.jam + x.id));
+
+/* --- Beranda --- */
+function pHome() {
+  const today = ymd(), mo = today.slice(0, 7), T = db.trx;
+  const td = T.filter(t => t.tanggal === today), bl = T.filter(t => t.tanggal.indexOf(mo) === 0);
+  const bb = T.filter(t => t.status === 'Belum Bayar');
+  const custBelum = {}; bb.forEach(t => custBelum[t.customerId] = 1);
+  return '<div class="stats">' +
+    '<div class="stat hero"><div class="l">Laba hari ini</div><div class="v">' + rp(sum(td, 'laba')) + '</div></div>' +
+    '<div class="stat"><div class="l">Transaksi hari ini</div><div class="v">' + td.length + '</div></div>' +
+    '<div class="stat"><div class="l">Omzet hari ini</div><div class="v">' + rp(sum(td, 'jual')) + '</div></div>' +
+    '<div class="stat"><div class="l">Laba bulan ini</div><div class="v">' + rp(sum(bl, 'laba')) + '</div></div>' +
+    '<div class="stat" style="cursor:pointer" onclick="go(\'unpaid\')"><div class="l">Belum bayar (' + Object.keys(custBelum).length + ' customer)</div><div class="v bad">' + rp(sum(bb, 'jual')) + '</div></div></div>' +
+    '<div class="sec"><h2>Transaksi terbaru</h2><button class="btn sm" onclick="trxForm()">+ Transaksi</button></div>' +
+    (T.length ? '<div class="grid">' + sorted(T).slice(0, 8).map(trxCard).join('') + '</div>' : '<div class="empty">Belum ada transaksi. Tekan tombol + untuk memulai.</div>');
+}
+
+/* --- Transaksi --- */
+function filteredTrx() {
+  const q = fq.toLowerCase();
+  return sorted(db.trx).filter(t =>
+    (!fs || t.status === fs) && (!fd || t.tanggal === fd) &&
+    (!q || (t.produk + ' ' + t.aplikasi + ' ' + t.customer + ' ' + t.tujuan).toLowerCase().indexOf(q) >= 0));
+}
+function trxListHtml() {
+  const l = filteredTrx();
+  return '<div class="mut" style="margin-bottom:8px">' + l.length + ' transaksi • Total ' + rp(sum(l, 'jual')) + ' • Laba ' + rp(sum(l, 'laba')) + '</div>' +
+    (l.length ? '<div class="grid">' + l.slice(0, 200).map(trxCard).join('') + '</div>' : '<div class="empty">Tidak ada transaksi</div>');
+}
+function updTrx() { $('#trxList').innerHTML = trxListHtml(); }
+function pTrx() {
+  return '<div class="tools"><input placeholder="🔍 Cari produk / customer / nomor" value="' + esc(fq) + '" oninput="fq=this.value;updTrx()">' +
+    '<select onchange="fs=this.value;updTrx()"><option value="">Semua status</option><option' + (fs === 'Lunas' ? ' selected' : '') + '>Lunas</option><option' + (fs === 'Belum Bayar' ? ' selected' : '') + '>Belum Bayar</option></select>' +
+    '<input type="date" value="' + esc(fd) + '" onchange="fd=this.value;updTrx()"><button class="btn" onclick="trxForm()">+ Transaksi</button></div>' +
+    '<div id="trxList">' + trxListHtml() + '</div>';
+}
+
+/* --- Form transaksi --- */
+function trxForm() {
+  if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
+  const co = '<option value="">— Umum (tanpa nama) —</option>' + db.customers.map(c => '<option value="' + c.id + '">' + esc(c.nama) + '</option>').join('');
+  const ao = db.apps.map(a => '<option value="' + a.id + '">' + esc(a.nama) + '</option>').join('');
+  modal('Transaksi Baru',
+    field('Customer', '<select id="fCust">' + co + '</select>') +
+    '<div class="two"><div>' + field('Aplikasi', '<select id="fApp" onchange="fillProd()">' + ao + '</select>') + '</div>' +
+    '<div>' + field('Produk', '<select id="fProd" onchange="fillHarga()"></select>') + '</div></div>' +
+    field('No. HP / ID Pelanggan / Tujuan', '<input id="fTujuan" inputmode="numeric" placeholder="08xxxxxxxxxx">') +
+    '<div class="two"><div>' + field('Harga Modal', '<input id="fModal" type="number" inputmode="numeric" oninput="prevLaba()">') + '</div>' +
+    '<div>' + field('Harga Jual', '<input id="fJual" type="number" inputmode="numeric" oninput="prevLaba()">') + '</div></div>' +
+    '<div class="ok" id="fLaba" style="margin-top:6px"></div>' +
+    field('Status pembayaran', '<div class="seg"><label><input type="radio" name="st" value="Lunas" checked>✅ Lunas</label><label><input type="radio" name="st" value="Belum Bayar">⏳ Belum Bayar</label></div>') +
+    field('Catatan (opsional)', '<input id="fCat">'), saveTrx, 'Simpan Transaksi');
+  fillProd();
+}
+function fillProd() {
+  const aid = $('#fApp').value;
+  $('#fProd').innerHTML = db.products.filter(p => p.aplikasiId === aid).map(p => '<option value="' + p.id + '">' + esc(p.nama) + '</option>').join('') || '<option value="">(belum ada produk)</option>';
+  fillHarga();
+}
+function fillHarga() {
+  const p = db.products.filter(x => x.id === $('#fProd').value)[0];
+  $('#fModal').value = p ? p.modal : ''; $('#fJual').value = p ? p.jual : ''; prevLaba();
+}
+function prevLaba() { $('#fLaba').textContent = 'Laba: ' + rp((+$('#fJual').value || 0) - (+$('#fModal').value || 0)); }
+async function saveTrx() {
+  const p = db.products.filter(x => x.id === $('#fProd').value)[0];
+  const a = db.apps.filter(x => x.id === $('#fApp').value)[0];
+  if (!a || !p) throw new Error('Pilih aplikasi dan produk');
+  const st = document.querySelector('input[name=st]:checked').value;
+  const cid = $('#fCust').value;
+  if (st === 'Belum Bayar' && !cid) throw new Error('Pilih customer untuk transaksi belum bayar');
+  await api('addTrx', {customerId: cid, aplikasi: a.nama, produk: p.nama, tujuan: $('#fTujuan').value,
+    modal: $('#fModal').value, jual: $('#fJual').value, status: st, catatan: $('#fCat').value});
+  db = await api('getAll'); render();
+  sayBerhasil(); toast('✅ Transaksi Berhasil', 'good');
+}
+async function delTrx(id) {
+  if (!confirm('Hapus transaksi ini?')) return;
+  try { setBusy(true); await api('deleteTrx', {id: id}); db = await api('getAll'); render(); toast('Transaksi dihapus'); }
+  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
+}
+async function payIds(ids) {
+  if (!confirm('Tandai ' + ids.length + ' transaksi sebagai LUNAS?')) return;
+  try { setBusy(true); await api('pay', {ids: ids}); db = await api('getAll'); render(); sayBerhasil(); toast('✅ Pembayaran dilunasi', 'good'); }
+  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
+}
+
+/* --- Belum bayar --- */
+function waNum(t) { t = String(t || '').replace(/\D/g, ''); if (t.indexOf('0') === 0) t = '62' + t.slice(1); return t; }
+function pUnpaid() {
+  const bb = db.trx.filter(t => t.status === 'Belum Bayar'), g = {};
+  bb.forEach(t => { (g[t.customerId] = g[t.customerId] || []).push(t); });
+  const keys = Object.keys(g).sort((a, b) => sum(g[b], 'jual') - sum(g[a], 'jual'));
+  if (!keys.length) return '<div class="empty">🎉 Tidak ada customer yang belum bayar</div>';
+  return '<div class="stats"><div class="stat hero"><div class="l">Total belum dibayar</div><div class="v">' + rp(sum(bb, 'jual')) + '</div></div>' +
+    '<div class="stat"><div class="l">Customer</div><div class="v">' + keys.length + '</div></div><div class="stat"><div class="l">Transaksi</div><div class="v">' + bb.length + '</div></div></div>' +
+    '<div class="grid">' + keys.map(function (cid) {
+      const l = sorted(g[cid]), c = db.customers.filter(x => x.id === cid)[0], tot = sum(l, 'jual');
+      const msg = 'Halo ' + l[0].customer + ', mengingatkan tagihan Anda:\n' + l.map(t => '- ' + t.tanggal + ' ' + t.produk + ' ' + rp(t.jual)).join('\n') + '\nTotal: ' + rp(tot) + '\nTerima kasih.';
+      return '<div class="card"><div class="row"><div><b>👤 ' + esc(l[0].customer) + '</b><div class="mut">' + esc(c ? (c.alamat || '') : '') + '</div></div><div class="r"><b class="bad">' + rp(tot) + '</b><div class="mut">' + l.length + ' transaksi</div></div></div>' +
+        '<div style="margin-top:10px">' + l.map(t => '<div class="row s" style="border-top:1px solid var(--bd);padding-top:8px"><div><div>' + esc(t.produk) + '</div><div class="mut">' + esc(t.tanggal) + ' • ' + esc(t.tujuan || '-') + '</div></div><div class="r"><div>' + rp(t.jual) + '</div><button class="btn sm green" onclick="payIds([\'' + t.id + '\'])">Lunasi</button></div></div>').join('') + '</div>' +
+        '<div class="acts"><button class="btn sm" onclick="payIds(' + "['" + l.map(t => t.id).join("','") + "']" + ')">✔ Lunasi Semua</button>' +
+        (c && c.telepon ? '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waNum(c.telepon) + '?text=' + encodeURIComponent(msg) + '">WhatsApp</a>' : '') + '</div></div>';
+    }).join('') + '</div>';
+}
+
+/* --- Customer --- */
+function pCust() {
+  const bb = {}; db.trx.filter(t => t.status === 'Belum Bayar').forEach(t => bb[t.customerId] = (bb[t.customerId] || 0) + Number(t.jual));
+  return '<div class="tools"><button class="btn" onclick="custForm()">+ Customer</button></div>' +
+    (db.customers.length ? '<div class="grid">' + db.customers.map(c => '<div class="item"><div class="row"><div><b>' + esc(c.nama) + '</b><div class="mut">📍 ' + esc(c.alamat || '-') + '</div><div class="mut">📞 ' + esc(c.telepon || '-') + '</div></div>' +
+      (bb[c.id] ? '<div class="r"><span class="badge o">Belum bayar</span><div class="bad">' + rp(bb[c.id]) + '</div></div>' : '') + '</div>' +
+      '<div class="acts"><button class="btn sm ghost" onclick="custForm(\'' + c.id + '\')">Edit</button><button class="btn sm red" onclick="delItem(\'deleteCustomer\',\'' + c.id + '\')">Hapus</button></div></div>').join('') + '</div>' : '<div class="empty">Belum ada customer</div>');
+}
+function custForm(id) {
+  const c = db.customers.filter(x => x.id === id)[0] || {};
+  modal(id ? 'Edit Customer' : 'Customer Baru',
+    field('Nama', '<input id="cNama" value="' + esc(c.nama) + '">') + field('Alamat', '<textarea id="cAlamat" rows="2">' + esc(c.alamat) + '</textarea>') +
+    field('Telepon / WhatsApp (opsional)', '<input id="cTelp" inputmode="tel" value="' + esc(c.telepon) + '">'),
+    async function () { await api('saveCustomer', {id: id || '', nama: $('#cNama').value, alamat: $('#cAlamat').value, telepon: $('#cTelp').value}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
+}
+
+/* --- Aplikasi --- */
+function pApps() {
+  return '<div class="tools"><button class="btn" onclick="appForm()">+ Aplikasi</button></div>' +
+    (db.apps.length ? '<div class="grid">' + db.apps.map(a => '<div class="item"><div class="row"><div><b>📱 ' + esc(a.nama) + '</b><div class="mut">' + db.products.filter(p => p.aplikasiId === a.id).length + ' produk</div></div></div>' +
+      '<div class="acts"><button class="btn sm ghost" onclick="appForm(\'' + a.id + '\')">Edit</button><button class="btn sm red" onclick="delItem(\'deleteAplikasi\',\'' + a.id + '\')">Hapus</button></div></div>').join('') + '</div>' : '<div class="empty">Belum ada aplikasi</div>');
+}
+function appForm(id) {
+  const a = db.apps.filter(x => x.id === id)[0] || {};
+  modal(id ? 'Edit Aplikasi' : 'Aplikasi Baru', field('Nama aplikasi (mis. My BCA, Mitra Shopee)', '<input id="aNama" value="' + esc(a.nama) + '">'),
+    async function () { await api('saveAplikasi', {id: id || '', nama: $('#aNama').value}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
+}
+
+/* --- Produk --- */
+function pProd() {
+  return '<div class="tools"><button class="btn" onclick="prodForm()">+ Produk</button></div>' +
+    (db.apps.length ? db.apps.map(a => {
+      const l = db.products.filter(p => p.aplikasiId === a.id);
+      return '<div class="sec"><h2>📱 ' + esc(a.nama) + '</h2></div>' + (l.length ? '<div class="grid">' + l.map(p => '<div class="item"><div class="row"><b>' + esc(p.nama) + '</b><div class="r"><b>' + rp(p.jual) + '</b></div></div>' +
+        '<div class="row s"><span class="mut">Modal ' + rp(p.modal) + '</span><span class="ok">Laba ' + rp(p.jual - p.modal) + '</span></div>' +
+        '<div class="acts"><button class="btn sm ghost" onclick="prodForm(\'' + p.id + '\')">Edit</button><button class="btn sm red" onclick="delItem(\'deleteProduk\',\'' + p.id + '\')">Hapus</button></div></div>').join('') + '</div>' : '<div class="empty">Belum ada produk</div>');
+    }).join('') : '<div class="empty">Tambahkan aplikasi terlebih dahulu</div>');
+}
+function prodForm(id) {
+  if (!db.apps.length) { toast('Tambahkan aplikasi dulu', 'err'); return; }
+  const p = db.products.filter(x => x.id === id)[0] || {};
+  const ao = db.apps.map(a => '<option value="' + a.id + '"' + (a.id === p.aplikasiId ? ' selected' : '') + '>' + esc(a.nama) + '</option>').join('');
+  modal(id ? 'Edit Produk' : 'Produk Baru',
+    field('Aplikasi', '<select id="pApp">' + ao + '</select>') + field('Nama produk (mis. Token Listrik 20)', '<input id="pNama" value="' + esc(p.nama) + '">') +
+    '<div class="two"><div>' + field('Harga modal', '<input id="pModal" type="number" inputmode="numeric" value="' + esc(p.modal) + '">') + '</div><div>' + field('Harga jual', '<input id="pJual" type="number" inputmode="numeric" value="' + esc(p.jual) + '">') + '</div></div>',
+    async function () { await api('saveProduk', {id: id || '', aplikasiId: $('#pApp').value, nama: $('#pNama').value, modal: $('#pModal').value, jual: $('#pJual').value}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
+}
+async function delItem(action, id) {
+  if (!confirm('Hapus data ini?')) return;
+  try { setBusy(true); await api(action, {id: id}); db = await api('getAll'); render(); toast('Data dihapus'); }
+  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
+}
+
+/* --- Rekapitulasi --- */
+function groupBy(arr, fn) { const g = {}; arr.forEach(x => { const k = fn(x); (g[k] = g[k] || []).push(x); }); return g; }
+function pRekap() {
+  const l = db.trx.filter(t => t.tanggal.indexOf(rekapMonth) === 0);
+  const byDay = groupBy(l, t => t.tanggal), days = Object.keys(byDay).sort().reverse();
+  const byProd = groupBy(l, t => t.aplikasi + ' — ' + t.produk), prods = Object.keys(byProd).sort((a, b) => sum(byProd[b], 'laba') - sum(byProd[a], 'laba'));
+  return '<div class="tools"><input type="month" value="' + rekapMonth + '" onchange="rekapMonth=this.value;render()"></div>' +
+    '<div class="stats"><div class="stat"><div class="l">Transaksi</div><div class="v">' + l.length + '</div></div><div class="stat"><div class="l">Penjualan</div><div class="v">' + rp(sum(l, 'jual')) + '</div></div>' +
+    '<div class="stat hero"><div class="l">Laba</div><div class="v">' + rp(sum(l, 'laba')) + '</div></div></div>' +
+    '<div class="sec"><h2>Per hari</h2></div>' + (days.length ? '<div class="tw"><table><thead><tr><th>Tanggal</th><th>Trx</th><th>Modal</th><th>Penjualan</th><th>Laba</th><th>Belum Bayar</th></tr></thead><tbody>' +
+      days.map(d => { const x = byDay[d]; return '<tr><td>' + d + '</td><td>' + x.length + '</td><td>' + rp(sum(x, 'modal')) + '</td><td>' + rp(sum(x, 'jual')) + '</td><td class="ok">' + rp(sum(x, 'laba')) + '</td><td class="bad">' + rp(sum(x.filter(t => t.status === 'Belum Bayar'), 'jual')) + '</td></tr>'; }).join('') +
+      '</tbody><tfoot><tr><td>Total</td><td>' + l.length + '</td><td>' + rp(sum(l, 'modal')) + '</td><td>' + rp(sum(l, 'jual')) + '</td><td>' + rp(sum(l, 'laba')) + '</td><td>' + rp(sum(l.filter(t => t.status === 'Belum Bayar'), 'jual')) + '</td></tr></tfoot></table></div>' : '<div class="empty">Tidak ada transaksi di bulan ini</div>') +
+    '<div class="sec"><h2>Per produk</h2></div>' + (prods.length ? '<div class="tw"><table><thead><tr><th>Produk</th><th>Jumlah</th><th>Penjualan</th><th>Laba</th></tr></thead><tbody>' +
+      prods.map(k => '<tr><td>' + esc(k) + '</td><td>' + byProd[k].length + '</td><td>' + rp(sum(byProd[k], 'jual')) + '</td><td class="ok">' + rp(sum(byProd[k], 'laba')) + '</td></tr>').join('') + '</tbody></table></div>' : '');
+}
+
+/* --- Laba --- */
+function barList(g, limit) {
+  const keys = Object.keys(g).sort((a, b) => sum(g[b], 'laba') - sum(g[a], 'laba')).slice(0, limit), max = Math.max.apply(null, keys.map(k => sum(g[k], 'laba')).concat([1]));
+  return keys.map(k => '<div class="barrow"><div class="row"><span>' + esc(k) + '</span><b>' + rp(sum(g[k], 'laba')) + '</b></div><div class="bar"><span style="width:' + Math.max(2, sum(g[k], 'laba') / max * 100) + '%"></span></div></div>').join('') || '<div class="empty">Belum ada data</div>';
+}
+function pLaba() {
+  const T = db.trx, lunas = T.filter(t => t.status === 'Lunas'), bb = T.filter(t => t.status === 'Belum Bayar');
+  const byM = groupBy(T, t => t.tanggal.slice(0, 7)), months = Object.keys(byM).sort().reverse().slice(0, 12);
+  const maxM = Math.max.apply(null, months.map(m => sum(byM[m], 'laba')).concat([1]));
+  return '<div class="stats"><div class="stat hero"><div class="l">Laba total</div><div class="v">' + rp(sum(T, 'laba')) + '</div></div>' +
+    '<div class="stat"><div class="l">Laba sudah lunas</div><div class="v ok">' + rp(sum(lunas, 'laba')) + '</div></div>' +
+    '<div class="stat"><div class="l">Laba belum dibayar</div><div class="v bad">' + rp(sum(bb, 'laba')) + '</div></div></div>' +
+    '<div class="sec"><h2>Laba per bulan</h2></div><div class="card">' + (months.map(m => '<div class="barrow"><div class="row"><span>' + m + ' <span class="mut">(' + byM[m].length + ' trx)</span></span><b>' + rp(sum(byM[m], 'laba')) + '</b></div><div class="bar"><span style="width:' + Math.max(2, sum(byM[m], 'laba') / maxM * 100) + '%"></span></div></div>').join('') || '<div class="empty">Belum ada data</div>') + '</div>' +
+    '<div class="grid" style="margin-top:6px"><div><div class="sec"><h2>Per aplikasi</h2></div><div class="card">' + barList(groupBy(T, t => t.aplikasi), 10) + '</div></div>' +
+    '<div><div class="sec"><h2>Produk terlaris (laba)</h2></div><div class="card">' + barList(groupBy(T, t => t.produk), 10) + '</div></div></div>';
+}
+
+/* ====== START ====== */
+buildNav();
+$('#btnSound').textContent = soundOn ? '🔊' : '🔇';
+(async function () {
+  if (!pin) { showLogin(); return; }
+  try { await load(); }
+  catch (e) { if (/PIN/.test(e.message)) showLogin(); else { render(); toast(e.message, 'err'); } }
+})();
+</script>
+</body>
+</html>
