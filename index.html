@@ -475,7 +475,7 @@ function sayBerhasil(teks) {
   } catch (e) {}
 }
 
-/* ====== SUARA PEMBUKA (±8 detik, dimainkan setelah login) ====== */
+/* ====== SUARA PEMBUKA: 10 pilihan (±8 detik, dimainkan setelah login) ====== */
 let introMaster = null;
 function stopIntro() {
   try {
@@ -488,8 +488,94 @@ function stopIntro() {
   } catch (e) {}
   introMaster = null;
 }
-function playIntro() {
-  if (!soundOn) return;
+const midi = n => 440 * Math.pow(2, (n - 69) / 12);
+const INTROS = [
+  {k: 'lembut', n: 'Klasik Lembut', d: 'Dentingan nada naik dengan alas akor yang hangat.', play: function (T, N) {
+    [[[261.63, 329.63, 392], 0, 2.4], [[349.23, 440, 523.25], 2.3, 2.5], [[392, 493.88, 587.33], 4.6, 1.9], [[261.63, 329.63, 392, 523.25], 6.4, 1.6]]
+      .forEach(c => c[0].forEach(f => T(f, c[1], c[2] + 0.4, {vol: 0.09, atk: 0.5})));
+    [[523.25, 0, .5], [659.25, .45, .5], [783.99, .9, .5], [1046.5, 1.35, .9], [880, 2.4, .45], [783.99, 2.8, .45], [698.46, 3.2, .45], [880, 3.6, .9],
+     [783.99, 4.7, .45], [987.77, 5.1, .45], [1174.66, 5.5, .45], [1318.5, 5.9, .55], [1046.5, 6.5, 1.5]]
+      .forEach(x => { T(x[0], x[1], x[2] + 0.5, {type: 'triangle', vol: 0.16}); T(x[0] * 2, x[1], x[2] + 0.3, {vol: 0.035}); });
+  }},
+  {k: 'kristal', n: 'Lonceng Kristal', d: 'Bunyi lonceng bening berjatuhan, terasa mewah dan tenang.', play: function (T) {
+    const B = [[1, 1], [2.76, .45], [5.4, .2], [8.93, .1]];
+    [79, 84, 88, 91, 96, 91, 88, 84, 86, 91, 95, 98, 103, 98, 95, 91].forEach((m, i) => T(midi(m), i * 0.4, 2.2, {parts: B, vol: 0.1, atk: 0.005}));
+    [60, 64, 67, 72].forEach(m => T(midi(m), 6.4, 1.6, {parts: B, vol: 0.12, atk: 0.005}));
+  }},
+  {k: 'musik', n: 'Kotak Musik', d: 'Petikan kecil bernada manis seperti kotak musik.', play: function (T) {
+    const M = [84, 88, 91, 88, 91, 96, 89, 93, 96, 93, 89, 86, 91, 95, 98, 95, 98, 103, 96, 91, 88, 84, 88, 84];
+    M.forEach((m, i) => T(midi(m), i * 0.3, 1.0, {type: 'triangle', parts: [[1, 1], [3, .12]], vol: 0.15, atk: 0.005}));
+    [60, 53, 55, 60, 55, 55, 60, 60].forEach((m, i) => T(midi(m), i * 0.9, 1.1, {type: 'triangle', vol: 0.1, atk: 0.01}));
+  }},
+  {k: 'kasir', n: 'Kasir Ceria', d: 'Bunyi "cring" mesin kasir lalu irama riang. Cocok untuk toko.', play: function (T, N) {
+    const B = [[1, 1], [2.76, .5], [5.4, .25]];
+    N(0, 0.09, 0.45, 5000);
+    T(midi(100), 0.08, 1.2, {parts: B, vol: 0.13, atk: 0.003}); T(midi(105), 0.24, 1.6, {parts: B, vol: 0.13, atk: 0.003});
+    const M = [72, 76, 79, 76, 84, 79, 76, 72, 74, 77, 81, 77, 84, 81, 77, 74, 76, 79, 83, 79, 88, 84, 79, 76];
+    M.forEach((m, i) => {
+      const t = 1.1 + i * 0.25;
+      T(midi(m), t, 0.4, {type: 'triangle', vol: 0.15, atk: 0.005}); N(t, 0.04, 0.1, 7000);
+      if (i % 2 === 0) T(55, t, 0.25, {vol: 0.4, atk: 0.003});
+    });
+    [60, 64, 67, 72].forEach(m => T(midi(m), 7.1, 0.9, {parts: B, vol: 0.1, atk: 0.003}));
+  }},
+  {k: 'fanfare', n: 'Fanfare Megah', d: 'Terompet kemenangan dengan tabuhan di akhir. Terasa penting dan megah.', play: function (T) {
+    const H = {type: 'sawtooth', lp: 1800, parts: [[1, 1], [1.006, .6]], vol: 0.09, atk: 0.05};
+    [[67, 0, .3], [67, .35, .3], [67, .7, .3], [72, 1.05, 1.2], [76, 2.5, .35], [74, 2.9, .35], [72, 3.3, .35], [74, 3.7, .35], [76, 4.1, 1.1],
+     [79, 5.4, .4], [76, 5.85, .4], [72, 6.3, .4]].forEach(x => T(midi(x[0]), x[1], x[2] + 0.3, H));
+    [[48, 1.05], [53, 4.1]].forEach(x => { T(midi(x[0]), x[1], 1.6, H); T(midi(x[0] + 7), x[1], 1.6, H); });
+    [48, 55, 60, 64, 67, 72].forEach(m => T(midi(m), 6.6, 1.4, Object.assign({}, H, {vol: 0.1})));
+    [[36, 5.3], [36, 6.6]].forEach(x => T(midi(x[0]), x[1], 1.2, {vol: 0.5, atk: 0.005}));
+  }},
+  {k: 'retro', n: 'Digital Retro', d: 'Nada cepat ala permainan 8-bit jadul.', play: function (T) {
+    const CH = [[60, 64, 67, 72], [57, 60, 64, 69], [53, 57, 60, 65], [55, 59, 62, 67]], Q = {type: 'square', lp: 4500, vol: 0.07, atk: 0.004};
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+      const base = (r * 4 + c) * 0.9;
+      for (let s = 0; s < 8; s++) T(midi(CH[c][s < 4 ? s : 7 - s] + 12 * r), base + s * 0.11, 0.14, Q);
+      T(midi(CH[c][0] - 12), base, 0.8, {type: 'triangle', vol: 0.14, atk: 0.01});
+    }
+    [84, 88, 91, 96].forEach((m, i) => T(midi(m), 7.2 + i * 0.1, 0.5, Q));
+  }},
+  {k: 'gamelan', n: 'Gamelan Santai', d: 'Gong dan denting logam bernuansa nusantara, hangat dan tenang.', play: function (T) {
+    const f = k => 261.63 * Math.pow(2, k / 5), M = [{}].concat([[1, 1], [2.4, .4], [3.9, .2]]);
+    const P = [[1, 1], [2.4, .4], [3.9, .2]];
+    T(65, 0, 4.5, {parts: [[1, 1], [1.5, .5], [2.02, .35]], vol: 0.35, atk: 0.01});
+    const seq = [0, 2, 3, 2, 4, 3, 2, 0, 3, 4, 5, 4, 3, 2, 0, 2, 4, 5, 7, 5, 4, 3, 2, 3, 2, 0, 2, 0];
+    seq.forEach((k, i) => {
+      T(f(k), 0.5 + i * 0.24, 1.2, {parts: P, vol: 0.11, atk: 0.004});
+      if (i % 4 === 0) T(f(k) / 2, 0.5 + i * 0.24, 1.8, {parts: P, vol: 0.1, atk: 0.004});
+    });
+    T(65, 7.2, 0.8, {parts: [[1, 1], [1.5, .5]], vol: 0.25, atk: 0.01});
+  }},
+  {k: 'piano', n: 'Piano Elegan', d: 'Petikan piano mengalun pelan dan anggun.', play: function (T) {
+    const P = {parts: [[1, 1], [2, .35], [3, .18], [4, .08]], vol: 0.15, atk: 0.008};
+    [[[48, 55, 59, 64, 67, 71], 0], [[41, 48, 52, 57, 60, 64], 1.8], [[43, 50, 55, 59, 62, 67], 3.6], [[48, 55, 60, 64, 67, 72], 5.4]]
+      .forEach((c, ci) => c[0].forEach((m, i) => T(midi(m), c[1] + i * 0.2, ci === 3 ? 2.6 : 2.2, P)));
+    T(midi(84), 6.7, 1.3, Object.assign({}, P, {vol: 0.1}));
+  }},
+  {k: 'pagi', n: 'Sunrise Pagi', d: 'Alunan synth yang membuka perlahan seperti matahari terbit.', play: function (T) {
+    const S = {type: 'sawtooth', parts: [[1, 1], [1.007, 1], [0.994, 1]], vol: 0.025, atk: 0.9, sweep: [300, 2600]};
+    [[[48, 55, 62, 64], 0], [[53, 57, 60, 64], 2], [[57, 60, 64, 67], 4], [[48, 55, 60, 64, 67], 5.8]]
+      .forEach(c => c[0].forEach(m => T(midi(m), c[1], 2.6, S)));
+    [[96, .6], [100, 1.4], [103, 2.2], [96, 3], [105, 3.9], [103, 4.8], [100, 5.7], [108, 6.5], [103, 7]]
+      .forEach(x => T(midi(x[0]), x[1], 1.6, {parts: [[1, 1], [2.76, .3]], vol: 0.07, atk: 0.01}));
+  }},
+  {k: 'jazz', n: 'Jazz Santai', d: 'Piano listrik, bas berjalan, dan melodi santai ala kafe.', play: function (T) {
+    const E = {type: 'triangle', parts: [[1, 1], [2, .3]], vol: 0.09, atk: 0.01};
+    const CH = [[60, 64, 67, 71], [57, 60, 64, 67], [62, 65, 69, 72], [59, 62, 65, 67]];
+    const BS = [[48, 52, 55, 52], [45, 48, 52, 50], [50, 53, 57, 53], [43, 47, 50, 53]];
+    for (let c = 0; c < 4; c++) {
+      CH[c].forEach(m => { T(midi(m), c * 1.5, 0.7, E); T(midi(m), c * 1.5 + 0.8, 0.5, E); });
+      BS[c].forEach((m, i) => T(midi(m), c * 1.5 + i * 0.375, 0.5, {type: 'triangle', lp: 500, vol: 0.2, atk: 0.01}));
+    }
+    [60, 64, 67, 71, 74].forEach(m => T(midi(m), 6, 2, E)); T(midi(36), 6, 2, {type: 'triangle', lp: 500, vol: 0.22, atk: 0.01});
+    [[79, .75, .5], [76, 1.5, .3], [74, 1.9, .3], [72, 2.25, .7], [77, 3, .4], [76, 3.4, .4], [74, 3.75, .5], [71, 4.5, .4], [74, 4.9, .35], [79, 5.3, .6], [84, 6, 1.8]]
+      .forEach(x => T(midi(x[0]), x[1], x[2] + 0.3, {type: 'triangle', vol: 0.12, atk: 0.02}));
+  }}
+];
+const introCur = () => { const k = store.get('ppob_intro'); return INTROS.some(s => s.k === k) ? k : 'lembut'; };
+function playIntro(key, force) {
+  if (!soundOn && !force) return;
   try {
     unlockAudio();
     if (!audioCtx) return;
@@ -502,26 +588,46 @@ function playIntro() {
     master.gain.linearRampToValueAtTime(0.0001, T0 + DUR);   // memudar di akhir
     master.connect(ctx.destination);
     introMaster = master;
-    const tone = function (f, st, d, type, vol, atk) {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = type; o.frequency.value = f;
-      o.connect(g); g.connect(master);
-      const a = T0 + st;
+    const tone = function (f, st, d, o) {
+      o = o || {};
+      const g = ctx.createGain(), a = T0 + st;
+      let out = g;
+      if (o.lp || o.sweep) {
+        const fl = ctx.createBiquadFilter(); fl.type = 'lowpass';
+        fl.frequency.setValueAtTime(o.sweep ? o.sweep[0] : o.lp, a);
+        if (o.sweep) fl.frequency.linearRampToValueAtTime(o.sweep[1], a + d);
+        g.connect(fl); fl.connect(master);
+      } else g.connect(master);
       g.gain.setValueAtTime(0.0001, a);
-      g.gain.linearRampToValueAtTime(vol, a + (atk || 0.03));
+      g.gain.linearRampToValueAtTime(o.vol || 0.15, a + (o.atk || 0.02));
       g.gain.exponentialRampToValueAtTime(0.0001, a + d);
-      o.start(a); o.stop(a + d + 0.05);
+      (o.parts || [[1, 1]]).forEach(function (p) {
+        const os = ctx.createOscillator(), pg = ctx.createGain();
+        os.type = o.type || 'sine'; os.frequency.value = f * p[0]; pg.gain.value = p[1];
+        os.connect(pg); pg.connect(g); os.start(a); os.stop(a + d + 0.05);
+      });
     };
-    // alas akor yang lembut
-    [[[261.63, 329.63, 392], 0, 2.4], [[349.23, 440, 523.25], 2.3, 2.5], [[392, 493.88, 587.33], 4.6, 1.9], [[261.63, 329.63, 392, 523.25], 6.4, 1.6]]
-      .forEach(function (c) { c[0].forEach(function (f) { tone(f, c[1], c[2] + 0.4, 'sine', 0.09, 0.5); }); });
-    // melodi + kilau
-    [[523.25, 0, .5], [659.25, .45, .5], [783.99, .9, .5], [1046.5, 1.35, .9],
-     [880, 2.4, .45], [783.99, 2.8, .45], [698.46, 3.2, .45], [880, 3.6, .9],
-     [783.99, 4.7, .45], [987.77, 5.1, .45], [1174.66, 5.5, .45], [1318.5, 5.9, .55],
-     [1046.5, 6.5, 1.5]]
-      .forEach(function (n) { tone(n[0], n[1], n[2] + 0.5, 'triangle', 0.16); tone(n[0] * 2, n[1], n[2] + 0.3, 'sine', 0.035); });
+    const noise = function (st, d, vol, hp) {
+      const len = Math.max(1, Math.floor(ctx.sampleRate * d)), buf = ctx.createBuffer(1, len, ctx.sampleRate), ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(), a = T0 + st;
+      src.buffer = buf; fl.type = 'highpass'; fl.frequency.value = hp || 4000;
+      g.gain.setValueAtTime(vol, a); g.gain.exponentialRampToValueAtTime(0.0001, a + d);
+      src.connect(fl); fl.connect(g); g.connect(master); src.start(a);
+    };
+    const s = INTROS.filter(x => x.k === (key || introCur()))[0] || INTROS[0];
+    s.play(tone, noise);
   } catch (e) {}
+}
+function setIntro(k) { store.set('ppob_intro', k); render(); playIntro(k, true); }
+function introCard() {
+  const cur = introCur();
+  return '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 4px">🎵 Suara pembuka (setelah login)</h2>' +
+    '<div class="mut">Ada 10 pilihan, masing-masing ±8 detik. Tekan <b>Dengar</b> untuk mencoba, <b>Pakai</b> untuk memilih. Pilihan tersimpan di perangkat ini dan hanya berbunyi jika suara 🔊 aktif.</div>' +
+    '<div class="acts"><button class="btn sm red" onclick="stopIntro()">⏹ Hentikan suara</button></div><div class="tfgrid">' +
+    INTROS.map((s, i) => '<div class="tfc' + (s.k === cur ? ' on' : '') + '"><b>' + (i + 1) + '. ' + esc(s.n) + (s.k === cur ? ' ✓' : '') + '</b><div class="mut">' + esc(s.d) + '</div>' +
+      '<div class="acts"><button class="btn sm ghost" onclick="playIntro(\'' + s.k + '\',true)">▶ Dengar</button><button class="btn sm' + (s.k === cur ? '' : ' ghost') + '" onclick="setIntro(\'' + s.k + '\')">' + (s.k === cur ? 'Dipakai' : 'Pakai') + '</button></div></div>').join('') +
+    '</div></div>';
 }
 function toggleSound() {
   soundOn = !soundOn; if (!soundOn) stopIntro(); store.set('ppob_sound', soundOn ? '1' : '0');
@@ -757,7 +863,8 @@ function pSet() {
       '<div class="acts"><button class="btn sm" onclick="$(\'#bgFile\').click()">📷 Pilih foto</button>' +
       (store.get('ppob_loginbg') ? '<button class="btn sm red" onclick="resetLoginBg()">Hapus foto</button>' : '') + '</div>') +
     tfSettingsCard() +
-    scard('🔊 Suara', '<div class="mut">Bunyi pembuka setelah login, serta suara "Transaksi Berhasil".</div><div class="acts"><button class="btn sm" onclick="toggleSound();render()">' + (soundOn ? '🔊 Aktif' : '🔇 Mati') + '</button><button class="btn sm ghost" onclick="sayBerhasil()">Tes suara</button><button class="btn sm ghost" onclick="playIntro()">Tes suara pembuka</button></div>') +
+    scard('🔊 Suara', '<div class="mut">Bunyi dan suara "Transaksi Berhasil".</div><div class="acts"><button class="btn sm" onclick="toggleSound();render()">' + (soundOn ? '🔊 Aktif' : '🔇 Mati') + '</button><button class="btn sm ghost" onclick="sayBerhasil()">Tes suara</button></div>') +
+    introCard() +
     scard('⭐ Produk favorit', '<div class="mut">' + nf + ' produk favorit. Beri bintang di menu Produk; tampil sebagai tombol cepat di Beranda dan form transaksi.</div><div class="acts"><button class="btn sm ghost" onclick="go(\'prod\')">Kelola di Produk</button></div>') +
     scard('🖨️ Cetak PDF', '<div class="mut">Laporan bulanan (rekap per hari + daftar transaksi). Di dialog cetak pilih "Simpan sebagai PDF".</div><input type="month" id="prMonth" value="' + esc(rekapMonth) + '" style="margin-top:8px"><div class="acts"><button class="btn" onclick="printReport($(\'#prMonth\').value)">🖨️ Cetak / PDF</button></div>') +
     scard('💾 Backup data', '<div class="mut">Unduh data sebagai file CSV (untuk Excel / Sheets).</div><div class="acts">' + csvb + '</div>' +
