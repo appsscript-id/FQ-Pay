@@ -9,6 +9,7 @@
 <title>PPOB Kasir</title>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('ppob_theme')||'klasik';document.documentElement.dataset.fs=localStorage.getItem('ppob_fs')||'n'}catch(e){document.documentElement.dataset.theme='klasik'}</script>
 <script>
+/* Gambar latar tema (ikon PPOB) dibuat oleh kode ini, supaya file tetap ringkas */
 (function () {
   var I = {
     card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
@@ -63,6 +64,7 @@ b{font-weight:650}
 .ok{color:var(--ok);font-weight:600}
 .bad{color:var(--bad);font-weight:600}
 
+/* layout */
 .side{display:none;position:fixed;inset:0 auto 0 0;width:248px;background:#fff;border-right:1px solid var(--bd);padding:20px 14px;flex-direction:column;gap:6px;z-index:20}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;padding:4px 10px 18px}
 .brand i{font-style:normal;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:20px}
@@ -86,6 +88,7 @@ main{min-height:100vh}
 @media(min-width:900px){.side{display:flex}.bottom,.fab,.top .out{display:none}main{margin-left:248px}#view{padding:24px}.top{padding:18px 24px}}
 @media(max-width:899px){main{padding-bottom:90px}}
 
+/* components */
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(310px,1fr))}
 .stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px}
 .stat{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px}
@@ -132,6 +135,7 @@ tfoot td{font-weight:750;background:#f6f7fd}
 .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:99px}
 .barrow{margin-bottom:14px}
 
+/* dialog konfirmasi */
 #confirm{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:85;padding:18px}
 #confirm.show{display:flex}
 .cbox{background:#fff;border-radius:22px;padding:22px;width:min(380px,100%);text-align:center;animation:pop .15s ease-out}
@@ -141,6 +145,7 @@ tfoot td{font-weight:750;background:#f6f7fd}
 .cbox p{margin:0;color:var(--mut)}
 .btn.dng{background:var(--bad)}
 
+/* pencarian customer */
 .cs-list{display:none;border:1px solid var(--bd);border-radius:12px;margin-top:6px;max-height:210px;overflow:auto;background:#fff}
 .cs-list.show{display:block}
 .cs-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--bd)}
@@ -148,6 +153,7 @@ tfoot td{font-weight:750;background:#f6f7fd}
 .cs-item:hover{background:#eef0fb}
 .cs-item small{display:block;color:var(--mut);font-size:12.5px}
 
+/* modal */
 #modal{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
 #modal.show{display:flex}
 .sheet{background:#fff;border-radius:22px;width:min(520px,100%);max-height:92vh;overflow:auto;padding:18px}
@@ -168,6 +174,7 @@ tfoot td{font-weight:750;background:#f6f7fd}
 #login .box{background:#fff;border-radius:22px;padding:26px;width:min(380px,100%);text-align:center}
 #login .big{font-size:44px}
 
+/* ====== TEMA (8 pilihan) ====== */
 [data-theme="klasik"]{--p:#4f46e5;--p2:#7c3aed;--bg:#f3f5fb;--soft:#eef0fb;--soft2:#f6f7fd;--ring:#4f46e533}
 [data-theme="hijau"]{--p:#059669;--p2:#10b981;--bg:#eefaf4;--soft:#dcf5e9;--soft2:#f1fbf6;--ring:#05966933}
 [data-theme="listrik"]{--p:#ea580c;--p2:#f59e0b;--bg:#fff7ed;--soft:#ffedd5;--soft2:#fff4e6;--ring:#ea580c33}
@@ -202,6 +209,7 @@ th,tfoot td{background:var(--soft2)}
 [data-theme="malam"] .spin{border-color:#22304a;border-top-color:var(--p)}
 [data-theme="malam"] .btn.wa{background:#064e3b;color:#6ee7b7}
 
+/* pemilih tema */
 #themes{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:60;padding:14px}
 #themes.show{display:flex}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
@@ -210,6 +218,7 @@ th,tfoot td{background:var(--soft2)}
 .tcard .sw{height:70px;border-radius:11px;margin-bottom:6px;background:var(--patw) 0 0/110px,linear-gradient(135deg,var(--p),var(--p2));display:grid;place-items:center;font-size:30px}
 .tcard span{display:block;padding:0 4px 2px;font-size:13px}
 
+/* stepper form transaksi */
 #stepper{display:flex;margin:10px 0 4px}
 #stepper .sd{flex:1;text-align:center;font-size:12px;color:var(--mut);font-weight:600}
 #stepper .sd i{display:grid;place-items:center;width:30px;height:30px;margin:0 auto 4px;border-radius:50%;background:var(--soft);color:var(--mut);font-style:normal;font-weight:700;font-size:14px}
@@ -218,6 +227,7 @@ th,tfoot td{background:var(--soft2)}
 #stepper .sd.on,#stepper .sd.done{color:var(--tx)}
 .stp{display:none}.stp.on{display:block}
 
+/* PENGATURAN, STRUK, CETAK */
 :root{--fs:1}
 html[data-fs="l"]{--fs:1.14}html[data-fs="xl"]{--fs:1.3}
 body{font-size:calc(15px*var(--fs))}
@@ -242,6 +252,7 @@ label.f{font-size:calc(13px*var(--fs))}.sec h2,.card h2{font-size:calc(17px*var(
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
+/* 10 GAYA FORM TRANSAKSI */
 #modal[data-tf] .mfoot{position:sticky;bottom:-18px;background:var(--surf);padding:10px 0 2px;margin-top:12px;border-top:1px solid var(--bd);z-index:3}
 #modal[data-tf="pos"] .sheet,#modal[data-tf="tbl"] .sheet,#modal[data-tf="nota"] .sheet{width:min(960px,100%)}
 #modal[data-tf="chat"] .sheet{width:min(460px,100%)}
@@ -333,6 +344,7 @@ label.f{font-size:calc(13px*var(--fs))}.sec h2,.card h2{font-size:calc(17px*var(
     </header>
     <div id="view"></div>
   </main>
+  <nav class="bottom" id="bottom"></nav>
 </div>
 <button class="fab" onclick="trxForm()" aria-label="Transaksi baru">+</button>
 
@@ -352,9 +364,10 @@ label.f{font-size:calc(13px*var(--fs))}.sec h2,.card h2{font-size:calc(17px*var(
   <button class="btn" style="width:100%;margin-top:14px" onclick="doLogin()">Masuk</button></div></div>
 
 <script>
-/* Ganti URL di bawah dengan Web App URL dari deployment Apps Script Anda */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwiJwddPtszCwX8FN_3xXKcDjYmI1QaUfv_k-SMPnSiddW9EoLlCHrc-fYI-DgIr7PY/exec';
+/* ====== KONFIGURASI ====== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwiJwddPtszCwX8FN_3xXKcDjYmI1QaUfv_k-SMPnSiddW9EoLlCHrc-fYI-DgIr7PY/exec';   // URL Web App dari Apps Script (berakhiran /exec)
 
+/* ====== UTIL ====== */
 const $ = s => document.querySelector(s);
 const rp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -366,7 +379,7 @@ const store = {
 const ymd = () => new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Jakarta'});
 const sum = (a, k) => a.reduce((s, x) => s + Number(x[k] || 0), 0);
 
-let db = {customers:[], apps:[], products:[], trx:[], hutang:[], pengeluaran:[]};
+let db = {customers:[], apps:[], products:[], trx:[]};
 const sess = {
   get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } },
   set(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} },
@@ -380,11 +393,11 @@ let modalSubmit = null;
 
 const NAV = [
   ['home','🏠','Beranda'], ['trx','🧾','Transaksi'], ['unpaid','⏳','Belum Bayar'],
-  ['hutang','📜','Hutang'], ['pengeluaran','💸','Pengeluaran'],
   ['cust','👥','Customer'], ['apps','📱','Aplikasi'], ['prod','📦','Produk'],
   ['rekap','📊','Rekapitulasi'], ['laba','💰','Laba'], ['set','⚙️','Pengaturan']
 ];
 
+/* ====== API ====== */
 async function api(action, data) {
   if (API_URL.indexOf('GANTI') >= 0) throw new Error('API_URL belum diisi di index.html');
   const r = await fetch(API_URL, {
@@ -416,6 +429,7 @@ async function reload() {
   try { await load(); toast('Data dimuat ulang'); } catch (e) { toast(e.message, 'err'); }
 }
 
+/* ====== SUARA ====== */
 let audioCtx;
 function unlockAudio() {
   try {
@@ -455,9 +469,7 @@ function sayBerhasil(teks) {
   } catch (e) {}
 }
 
-/* =========================================================
-   10 PILIHAN SUARA PEMBUKUAN (INTRO) BARU (MENGGANTIKAN NO. 2-10)
-   ========================================================= */
+/* ====== SUARA PEMBUKA ====== */
 let introMaster = null;
 function stopIntro() {
   try {
@@ -472,63 +484,88 @@ function stopIntro() {
 }
 const midi = n => 440 * Math.pow(2, (n - 69) / 12);
 const INTROS = [
-  {k: 'lembut', n: 'Klasik Lembut', d: 'Dentingan nada naik dengan alas akor yang hangat.', play: function (T) {
+  {k: 'lembut', n: 'Klasik Lembut', d: 'Dentingan nada naik dengan alas akor yang hangat.', play: function (T, N) {
     [[[261.63, 329.63, 392], 0, 2.4], [[349.23, 440, 523.25], 2.3, 2.5], [[392, 493.88, 587.33], 4.6, 1.9], [[261.63, 329.63, 392, 523.25], 6.4, 1.6]]
       .forEach(c => c[0].forEach(f => T(f, c[1], c[2] + 0.4, {vol: 0.09, atk: 0.5})));
     [[523.25, 0, .5], [659.25, .45, .5], [783.99, .9, .5], [1046.5, 1.35, .9], [880, 2.4, .45], [783.99, 2.8, .45], [698.46, 3.2, .45], [880, 3.6, .9],
      [783.99, 4.7, .45], [987.77, 5.1, .45], [1174.66, 5.5, .45], [1318.5, 5.9, .55], [1046.5, 6.5, 1.5]]
       .forEach(x => { T(x[0], x[1], x[2] + 0.5, {type: 'triangle', vol: 0.16}); T(x[0] * 2, x[1], x[2] + 0.3, {vol: 0.035}); });
   }},
-  {k: 'marimba', n: 'Marimba Ceria', d: 'Dentangan ritmis bersemangat ala instrumen kayu.', play: function (T) {
-    [72, 76, 79, 84, 79, 76, 72, 74, 77, 81, 84, 81, 77, 74, 72, 79, 83, 88, 83, 79, 76, 72].forEach((m, i) => {
-      T(midi(m), i * 0.3, 0.4, {type: 'triangle', vol: 0.15, atk: 0.005});
-    });
+  {k: 'kristal', n: 'Lonceng Kristal', d: 'Bunyi lonceng bening berjatuhan, terasa mewah dan tenang.', play: function (T) {
+    const B = [[1, 1], [2.76, .45], [5.4, .2], [8.93, .1]];
+    [79, 84, 88, 91, 96, 91, 88, 84, 86, 91, 95, 98, 103, 98, 95, 91].forEach((m, i) => T(midi(m), i * 0.4, 2.2, {parts: B, vol: 0.1, atk: 0.005}));
+    [60, 64, 67, 72].forEach(m => T(midi(m), 6.4, 1.6, {parts: B, vol: 0.12, atk: 0.005}));
   }},
-  {k: 'harp', n: 'Arumba Harpa', d: 'Petikan senar lembut mengalir menenangkan.', play: function (T) {
-    [60, 64, 67, 71, 74, 79, 83, 79, 74, 71, 67, 64, 60, 67, 72, 76, 81].forEach((m, i) => {
-      T(midi(m), i * 0.4, 1.2, {type: 'sine', vol: 0.14, atk: 0.02});
-    });
+  {k: 'musik', n: 'Kotak Musik', d: 'Petikan kecil bernada manis seperti kotak musik.', play: function (T) {
+    const M = [84, 88, 91, 88, 91, 96, 89, 93, 96, 93, 89, 86, 91, 95, 98, 95, 98, 103, 96, 91, 88, 84, 88, 84];
+    M.forEach((m, i) => T(midi(m), i * 0.3, 1.0, {type: 'triangle', parts: [[1, 1], [3, .12]], vol: 0.15, atk: 0.005}));
+    [60, 53, 55, 60, 55, 55, 60, 60].forEach((m, i) => T(midi(m), i * 0.9, 1.1, {type: 'triangle', vol: 0.1, atk: 0.01}));
   }},
-  {k: 'bell', n: 'Bel Angin', d: 'Dentingan gemerincing angin yang sejuk dan rileks.', play: function (T) {
-    [84, 91, 96, 91, 98, 103, 96, 91, 88, 95, 100, 95, 91, 84].forEach((m, i) => {
-      T(midi(m), i * 0.5, 1.8, {type: 'sine', vol: 0.1, atk: 0.002});
+  {k: 'kasir', n: 'Kasir Ceria', d: 'Bunyi "cring" mesin kasir lalu irama riang. Cocok untuk toko.', play: function (T, N) {
+    const B = [[1, 1], [2.76, .5], [5.4, .25]];
+    N(0, 0.09, 0.45, 5000);
+    T(midi(100), 0.08, 1.2, {parts: B, vol: 0.13, atk: 0.003}); T(midi(105), 0.24, 1.6, {parts: B, vol: 0.13, atk: 0.003});
+    const M = [72, 76, 79, 76, 84, 79, 76, 72, 74, 77, 81, 77, 84, 81, 77, 74, 76, 79, 83, 79, 88, 84, 79, 76];
+    M.forEach((m, i) => {
+      const t = 1.1 + i * 0.25;
+      T(midi(m), t, 0.4, {type: 'triangle', vol: 0.15, atk: 0.005}); N(t, 0.04, 0.1, 7000);
+      if (i % 2 === 0) T(55, t, 0.25, {vol: 0.4, atk: 0.003});
     });
+    [60, 64, 67, 72].forEach(m => T(midi(m), 7.1, 0.9, {parts: B, vol: 0.1, atk: 0.003}));
   }},
-  {k: 'chime', n: 'Lonceng Kuil', d: 'Gema lonceng dalam yang khidmat dan damai.', play: function (T) {
-    [48, 60, 67, 72, 60].forEach((m, i) => {
-      T(midi(m), i * 1.5, 3.5, {type: 'sine', vol: 0.18, atk: 0.01});
-    });
+  {k: 'fanfare', n: 'Fanfare Megah', d: 'Terompet kemenangan dengan tabuhan di akhir. Terasa penting dan megah.', play: function (T) {
+    const H = {type: 'sawtooth', lp: 1800, parts: [[1, 1], [1.006, .6]], vol: 0.09, atk: 0.05};
+    [[67, 0, .3], [67, .35, .3], [67, .7, .3], [72, 1.05, 1.2], [76, 2.5, .35], [74, 2.9, .35], [72, 3.3, .35], [74, 3.7, .35], [76, 4.1, 1.1],
+     [79, 5.4, .4], [76, 5.85, .4], [72, 6.3, .4]].forEach(x => T(midi(x[0]), x[1], x[2] + 0.3, H));
+    [[48, 1.05], [53, 4.1]].forEach(x => { T(midi(x[0]), x[1], 1.6, H); T(midi(x[0] + 7), x[1], 1.6, H); });
+    [48, 55, 60, 64, 67, 72].forEach(m => T(midi(m), 6.6, 1.4, Object.assign({}, H, {vol: 0.1})));
+    [[36, 5.3], [36, 6.6]].forEach(x => T(midi(x[0]), x[1], 1.2, {vol: 0.5, atk: 0.005}));
   }},
-  {k: 'bossa', n: 'Bossa Santai', d: 'Harmoni akustik kafe yang santai dan elegan.', play: function (T) {
-    const ch = [60, 64, 67, 71];
-    ch.forEach((m, i) => {
-      T(midi(m), i * 0.8, 1.5, {type: 'triangle', vol: 0.12, atk: 0.01});
-      T(midi(m + 4), i * 0.8 + 2, 1.5, {type: 'triangle', vol: 0.12, atk: 0.01});
-      T(midi(m + 7), i * 0.8 + 4, 2.0, {type: 'triangle', vol: 0.12, atk: 0.01});
-    });
+  {k: 'retro', n: 'Digital Retro', d: 'Nada cepat ala permainan 8-bit jadul.', play: function (T) {
+    const CH = [[60, 64, 67, 72], [57, 60, 64, 69], [53, 57, 60, 65], [55, 59, 62, 67]], Q = {type: 'square', lp: 4500, vol: 0.07, atk: 0.004};
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+      const base = (r * 4 + c) * 0.9;
+      for (let s = 0; s < 8; s++) T(midi(CH[c][s < 4 ? s : 7 - s] + 12 * r), base + s * 0.11, 0.14, Q);
+      T(midi(CH[c][0] - 12), base, 0.8, {type: 'triangle', vol: 0.14, atk: 0.01});
+    }
+    [84, 88, 91, 96].forEach((m, i) => T(midi(m), 7.2 + i * 0.1, 0.5, Q));
   }},
-  {k: 'akustik', n: 'Akustik Pagi', d: 'Petikan gitar lembut menyambut hari baru.', play: function (T) {
-    [55, 62, 65, 69, 72, 69, 65, 62, 55, 67, 71, 74, 76, 74, 71, 67].forEach((m, i) => {
-      T(midi(m), i * 0.45, 0.9, {type: 'triangle', vol: 0.13, atk: 0.008});
+  {k: 'gamelan', n: 'Gamelan Santai', d: 'Gong dan denting logam bernuansa nusantara, hangat dan tenang.', play: function (T) {
+    const f = k => 261.63 * Math.pow(2, k / 5), P = [[1, 1], [2.4, .4], [3.9, .2]];
+    T(65, 0, 4.5, {parts: [[1, 1], [1.5, .5], [2.02, .35]], vol: 0.35, atk: 0.01});
+    const seq = [0, 2, 3, 2, 4, 3, 2, 0, 3, 4, 5, 4, 3, 2, 0, 2, 4, 5, 7, 5, 4, 3, 2, 3, 2, 0, 2, 0];
+    seq.forEach((k, i) => {
+      T(f(k), 0.5 + i * 0.24, 1.2, {parts: P, vol: 0.11, atk: 0.004});
+      if (i % 4 === 0) T(f(k) / 2, 0.5 + i * 0.24, 1.8, {parts: P, vol: 0.1, atk: 0.004});
     });
+    T(65, 7.2, 0.8, {parts: [[1, 1], [1.5, .5]], vol: 0.25, atk: 0.01});
   }},
-  {k: 'zen', n: 'Zen Meditasi', d: 'Suara mangkuk bernyanyi yang menenangkan pikiran.', play: function (T) {
-    [50, 62, 74].forEach((m, i) => {
-      T(midi(m), i * 0.8, 5.0, {type: 'sine', vol: 0.15, atk: 0.1});
-    });
+  {k: 'piano', n: 'Piano Elegan', d: 'Petikan piano mengalun pelan dan anggun.', play: function (T) {
+    const P = {parts: [[1, 1], [2, .35], [3, .18], [4, .08]], vol: 0.15, atk: 0.008};
+    [[[48, 55, 59, 64, 67, 71], 0], [[41, 48, 52, 57, 60, 64], 1.8], [[43, 50, 55, 59, 62, 67], 3.6], [[48, 55, 60, 64, 67, 72], 5.4]]
+      .forEach((c, ci) => c[0].forEach((m, i) => T(midi(m), c[1] + i * 0.2, ci === 3 ? 2.6 : 2.2, P)));
+    T(midi(84), 6.7, 1.3, Object.assign({}, P, {vol: 0.1}));
   }},
-  {k: 'space', n: 'Antariksa', d: 'Suara synth luar angkasa yang luas dan futuristik.', play: function (T) {
-    [36, 48, 55, 62, 72].forEach((m, i) => {
-      T(midi(m), i * 1.2, 4.0, {type: 'sawtooth', lp: 1000, vol: 0.08, atk: 0.3});
-    });
+  {k: 'pagi', n: 'Sunrise Pagi', d: 'Alunan synth yang membuka perlahan seperti matahari terbit.', play: function (T) {
+    const S = {type: 'sawtooth', parts: [[1, 1], [1.007, 1], [0.994, 1]], vol: 0.025, atk: 0.9, sweep: [300, 2600]};
+    [[[48, 55, 62, 64], 0], [[53, 57, 60, 64], 2], [[57, 60, 64, 67], 4], [[48, 55, 60, 64, 67], 5.8]]
+      .forEach(c => c[0].forEach(m => T(midi(m), c[1], 2.6, S)));
+    [[96, .6], [100, 1.4], [103, 2.2], [96, 3], [105, 3.9], [103, 4.8], [100, 5.7], [108, 6.5], [103, 7]]
+      .forEach(x => T(midi(x[0]), x[1], 1.6, {parts: [[1, 1], [2.76, .3]], vol: 0.07, atk: 0.01}));
   }},
-  {k: 'royal', n: 'Royal Grand', d: 'Pembukaan megah ala orkestra kerajaan.', play: function (T) {
-    [60, 64, 67, 72, 76, 79, 84].forEach((m, i) => {
-      T(midi(m), i * 0.4, 2.0, {type: 'sawtooth', lp: 2500, vol: 0.1, atk: 0.02});
-    });
+  {k: 'jazz', n: 'Jazz Santai', d: 'Piano listrik, bas berjalan, dan melodi santai ala kafe.', play: function (T) {
+    const E = {type: 'triangle', parts: [[1, 1], [2, .3]], vol: 0.09, atk: 0.01};
+    const CH = [[60, 64, 67, 71], [57, 60, 64, 67], [62, 65, 69, 72], [59, 62, 65, 67]];
+    const BS = [[48, 52, 55, 52], [45, 48, 52, 50], [50, 53, 57, 53], [43, 47, 50, 53]];
+    for (let c = 0; c < 4; c++) {
+      CH[c].forEach(m => { T(midi(m), c * 1.5, 0.7, E); T(midi(m), c * 1.5 + 0.8, 0.5, E); });
+      BS[c].forEach((m, i) => T(midi(m), c * 1.5 + i * 0.375, 0.5, {type: 'triangle', lp: 500, vol: 0.2, atk: 0.01}));
+    }
+    [60, 64, 67, 71, 74].forEach(m => T(midi(m), 6, 2, E)); T(midi(36), 6, 2, {type: 'triangle', lp: 500, vol: 0.22, atk: 0.01});
+    [[79, .75, .5], [76, 1.5, .3], [74, 1.9, .3], [72, 2.25, .7], [77, 3, .4], [76, 3.4, .4], [74, 3.75, .5], [71, 4.5, .4], [74, 4.9, .35], [79, 5.3, .6], [84, 6, 1.8]]
+      .forEach(x => T(midi(x[0]), x[1], x[2] + 0.3, {type: 'triangle', vol: 0.12, atk: 0.02}));
   }}
 ];
-
 const introCur = () => { const k = store.get('ppob_intro'); return INTROS.some(s => s.k === k) ? k : 'lembut'; };
 function playIntro(key, force) {
   if (!soundOn && !force) return;
@@ -547,7 +584,6 @@ function playIntro(key, force) {
     const tone = function (f, st, d, o) {
       o = o || {};
       const g = ctx.createGain(), a = T0 + st;
-      let out = g;
       if (o.lp || o.sweep) {
         const fl = ctx.createBiquadFilter(); fl.type = 'lowpass';
         fl.frequency.setValueAtTime(o.sweep ? o.sweep[0] : o.lp, a);
@@ -563,15 +599,23 @@ function playIntro(key, force) {
         os.connect(pg); pg.connect(g); os.start(a); os.stop(a + d + 0.05);
       });
     };
+    const noise = function (st, d, vol, hp) {
+      const len = Math.max(1, Math.floor(ctx.sampleRate * d)), buf = ctx.createBuffer(1, len, ctx.sampleRate), ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(), a = T0 + st;
+      src.buffer = buf; fl.type = 'highpass'; fl.frequency.value = hp || 4000;
+      g.gain.setValueAtTime(vol, a); g.gain.exponentialRampToValueAtTime(0.0001, a + d);
+      src.connect(fl); fl.connect(g); g.connect(master); src.start(a);
+    };
     const s = INTROS.filter(x => x.k === (key || introCur()))[0] || INTROS[0];
-    s.play(tone);
+    s.play(tone, noise);
   } catch (e) {}
 }
 function setIntro(k) { store.set('ppob_intro', k); render(); playIntro(k, true); }
 function introCard() {
   const cur = introCur();
   return '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 4px">🎵 Suara pembuka (setelah login)</h2>' +
-    '<div class="mut">Ada 10 pilihan, masing-masing ±8 detik. Tekan <b>Dengar</b> untuk mencoba, <b>Pakai</b> untuk memilih.</div>' +
+    '<div class="mut">Ada 10 pilihan, masing-masing ±8 detik. Tekan <b>Dengar</b> untuk mencoba, <b>Pakai</b> untuk memilih. Pilihan tersimpan di perangkat ini dan hanya berbunyi jika suara 🔊 aktif.</div>' +
     '<div class="acts"><button class="btn sm red" onclick="stopIntro()">⏹ Hentikan suara</button></div><div class="tfgrid">' +
     INTROS.map((s, i) => '<div class="tfc' + (s.k === cur ? ' on' : '') + '"><b>' + (i + 1) + '. ' + esc(s.n) + (s.k === cur ? ' ✓' : '') + '</b><div class="mut">' + esc(s.d) + '</div>' +
       '<div class="acts"><button class="btn sm ghost" onclick="playIntro(\'' + s.k + '\',true)">▶ Dengar</button><button class="btn sm' + (s.k === cur ? '' : ' ghost') + '" onclick="setIntro(\'' + s.k + '\')">' + (s.k === cur ? 'Dipakai' : 'Pakai') + '</button></div></div>').join('') +
@@ -584,6 +628,7 @@ function toggleSound() {
   if (soundOn) sayBerhasil();
 }
 
+/* ====== MODAL ====== */
 function modal(title, html, onSubmit, okText) {
   $('#modal').dataset.tf = ''; tfReqCust = false; itemTpl = 'classic'; tfOkLabel = ''; tfHook = null; tfItemHook = null; $('#mOk').style.display = '';
   $('#mBody').oninput = $('#mBody').onchange = null;
@@ -627,6 +672,7 @@ function fmtInput(el) {
   try { el.setSelectionRange(i, i); } catch (e) {}
 }
 
+/* ====== LOGIN ====== */
 function showLogin() { $('#login').classList.add('show'); setTimeout(() => $('#pinIn').focus(), 50); }
 async function doLogin() {
   pin = $('#pinIn').value.trim();
@@ -642,9 +688,11 @@ async function doLogin() {
 }
 async function logout() {
   if (!(await askConfirm('Keluar dari aplikasi?', 'Anda perlu memasukkan PIN lagi untuk masuk.', 'Keluar', '🚪'))) return;
-  stopIntro(); sess.del('ppob_pin'); pin = ''; page = 'home'; fq = ''; fs = ''; fd = ''; cq = ''; db = {customers:[], apps:[], products:[], trx:[], hutang:[], pengeluaran:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
+  stopIntro(); sess.del('ppob_pin'); pin = ''; page = 'home'; fq = ''; fs = ''; fd = ''; cq = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin();
+}
 
-const APP_VER = '2.7';
+/* ====== PENGATURAN ====== */
+const APP_VER = '2.6';
 let appName = store.get('ppob_appname') || 'PPOB Kasir', tokoName = store.get('ppob_toko') || '', tokoWa = store.get('ppob_wa') || '';
 const sett = () => db.settings || {};
 const favs = () => sett().fav || [];
@@ -786,6 +834,7 @@ function exportCsv(k) {
   toast('File CSV diunduh');
 }
 
+function scard(h, b) { return '<div class="card"><h2 style="margin:0 0 8px">' + h + '</h2>' + b + '</div>'; }
 function pSet() {
   const st = sett(), nf = favProducts().length, fs = store.get('ppob_fs') || 'n';
   const fsb = [['n', 'Normal'], ['l', 'Besar'], ['xl', 'Sangat besar']].map(x => '<button class="btn sm' + (fs === x[0] ? '' : ' ghost') + '" onclick="setFs(\'' + x[0] + '\')">' + x[1] + '</button>').join('');
@@ -810,131 +859,8 @@ function pSet() {
     scard('ℹ️ Info aplikasi', '<div class="mut">Versi ' + APP_VER + '<br>' + db.trx.length + ' transaksi • ' + db.customers.length + ' customer • ' + db.products.length + ' produk</div><div class="acts"><button class="btn sm ghost" onclick="reload()">⟳ Muat ulang data</button></div>') +
     '</div>';
 }
-function scard(h, b) { return '<div class="card"><h2 style="margin:0 0 8px">' + h + '</h2>' + b + '</div>'; }
 
-/* =========================================================
-   MENU HUTANG & PENGELUARAN (MENYATU DI SIDEBAR & BOTTOM)
-   ========================================================= */
-
-/* --- Hutang --- */
-function pHutang() {
-  const hutangList = db.hutang || [];
-  const totalHutang = sum(hutangList.filter(h => h.status !== 'Lunas'), 'jumlah');
-  return '<div class="stats">' +
-    '<div class="stat hero"><div class="l">Total Hutang Belum Lunas</div><div class="v">' + rp(totalHutang) + '</div></div>' +
-    '<div class="stat"><div class="l">Jumlah Catatan</div><div class="v">' + hutangList.length + '</div></div></div>' +
-    '<div class="sec"><h2>Daftar Hutang</h2><button class="btn sm" onclick="hutangForm()">+ Catat Hutang</button></div>' +
-    (hutangList.length ? '<div class="grid">' + hutangList.slice().reverse().map(h => {
-      const isLunas = h.status === 'Lunas';
-      return '<div class="item"><div class="row"><div><b>' + esc(h.pemberi) + '</b><div class="mut">Tanggal: ' + esc(h.tanggal) + (h.jatuhTempo ? ' • Tempo: ' + esc(h.jatuhTempo) : '') + '</div></div>' +
-        '<div class="r"><b>' + rp(h.jumlah) + '</b><div style="margin-top:4px"><span class="badge ' + (isLunas ? 'g' : 'o') + '">' + esc(h.status) + '</span></div></div></div>' +
-        (h.catatan ? '<div class="mut" style="margin-top:6px">📝 ' + esc(h.catatan) + '</div>' : '') +
-        '<div class="acts">' + (!isLunas ? '<button class="btn sm green" onclick="bayarHutang(\'' + h.id + '\')">✔ Lunasi</button>' : '') +
-        '<button class="btn sm red" onclick="hapusHutang(\'' + h.id + '\')">Hapus</button></div></div>';
-    }).join('') + '</div>' : '<div class="empty">Belum ada catatan hutang.</div>');
-}
-
-function hutangForm() {
-  modal('Catat Hutang Baru',
-    field('Nama Pemberi Hutang / Sumber', '<input id="hPemberi" placeholder="Mis. Bank / Teman / Supplier">') +
-    field('Jumlah Hutang (Rp)', '<input id="hJumlah" type="text" inputmode="numeric" oninput="fmtInput(this)">') +
-    field('Tanggal', '<input id="hTanggal" type="date" value="' + ymd() + '">') +
-    field('Jatuh Tempo (opsional)', '<input id="hTempo" type="date">') +
-    field('Catatan (opsional)', '<input id="hCatatan">'),
-    async function () {
-      const pemberi = $('#hPemberi').value.trim();
-      const jumlah = numVal('#hJumlah');
-      if (!pemberi) throw new Error('Nama pemberi wajib diisi');
-      if (!jumlah) throw new Error('Jumlah hutang wajib diisi');
-      setDb(await api('saveHutang', {
-        id: '',
-        pemberi: pemberi,
-        jumlah: jumlah,
-        tanggal: $('#hTanggal').value,
-        jatuhTempo: $('#hTempo').value,
-        catatan: $('#hCatatan').value
-      }));
-      render(); toast('Hutang berhasil dicatat', 'good');
-    });
-}
-
-async function bayarHutang(id) {
-  if (!(await askConfirm('Lunasi hutang?', 'Tandai catatan hutang ini sebagai Lunas.', 'Ya, Lunasi', '✅'))) return;
-  try { setBusy(true); setDb(await api('payHutang', {id: id})); render(); toast('Hutang telah dilunasi', 'good'); }
-  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
-}
-
-async function hapusHutang(id) {
-  if (!(await askConfirm('Hapus hutang?', 'Data catatan hutang ini akan dihapus.', 'Hapus', '🗑️', true))) return;
-  try { setBusy(true); setDb(await api('deleteHutang', {id: id})); render(); toast('Hutang dihapus'); }
-  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
-}
-
-/* --- Pengeluaran (Diambil dari Laba) --- */
-function pPengeluaran() {
-  const pengeluaranList = db.pengeluaran || [];
-  const totalLaba = sum(db.trx, 'laba');
-  const totalPengeluaran = sum(pengeluaranList, 'jumlah');
-  const sisaLaba = totalLaba - totalPengeluaran;
-  const isMinus = sisaLaba < 0;
-
-  return '<div class="stats">' +
-    '<div class="stat hero"><div class="l">Sisa Akumulasi Laba</div><div class="v" style="' + (isMinus ? 'color:#ffcccc' : '') + '">' + rp(sisaLaba) + '</div></div>' +
-    '<div class="stat"><div class="l">Total Laba Kotor</div><div class="v">' + rp(totalLaba) + '</div></div>' +
-    '<div class="stat"><div class="l">Total Pengeluaran</div><div class="v bad">' + rp(totalPengeluaran) + '</div></div></div>' +
-    (isMinus ? '<div class="card" style="background:var(--badbg);color:var(--bad);margin-bottom:14px"><b>⚠️ PERINGATAN:</b> Total pengeluaran Anda melebihi seluruh total laba yang diperoleh! Sisa laba minus ' + rp(sisaLaba) + '.</div>' : '') +
-    '<div class="sec"><h2>Daftar Pengeluaran</h2><button class="btn sm" onclick="pengeluaranForm()">+ Catat Pengeluaran</button></div>' +
-    (pengeluaranList.length ? '<div class="grid">' + pengeluaranList.slice().reverse().map(ex => {
-      return '<div class="item"><div class="row"><div><b>' + esc(ex.kategori) + '</b><div class="mut">Tanggal: ' + esc(ex.tanggal) + '</div></div>' +
-        '<div class="r"><b class="bad">' + rp(ex.jumlah) + '</b></div></div>' +
-        (ex.catatan ? '<div class="mut" style="margin-top:6px">📝 ' + esc(ex.catatan) + '</div>' : '') +
-        '<div class="acts"><button class="btn sm red" onclick="hapusPengeluaran(\'' + ex.id + '\')">Hapus</button></div></div>';
-    }).join('') + '</div>' : '<div class="empty">Belum ada catatan pengeluaran.</div>');
-}
-
-function pengeluaranForm() {
-  const totalLaba = sum(db.trx, 'laba');
-  const totalPengeluaran = sum(db.pengeluaran || [], 'jumlah');
-  modal('Catat Pengeluaran (Dari Laba)',
-    '<div class="mut" style="margin-bottom:8px">Sumber dana diambil dari Total Laba: <b>' + rp(totalLaba) + '</b></div>' +
-    field('Kategori Pengeluaran', '<input id="exKategori" placeholder="Mis. Bensin, Listrik Toko, Makan">') +
-    field('Jumlah (Rp)', '<input id="exJumlah" type="text" inputmode="numeric" oninput="fmtInput(this)">') +
-    field('Tanggal', '<input id="exTanggal" type="date" value="' + ymd() + '">') +
-    field('Catatan (opsional)', '<input id="exCatatan">'),
-    async function () {
-      const kategori = $('#exKategori').value.trim();
-      const jumlah = numVal('#exJumlah');
-      if (!kategori) throw new Error('Kategori wajib diisi');
-      if (!jumlah) throw new Error('Jumlah pengeluaran wajib diisi');
-      
-      // Pengecekan real-time apakah pengeluaran melebihi sisa laba
-      const sisa = totalLaba - (totalPengeluaran + jumlah);
-      if (sisa < 0) {
-        const lanjut = await askConfirm('Pengeluaran Melebihi Laba!', 'Total pengeluaran setelah dicatat ini akan melebihi akumulasi total laba Anda (Sisa laba menjadi minus ' + rp(sisa) + '). Tetap lanjutkan?', 'Ya, Lanjutkan', '⚠️', true);
-        if (!lanjut) return false;
-      }
-
-      setDb(await api('savePengeluaran', {
-        id: '',
-        kategori: kategori,
-        jumlah: jumlah,
-        tanggal: $('#exTanggal').value,
-        catatan: $('#exCatatan').value
-      }));
-      render(); toast('Pengeluaran berhasil dicatat', 'good');
-    });
-}
-
-async function hapusPengeluaran(id) {
-  if (!(await askConfirm('Hapus pengeluaran?', 'Catatan pengeluaran ini akan dihapus.', 'Hapus', '🗑️', true))) return;
-  try { setBusy(true); setDb(await api('deletePengeluaran', {id: id})); render(); toast('Pengeluaran dihapus'); }
-  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
-}
-
-/* =========================================================
-   NAVIGASI & RENDER UTAMA
-   ========================================================= */
-
+/* ====== NAVIGASI & RENDER ====== */
 function buildNav() {
   const mk = n => '<button class="nav" data-nav="' + n[0] + '" onclick="go(\'' + n[0] + '\')"><span class="ic">' + n[1] + '</span><span>' + n[2] + '</span>' + (n[0] === 'unpaid' ? '<span class="cnt" data-cnt style="display:none"></span>' : '') + '</button>';
   $('#side').innerHTML = '<div class="brand"><i>💳</i>' + esc(appName) + '</div>' + NAV.map(mk).join('') +
@@ -946,13 +872,9 @@ function go(p) { page = p; render(); window.scrollTo(0, 0); }
 
 function render() {
   document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === page));
-  const activeNav = NAV.filter(n => n[0] === page)[0];
-  $('#title').textContent = activeNav ? activeNav[2] : 'Beranda';
-  const pages = {
-    home: pHome, trx: pTrx, unpaid: pUnpaid, hutang: pHutang, pengeluaran: pPengeluaran,
-    cust: pCust, apps: pApps, prod: pProd, rekap: pRekap, laba: pLaba, set: pSet
-  };
-  try { $('#view').innerHTML = (pages[page] || pHome)(); }
+  $('#title').textContent = NAV.filter(n => n[0] === page)[0][2];
+  const pages = {home: pHome, trx: pTrx, unpaid: pUnpaid, cust: pCust, apps: pApps, prod: pProd, rekap: pRekap, laba: pLaba, set: pSet};
+  try { $('#view').innerHTML = pages[page](); }
   catch (e) { $('#view').innerHTML = '<div class="empty">Gagal menampilkan halaman: ' + esc(e.message) + '</div>'; }
   if (page === 'set') drawThemes();
   const nb = db.trx.filter(t => t.status === 'Belum Bayar').length;
@@ -966,7 +888,7 @@ function singleCard(t) {
     '<div class="row s"><span class="mut">👤 ' + esc(t.customer || 'Umum') + ' • ' + esc(t.tanggal) + ' ' + esc(/^\d{1,2}:\d{2}/.test(t.jam) ? t.jam : '') + '</span>' +
     '<span class="badge ' + (belum ? 'o' : 'g') + '">' + esc(t.status) + '</span></div>' +
     (t.catatan ? '<div class="mut" style="margin-top:6px">📝 ' + esc(t.catatan) + '</div>' : '') +
-    '<div class="acts"><button class="btn sm ghost" onclick="strukForm(\'' + t.id + '\')">🧾 Struk' + grpLabel(t) + '</button>' + (belum ? '<button class="btn sm green" onclick="payIds(\'' + t.id + '\')">✔ Lunasi</button>' : '') +
+    '<div class="acts"><button class="btn sm ghost" onclick="strukForm(\'' + t.id + '\')">🧾 Struk' + grpLabel(t) + '</button>' + (belum ? '<button class="btn sm green" onclick="payIds([\'' + t.id + '\'])">✔ Lunasi</button>' : '') +
     '<button class="btn sm ghost" onclick="editTrxForm(\'' + t.id + '\')">✏️ Edit</button>' +
     '<button class="btn sm red" onclick="delTrx(\'' + t.id + '\')">Hapus</button></div></div>';
 }
@@ -978,6 +900,7 @@ function groupTrx(l) {
   out.forEach(g => g.sort((a, b) => String(a.id).localeCompare(String(b.id))));
   return out;
 }
+
 function notaCard(l) {
   if (l.length === 1) return singleCard(l[0]);
   const t = l[0], bl = l.filter(x => x.status === 'Belum Bayar'), st = stLabel(l);
@@ -989,7 +912,7 @@ function notaCard(l) {
       '<div class="r"><b>' + rp(x.jual) + '</b><div class="ok" style="font-size:12px">Laba ' + rp(x.laba) + '</div>' + (x.status === 'Belum Bayar' && st !== 'Belum Bayar' ? '<span class="badge o">Belum Bayar</span>' : '') + '</div></div>').join('') + '</div>' +
     (t.catatan ? '<div class="mut">📝 ' + esc(t.catatan) + '</div>' : '') +
     '<div class="acts"><button class="btn sm ghost" onclick="strukForm(\'' + t.id + '\')">🧾 Struk (' + l.length + ' item)</button>' +
-    (bl.length ? '<button class="btn sm green" onclick="payIds(\'' + bl.map(x => x.id).join('\',\'') + '\')">✔ Lunasi' + (bl.length > 1 ? ' Semua' : '') + '</button>' : '') +
+    (bl.length ? '<button class="btn sm green" onclick="payIds([\'' + bl.map(x => x.id).join('\',\'') + '\'])">✔ Lunasi' + (bl.length > 1 ? ' Semua' : '') + '</button>' : '') +
     '<button class="btn sm ghost" onclick="editTrxForm(\'' + t.id + '\')">✏️ Edit</button>' +
     '<button class="btn sm red" onclick="delTrx(\'' + t.id + '\')">Hapus</button></div></div>';
 }
@@ -1029,7 +952,6 @@ function pTrx() {
     '<div id="trxList">' + trxListHtml() + '</div>';
 }
 
-/* Transaksi & Form pendukung (Step, Pos, Chat, dll) tetap berfungsi utuh */
 let trxStep = 1;
 function trxFormClassic() {
   if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
@@ -1230,104 +1152,100 @@ async function saveTrx() {
   await tfPost(cid, st, $('#fCat').value, items);
 }
 
-function askPay(cid, items) {
-  const cu = db.customers.filter(x => x.id === cid)[0], tot = items.reduce((s, x) => s + x.jual, 0);
-  return new Promise(function (resolve) {
-    $('#payMsg').innerHTML = '👤 <b>' + esc(cu ? cu.nama : '-') + '</b><br>' + items.length + ' item • <b>' + rp(tot) + '</b>';
-    const box = $('#payAsk'), L = $('#payL'), B = $('#payB'), C = $('#payC');
-    setBusy(false); box.classList.add('show');
-    const done = function (v) { box.classList.remove('show'); L.onclick = B.onclick = C.onclick = box.onclick = null; if (v) setBusy(true); resolve(v); };
-    L.onclick = function () { done('Lunas'); }; B.onclick = function () { done('Belum Bayar'); };
-    C.onclick = function () { done(null); }; box.onclick = function (e) { if (e.target === box) done(null); };
-  });
+function eProdOpts(aid, selName) {
+  const l = db.products.filter(p => p.aplikasiId === aid);
+  let found = false;
+  let h = l.map(p => {
+    const s = selName && p.nama === selName;
+    if (s) found = true;
+    return '<option value="' + p.id + '"' + (s ? ' selected' : '') + '>' + esc(p.nama) + '</option>';
+  }).join('');
+  if (selName && !found) h = '<option value="" selected>' + esc(selName) + ' (lama)</option>' + h;
+  return h || '<option value="">(belum ada produk)</option>';
 }
-const tfAddBtn = (t) => '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">' + (t || '+ Tambah item lagi') + '</button>';
-const tfSumBar = () => '<div class="tfsum"><span><span class="tfN">0</span> item</span><b class="tfTot">Rp 0</b></div><div class="ok" style="margin-top:4px">Laba: <span class="tfLaba">Rp 0</span></div>';
-function tfOpen(key, title, html, okText, submit) {
-  modal(title, html, submit || (async function () { return saveTrx(); }), okText || 'Simpan');
-  $('#modal').dataset.tf = key; tfOkLabel = okText || 'Simpan'; tfReqCust = true;
-}
-function tfFirst(pid) { addItem(); if (pid) pickFav(pid); updTot(); }
-function tfT() {
-  let j = 0, m = 0, n = 0;
-  document.querySelectorAll('.itm').forEach(el => { n++; j += numOf(el.querySelector('.iJual')); m += numOf(el.querySelector('.iMod')); });
-  return {j: j, m: m, n: n};
-}
-function tfLabel(el) {
-  const nm = el.querySelector('.iNm'); if (!nm) return;
-  const p = el.querySelector('.iProd'), a = el.querySelector('.iApp');
-  const po = p.options[p.selectedIndex], ao = a.options[a.selectedIndex];
-  nm.textContent = po ? po.textContent : ''; el.querySelector('.iAp').textContent = ao ? ao.textContent : '';
-}
-async function tfPost(cid, st, cat, items) {
-  const base = {customerId: cid, status: st, catatan: cat};
-  setDb(items.length === 1 ? await api('addTrx', Object.assign(base, items[0])) : await api('addTrxMulti', Object.assign(base, {items: items})));
-  render(); sayBerhasil(); toast((items.length > 1 ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil') + ' — ' + (st === 'Lunas' ? 'LUNAS' : 'BELUM BAYAR'), 'good');
-}
-
-function itemHtml() {
-  if (itemTpl === 'classic') return itemHtmlClassic();
-  const ao = db.apps.map(a => '<option value="' + a.id + '">' + esc(a.nama) + '</option>').join('');
-  const money = (c) => '<input class="' + c + '" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this);itemCalc(this)">';
-  if (itemTpl === 'row') {
-    return '<div class="itm rowt"><b class="iNo"></b><select class="iApp" onchange="itemApp(this)">' + ao + '</select><select class="iProd" onchange="itemProd(this)"></select>' +
-      '<input class="iTuj" inputmode="numeric" placeholder="08xxxxxxxxxx">' + money('iMod') + money('iJual') +
-      '<button type="button" class="btn sm red iDel" onclick="rmItem(this)">✕</button><div class="ok iLaba"></div></div>';
+function addItemFrom(x) {
+  const box = $('#itemsBox'); box.insertAdjacentHTML('beforeend', itemHtml());
+  const el = box.lastElementChild;
+  el.dataset.id = x.id; el.dataset.app = x.aplikasi; el.dataset.prod = x.produk;
+  const as = el.querySelector('.iApp'), ps = el.querySelector('.iProd');
+  const a = db.apps.filter(z => z.nama === x.aplikasi)[0];
+  if (a) { as.value = a.id; ps.innerHTML = eProdOpts(a.id, x.produk); }
+  else {
+    as.insertAdjacentHTML('afterbegin', '<option value="" selected>' + esc(x.aplikasi) + ' (lama)</option>'); as.value = '';
+    ps.innerHTML = '<option value="" selected>' + esc(x.produk) + ' (lama)</option>';
   }
-  return '<div class="itm crow"><select class="iApp" hidden onchange="itemApp(this)">' + ao + '</select><select class="iProd" hidden onchange="itemProd(this)"></select><input class="iMod" type="hidden">' +
-    '<div class="cr1"><div><b class="iNm"></b> <span class="mut iAp"></span></div><button type="button" class="btn sm red iDel" onclick="rmItem(this)">✕</button></div>' +
-    '<div class="cr2"><input class="iTuj" inputmode="numeric" placeholder="No. HP / ID tujuan">' + money('iJual') + '</div><b class="iNo" style="display:none"></b><div class="ok iLaba"></div></div>';
+  el.querySelector('.iTuj').value = x.tujuan || '';
+  el.querySelector('.iMod').value = fmtNum(x.modal); el.querySelector('.iJual').value = fmtNum(x.jual);
+  itemCalc(el.querySelector('.iMod')); renumber();
+}
+function editTrxForm(id) {
+  const t = db.trx.filter(x => x.id === id)[0]; if (!t) return;
+  const l = grpOf(t).slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  const lab = stLabel(l), cur = lab === 'Sebagian lunas' ? 'keep' : lab;
+  const rd = (v, txt) => '<label><input type="radio" name="est" value="' + v + '"' + (cur === v ? ' checked' : '') + '>' + txt + '</label>';
+  modal('Edit Transaksi',
+    '<div class="mut">' + esc(t.tanggal) + ' ' + esc(jamOf(t)) + ' • ' + l.length + ' item (tanggal & jam tidak berubah)</div>' +
+    field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama)" value="' + esc(t.customerId ? t.customer : '') + '" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value="' + esc(t.customerId) + '"><div id="csList" class="cs-list"></div></div>') +
+    '<div class="mut" style="margin-top:10px"><b>Daftar item</b></div><div id="itemsBox"></div>' +
+    '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">+ Tambah item</button><div class="ok" id="fTot"></div>' +
+    field('Status pembayaran', '<div class="seg">' + rd('Lunas', '✅ Lunas') + rd('Belum Bayar', '⏳ Belum Bayar') + (cur === 'keep' ? rd('keep', 'Tetap (sebagian lunas)') : '') + '</div>') +
+    field('Catatan (opsional)', '<input id="eCat" value="' + esc(t.catatan) + '">'),
+    async function () {
+      let cid = $('#fCust').value;
+      const ct = $('#fCustTxt').value.trim();
+      if (!ct) cid = '';
+      else if (!cid) {
+        const m = db.customers.filter(c => c.nama.toLowerCase() === ct.toLowerCase());
+        if (m.length === 1) cid = m[0].id; else throw new Error('Pilih customer dari daftar yang muncul');
+      }
+      const st = document.querySelector('input[name=est]:checked').value;
+      if (st !== 'Lunas' && !cid) throw new Error('Pilih customer untuk transaksi belum bayar');
+      const items = Array.prototype.map.call(document.querySelectorAll('.itm'), function (el, i) {
+        const p = db.products.filter(x => x.id === el.querySelector('.iProd').value)[0];
+        const a = db.apps.filter(x => x.id === el.querySelector('.iApp').value)[0];
+        const an = a ? a.nama : (el.dataset.app || ''), pn = p ? p.nama : (el.dataset.prod || '');
+        if (!an || !pn) throw new Error('Item ' + (i + 1) + ': pilih aplikasi dan produk');
+        return {id: el.dataset.id || '', aplikasi: an, produk: pn, tujuan: el.querySelector('.iTuj').value.trim(), modal: numOf(el.querySelector('.iMod')), jual: numOf(el.querySelector('.iJual'))};
+      });
+      if (!items.length) throw new Error('Tambahkan minimal 1 item');
+      setDb(await api('editNota', {base: nota(id), customerId: cid, customer: ct, status: st, catatan: $('#eCat').value.trim(), items: items}));
+      render(); toast('Transaksi diperbarui', 'good');
+    }, 'Simpan Perubahan');
+  l.forEach(addItemFrom); updTot();
 }
 
-let itemTpl = 'classic', tfOkLabel = '', tfHook = null, tfItemHook = null, tfReqCust = false;
-const tfCur = () => { const k = store.get('ppob_tf'); return TF_STYLES.some(s => s.k === k) ? k : 'step'; };
-function setTf(k) { store.set('ppob_tf', k); render(); toast('Form transaksi: ' + TF_STYLES.filter(s => s.k === k)[0].n, 'good'); }
-function tryTf(k) { trxForm('', k); }
-function trxForm(pid, key) {
-  if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
-  const s = TF_STYLES.filter(x => x.k === (key || tfCur()))[0] || TF_STYLES[0];
-  s.build(typeof pid === 'string' ? pid : '');
+async function delTrx(id) {
+  const t = db.trx.filter(x => x.id === id)[0]; if (!t) return;
+  const ids = grpOf(t).map(x => x.id);
+  if (!(await askConfirm('Hapus transaksi?', ids.length > 1 ? 'Semua ' + ids.length + ' item dalam transaksi ini akan dihapus. Tidak bisa dikembalikan.' : 'Transaksi yang dihapus tidak bisa dikembalikan.', 'Hapus', '🗑️', true))) return;
+  try { setBusy(true); setDb(await api('deleteNota', {ids: ids})); render(); toast('Transaksi dihapus'); }
+  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
+}
+async function payIds(ids) {
+  if (!(await askConfirm('Tandai lunas?', ids.length + ' transaksi akan ditandai LUNAS.', 'Ya, Lunas', '✅'))) return;
+  try { setBusy(true); setDb(await api('pay', {ids: ids})); render(); sayBerhasil(page === 'unpaid' ? 'Tagihan Lunas' : 'Transaksi Berhasil'); toast('✅ Pembayaran dilunasi', 'good'); }
+  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
 
-const TF_STYLES = [
-  {k: 'step', n: 'Bertahap', d: '3 langkah: Customer → Item → Bayar.', build: trxFormClassic},
-  {k: 'one', n: 'Satu Halaman', d: 'Semua isian di satu layar.', build: (pid) => { tfOpen('one', 'Transaksi Baru', '<div class="tfsec">👤 Customer</div>' + tfCust() + '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div><div class="tfsec">📝 Catatan</div>' + tfPay()); tfFirst(pid); }},
-  {k: 'pos', n: 'Kasir Cepat', d: 'Ketuk produk, langsung masuk keranjang.', build: (pid) => {
-    tfOpen('pos', 'Kasir Cepat', '<div class="pos"><div><input id="posQ" placeholder="🔍 Cari produk..." oninput="posDraw()"><div class="chips" id="posChips"></div><div class="posgrid" id="posGrid"></div></div><div class="pos-r">' + tfCust() + '<div class="mut" style="margin-top:12px"><b>🛒 Keranjang</b></div><div id="posEmpty" class="empty" style="padding:16px">Ketuk produk untuk menambahkan</div><div id="itemsBox"></div>' + tfSumBar() + tfPay() + '</div></div>');
-    itemTpl = 'cart'; tfHook = () => { const e = $('#posEmpty'); if (e) e.style.display = tfT().n ? 'none' : ''; };
-    posDraw(); if (pid) addItem(pid); updTot();
-  }}
-];
-
-function posDraw() {
-  const q = ($('#posQ').value || '').trim().toLowerCase();
-  const chips = [['all', 'Semua'], ['fav', '⭐ Favorit']].concat(db.apps.map(a => [a.id, a.nama]));
-  $('#posChips').innerHTML = chips.map(c => '<button type="button" class="chip" style="' + (posF === c[0] ? 'background:var(--p);color:#fff' : '') + '" onclick="posF=\'' + c[0] + '\';posDraw()">' + esc(c[1]) + '</button>').join('');
-  let l = db.products.filter(p => posF === 'all' || (posF === 'fav' ? isFav(p.id) : p.aplikasiId === posF));
-  if (q) l = l.filter(p => (p.nama + ' ' + p.aplikasi).toLowerCase().indexOf(q) >= 0);
-  $('#posGrid').innerHTML = l.map(p => '<button type="button" class="ptile" onclick="posAdd(\'' + p.id + '\')">' + (isFav(p.id) ? '<span class="st">⭐</span>' : '') +
-    '<b>' + esc(p.nama) + '</b><small>' + esc(p.aplikasi) + '</small><div class="pp">' + rp(p.jual) + '</div></button>').join('') ||
-    '<div class="mut" style="grid-column:1/-1;padding:10px">Produk tidak ditemukan</div>';
-}
-let posF = 'all';
-function posAdd(id) { addItem(id); const b = $('#itemsBox'); if (b.lastElementChild) b.lastElementChild.scrollIntoView({block: 'nearest', behavior: 'smooth'}); }
-
-function tfThumb(k) {
-  return '<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="4" y="4" width="72" height="48" rx="4" fill="var(--soft)"/></svg>';
-}
-function tfSettingsCard() {
-  const cur = tfCur();
-  return '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 4px">📝 Tampilan Form Transaksi</h2>' +
-    '<div class="mut">Pilih gaya form Transaksi Baru.</div><div class="tfgrid">' +
-    TF_STYLES.map((s, i) => '<div class="tfc' + (s.k === cur ? ' on' : '') + '">' + tfThumb(s.k) + '<b>' + (i + 1) + '. ' + esc(s.n) + (s.k === cur ? ' ✓' : '') + '</b><div class="mut">' + esc(s.d) + '</div>' +
-      '<div class="acts"><button class="btn sm' + (s.k === cur ? '' : ' ghost') + '" onclick="setTf(\'' + s.k + '\')">' + (s.k === cur ? 'Dipakai' : 'Pakai') + '</button><button class="btn sm ghost" onclick="tryTf(\'' + s.k + '\')">Coba</button></div></div>').join('') +
-    '</div></div>';
+function waNum(t) { t = String(t || '').replace(/\D/g, ''); if (t.indexOf('0') === 0) t = '62' + t.slice(1); return t; }
+function pUnpaid() {
+  const bb = db.trx.filter(t => t.status === 'Belum Bayar'), g = {};
+  bb.forEach(t => { (g[t.customerId] = g[t.customerId] || []).push(t); });
+  const keys = Object.keys(g).sort((a, b) => sum(g[b], 'jual') - sum(g[a], 'jual'));
+  if (!keys.length) return '<div class="empty">🎉 Tidak ada customer yang belum bayar</div>';
+  return '<div class="stats"><div class="stat hero"><div class="l">Total belum dibayar</div><div class="v">' + rp(sum(bb, 'jual')) + '</div></div>' +
+    '<div class="stat"><div class="l">Customer</div><div class="v">' + keys.length + '</div></div><div class="stat"><div class="l">Transaksi</div><div class="v">' + bb.length + '</div></div></div>' +
+    '<div class="grid">' + keys.map(function (cid) {
+      const l = sorted(g[cid]), c = db.customers.filter(x => x.id === cid)[0], tot = sum(l, 'jual');
+      const msg = 'Halo ' + l[0].customer + ', mengingatkan tagihan Anda:\n' + l.map(t => '- ' + t.tanggal + ' ' + t.produk + ' ' + rp(t.jual)).join('\n') + '\nTotal: ' + rp(tot) + '\nTerima kasih.' + (tokoName ? '\n— ' + tokoName : '') + (tokoWa ? ' (WA ' + tokoWa + ')' : '');
+      return '<div class="card"><div class="row"><div><b>👤 ' + esc(l[0].customer) + '</b><div class="mut">' + esc(c ? (c.alamat || '') : '') + '</div></div><div class="r"><b class="bad">' + rp(tot) + '</b><div class="mut">' + l.length + ' transaksi</div></div></div>' +
+        '<div style="margin-top:10px">' + l.map(t => '<div class="row s" style="border-top:1px solid var(--bd);padding-top:8px"><div><div>' + esc(t.produk) + '</div><div class="mut">' + esc(t.tanggal) + ' • ' + esc(t.tujuan || '-') + '</div></div><div class="r"><div>' + rp(t.jual) + '</div><button class="btn sm green" onclick="payIds([\'' + t.id + '\'])">Lunasi</button></div></div>').join('') + '</div>' +
+        '<div class="acts"><button class="btn sm" onclick="payIds(' + "['" + l.map(t => t.id).join("','") + "']" + ')">✔ Lunasi Semua</button>' +
+        (c && c.telepon ? '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waNum(c.telepon) + '?text=' + encodeURIComponent(msg) + '">WhatsApp</a>' : '') + '</div></div>';
+    }).join('') + '</div>';
 }
 
-function pCust() {
-  return '<div class="tools"><input type="search" placeholder="🔍 Cari nama / HP / alamat customer" value="' + esc(cq) + '" oninput="cq=this.value;updCust()"><button class="btn" onclick="custForm()">+ Customer</button></div>' +
-    '<div id="custList">' + custListHtml() + '</div>';
-}
+let cq = '';
 function custListHtml() {
   const bb = {}; db.trx.filter(t => t.status === 'Belum Bayar').forEach(t => bb[t.customerId] = (bb[t.customerId] || 0) + Number(t.jual));
   const q = cq.trim().toLowerCase();
@@ -1339,6 +1257,10 @@ function custListHtml() {
       '<div class="acts"><button class="btn sm ghost" onclick="custForm(\'' + c.id + '\')">Edit</button><button class="btn sm red" onclick="delItem(\'deleteCustomer\',\'' + c.id + '\')">Hapus</button></div></div>').join('') + '</div>';
 }
 function updCust() { $('#custList').innerHTML = custListHtml(); }
+function pCust() {
+  return '<div class="tools"><input type="search" placeholder="🔍 Cari nama / HP / alamat customer" value="' + esc(cq) + '" oninput="cq=this.value;updCust()"><button class="btn" onclick="custForm()">+ Customer</button></div>' +
+    '<div id="custList">' + custListHtml() + '</div>';
+}
 function custForm(id) {
   const c = db.customers.filter(x => x.id === id)[0] || {};
   modal(id ? 'Edit Customer' : 'Customer Baru',
@@ -1429,6 +1351,334 @@ function drawThemes() {
 function openThemes() { drawThemes(); $('#themes').classList.add('show'); }
 function closeThemes() { $('#themes').classList.remove('show'); }
 
+let itemTpl = 'classic', tfOkLabel = '', tfHook = null, tfItemHook = null, tfReqCust = false;
+const tfCur = () => { const k = store.get('ppob_tf'); return TF_STYLES.some(s => s.k === k) ? k : 'step'; };
+function setTf(k) { store.set('ppob_tf', k); render(); toast('Form transaksi: ' + TF_STYLES.filter(s => s.k === k)[0].n, 'good'); }
+function tryTf(k) { trxForm('', k); }
+function trxForm(pid, key) {
+  if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
+  const s = TF_STYLES.filter(x => x.k === (key || tfCur()))[0] || TF_STYLES[0];
+  s.build(typeof pid === 'string' ? pid : '');
+}
+
+const tfCust = () => field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Wajib diisi — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>');
+const tfPay = () => field('Catatan (opsional)', '<input id="fCat">');
+function askPay(cid, items) {
+  const cu = db.customers.filter(x => x.id === cid)[0], tot = items.reduce((s, x) => s + x.jual, 0);
+  return new Promise(function (resolve) {
+    $('#payMsg').innerHTML = '👤 <b>' + esc(cu ? cu.nama : '-') + '</b><br>' + items.length + ' item • <b>' + rp(tot) + '</b>';
+    const box = $('#payAsk'), L = $('#payL'), B = $('#payB'), C = $('#payC');
+    setBusy(false); box.classList.add('show');
+    const done = function (v) { box.classList.remove('show'); L.onclick = B.onclick = C.onclick = box.onclick = null; if (v) setBusy(true); resolve(v); };
+    L.onclick = function () { done('Lunas'); }; B.onclick = function () { done('Belum Bayar'); };
+    C.onclick = function () { done(null); }; box.onclick = function (e) { if (e.target === box) done(null); };
+  });
+}
+const tfAddBtn = (t) => '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">' + (t || '+ Tambah item lagi') + '</button>';
+const tfSumBar = () => '<div class="tfsum"><span><span class="tfN">0</span> item</span><b class="tfTot">Rp 0</b></div><div class="ok" style="margin-top:4px">Laba: <span class="tfLaba">Rp 0</span></div>';
+function tfOpen(key, title, html, okText, submit) {
+  modal(title, html, submit || (async function () { return saveTrx(); }), okText || 'Simpan');
+  $('#modal').dataset.tf = key; tfOkLabel = okText || 'Simpan'; tfReqCust = true;
+}
+function tfFirst(pid) { addItem(); if (pid) pickFav(pid); updTot(); }
+function tfT() {
+  let j = 0, m = 0, n = 0;
+  document.querySelectorAll('.itm').forEach(el => { n++; j += numOf(el.querySelector('.iJual')); m += numOf(el.querySelector('.iMod')); });
+  return {j: j, m: m, n: n};
+}
+function tfLabel(el) {
+  const nm = el.querySelector('.iNm'); if (!nm) return;
+  const p = el.querySelector('.iProd'), a = el.querySelector('.iApp');
+  const po = p.options[p.selectedIndex], ao = a.options[a.selectedIndex];
+  nm.textContent = po ? po.textContent : ''; el.querySelector('.iAp').textContent = ao ? ao.textContent : '';
+}
+async function tfPost(cid, st, cat, items) {
+  const base = {customerId: cid, status: st, catatan: cat};
+  setDb(items.length === 1 ? await api('addTrx', Object.assign(base, items[0])) : await api('addTrxMulti', Object.assign(base, {items: items})));
+  render(); sayBerhasil(); toast((items.length > 1 ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil') + ' — ' + (st === 'Lunas' ? 'LUNAS' : 'BELUM BAYAR'), 'good');
+}
+function appIcon(n) {
+  n = String(n).toLowerCase();
+  const m = [[/listrik|pln|token/, '⚡'], [/pulsa|telkomsel|indosat|xl|axis|tri\b|smartfren|data|paket/, '📶'], [/air|pdam/, '💧'], [/bpjs|kesehatan/, '🏥'],
+    [/game|ml\b|mobile|free ?fire|ff\b|steam|voucher|garena/, '🎮'], [/bank|bri|bca|mandiri|bni|transfer/, '🏦'], [/dana|ovo|gopay|linkaja|shopeepay|saldo/, '👛'],
+    [/tokopedia|shopee|lazada|tiktok|bukalapak/, '🛍️'], [/tv|wifi|indihome|internet/, '📺'], [/pajak|pbb|samsat/, '🏛️']];
+  for (let i = 0; i < m.length; i++) if (m[i][0].test(n)) return m[i][1];
+  return '📱';
+}
+
+function itemHtml() {
+  if (itemTpl === 'classic') return itemHtmlClassic();
+  const ao = db.apps.map(a => '<option value="' + a.id + '">' + esc(a.nama) + '</option>').join('');
+  const money = (c) => '<input class="' + c + '" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this);itemCalc(this)">';
+  if (itemTpl === 'row') {
+    return '<div class="itm rowt"><b class="iNo"></b><select class="iApp" onchange="itemApp(this)">' + ao + '</select><select class="iProd" onchange="itemProd(this)"></select>' +
+      '<input class="iTuj" inputmode="numeric" placeholder="08xxxxxxxxxx">' + money('iMod') + money('iJual') +
+      '<button type="button" class="btn sm red iDel" onclick="rmItem(this)">✕</button><div class="ok iLaba"></div></div>';
+  }
+  return '<div class="itm crow"><select class="iApp" hidden onchange="itemApp(this)">' + ao + '</select><select class="iProd" hidden onchange="itemProd(this)"></select><input class="iMod" type="hidden">' +
+    '<div class="cr1"><div><b class="iNm"></b> <span class="mut iAp"></span></div><button type="button" class="btn sm red iDel" onclick="rmItem(this)">✕</button></div>' +
+    '<div class="cr2"><input class="iTuj" inputmode="numeric" placeholder="No. HP / ID tujuan">' + money('iJual') + '</div><b class="iNo" style="display:none"></b><div class="ok iLaba"></div></div>';
+}
+
+function fmStep(pid) { trxFormClassic(); if (pid && $('#itemsBox')) { pickFav(pid); goStep(2); } }
+function fmOne(pid) {
+  tfOpen('one', 'Transaksi Baru',
+    '<div class="tfsec">👤 Customer</div>' + tfCust() +
+    '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>' +
+    '<div class="tfsec">📝 Catatan</div>' + tfPay());
+  tfFirst(pid);
+}
+
+let posF = 'all';
+function fmPos(pid) {
+  posF = 'all';
+  tfOpen('pos', 'Kasir Cepat',
+    '<div class="pos"><div><input id="posQ" placeholder="🔍 Cari produk..." oninput="posDraw()"><div class="chips" id="posChips"></div><div class="posgrid" id="posGrid"></div></div>' +
+    '<div class="pos-r">' + tfCust() + '<div class="mut" style="margin-top:12px"><b>🛒 Keranjang</b></div>' +
+    '<div id="posEmpty" class="empty" style="padding:16px">Ketuk produk untuk menambahkan</div><div id="itemsBox"></div>' + tfSumBar() + tfPay() + '</div></div>');
+  itemTpl = 'cart';
+  tfHook = function () { const e = $('#posEmpty'); if (e) e.style.display = tfT().n ? 'none' : ''; };
+  posDraw(); if (pid) addItem(pid); updTot();
+}
+function posDraw() {
+  const q = ($('#posQ').value || '').trim().toLowerCase();
+  const chips = [['all', 'Semua'], ['fav', '⭐ Favorit']].concat(db.apps.map(a => [a.id, a.nama]));
+  $('#posChips').innerHTML = chips.map(c => '<button type="button" class="chip" style="' + (posF === c[0] ? 'background:var(--p);color:#fff' : '') + '" onclick="posF=\'' + c[0] + '\';posDraw()">' + esc(c[1]) + '</button>').join('');
+  let l = db.products.filter(p => posF === 'all' || (posF === 'fav' ? isFav(p.id) : p.aplikasiId === posF));
+  if (q) l = l.filter(p => (p.nama + ' ' + p.aplikasi).toLowerCase().indexOf(q) >= 0);
+  $('#posGrid').innerHTML = l.map(p => '<button type="button" class="ptile" onclick="posAdd(\'' + p.id + '\')">' + (isFav(p.id) ? '<span class="st">⭐</span>' : '') +
+    '<b>' + esc(p.nama) + '</b><small>' + esc(p.aplikasi) + '</small><div class="pp">' + rp(p.jual) + '</div></button>').join('') ||
+    '<div class="mut" style="grid-column:1/-1;padding:10px">Produk tidak ditemukan</div>';
+}
+function posAdd(id) { addItem(id); const b = $('#itemsBox'); if (b.lastElementChild) b.lastElementChild.scrollIntoView({block: 'nearest', behavior: 'smooth'}); }
+
+let chat = {};
+function fmChat(pid) {
+  tfOpen('chat', 'Transaksi Baru', '<div class="chatlog" id="chatLog"></div><div id="chatAsk"></div>', 'Simpan', async function () { return chatSave(); });
+  chat = {step: 0, cid: '', cname: '', items: [], cur: null, log: [], hist: [], pre: pid || ''};
+  tfOkLabel = '';
+  chatAsk();
+}
+function chatPush(who, txt) { chat.log.push([who, txt]); }
+function chatSnap() { chat.hist.push(JSON.stringify({step: chat.step, cid: chat.cid, cname: chat.cname, items: chat.items, cur: chat.cur, log: chat.log})); }
+function chatBack() { if (!chat.hist.length) { closeModal(); return; } Object.assign(chat, JSON.parse(chat.hist.pop())); chatAsk(); }
+const chatQ = t => '<div class="bb bot" style="margin-bottom:10px">' + t + '</div>';
+function chatTotal() { return chat.items.reduce((s, x) => s + x.jual, 0); }
+function chatAsk() {
+  const log = $('#chatLog'), box = $('#chatAsk'), ok = $('#mOk'), gb = $('#modal .mfoot .btn.ghost');
+  log.innerHTML = chat.log.map(x => '<div class="bb ' + x[0] + '">' + esc(x[1]) + '</div>').join('');
+  log.scrollTop = log.scrollHeight;
+  gb.textContent = chat.hist.length ? '↩ Kembali' : 'Batal'; gb.onclick = chatBack;
+  ok.style.display = chat.step === 5 ? '' : 'none';
+  const c = chat.cur, p = c && c.pid ? db.products.filter(x => x.id === c.pid)[0] : null;
+  let h = '';
+  if (chat.step === 0) {
+    h = chatQ('Halo! 👋 Transaksi ini untuk siapa?') + tfCust() +
+      '<div class="acts"><button type="button" class="btn sm" onclick="chatCust()">Lanjut</button></div>';
+  } else if (chat.step === 1) {
+    const fv = favProducts();
+    h = chatQ('Pakai aplikasi apa?') + (db.apps.length ? '<div class="atiles">' + db.apps.map(a => '<button type="button" class="atile" onclick="chatApp(\'' + a.id + '\')"><i>' + appIcon(a.nama) + '</i>' + esc(a.nama) + '</button>').join('') + '</div>' : '') +
+      (fv.length ? '<div class="mut" style="margin-top:12px">⭐ Atau langsung pilih favorit</div><div class="chips">' + fv.map(x => '<button type="button" class="chip" onclick="chatProd(\'' + x.id + '\')">' + esc(x.nama) + '</button>').join('') + '</div>' : '');
+  } else if (chat.step === 2) {
+    const l = db.products.filter(x => x.aplikasiId === c.aid);
+    h = chatQ('Produk apa yang dibeli?') + (l.map(x => '<button type="button" class="pl" onclick="chatProd(\'' + x.id + '\')"><span><b>' + (isFav(x.id) ? '⭐ ' : '') + esc(x.nama) + '</b></span><b>' + rp(x.jual) + '</b></button>').join('') || '<div class="empty">Belum ada produk di aplikasi ini.</div>');
+  } else if (chat.step === 3) {
+    h = chatQ('Nomor HP / ID pelanggan / tujuan untuk <b>' + esc(p ? p.nama : '') + '</b>?') + '<input id="cTuj" inputmode="numeric" placeholder="08xxxxxxxxxx" value="' + esc(c.tuj || '') + '">' +
+      '<div class="two"><div>' + field('Harga modal', '<input id="cMod" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(c.modal) + '">') + '</div>' +
+      '<div>' + field('Harga jual', '<input id="cJual" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(c.jual) + '">') + '</div></div>' +
+      '<div class="acts"><button type="button" class="btn sm" onclick="chatDetail()">Lanjut</button></div>';
+  } else if (chat.step === 4) {
+    h = chatQ('Siap! ✅ ' + chat.items.length + ' item tercatat (' + rp(chatTotal()) + '). Mau tambah item lagi?') +
+      '<div class="acts"><button type="button" class="btn sm ghost" onclick="chatMore()">+ Item lagi</button><button type="button" class="btn sm" onclick="chatPay()">Lanjut ke pembayaran</button></div>';
+  } else {
+    const j = chatTotal(), m = chat.items.reduce((s, x) => s + x.modal, 0);
+    h = chatQ('Terakhir, ada catatan? (boleh dikosongkan)') + field('Catatan (opsional)', '<input id="fCat">') +
+      '<div class="card" style="margin-top:12px"><div class="mut">👤 ' + esc(chat.cname) + '</div>' + chat.items.map(x => '<div class="row s" style="border-top:1px solid var(--bd);padding-top:6px"><div><b>' + esc(x.produk) + '</b><div class="mut">' + esc(x.aplikasi + (x.tujuan ? ' • ' + x.tujuan : '')) + '</div></div><b>' + rp(x.jual) + '</b></div>').join('') +
+      '<div class="row s" style="border-top:1px solid var(--bd);padding-top:6px"><b>Total</b><b>' + rp(j) + '</b></div><div class="ok">Laba: ' + rp(j - m) + '</div></div>';
+    ok.textContent = 'Simpan • ' + rp(j);
+  }
+  box.innerHTML = h;
+}
+function chatCust() {
+  try {
+    stepCustomer();
+    const id = $('#fCust').value, cu = db.customers.filter(x => x.id === id)[0];
+    chatSnap(); chat.cid = id; chat.cname = cu ? cu.nama : '-';
+    chatPush('bot', 'Transaksi untuk siapa?'); chatPush('me', chat.cname);
+    if (chat.pre) { const pid = chat.pre; chat.pre = ''; chatProd(pid, true); } else { chat.step = 1; chatAsk(); }
+  } catch (e) { toast(e.message, 'err'); }
+}
+function chatApp(aid) {
+  const a = db.apps.filter(x => x.id === aid)[0]; chatSnap();
+  chat.cur = {aid: aid}; chatPush('bot', 'Pakai aplikasi apa?'); chatPush('me', a ? a.nama : '-'); chat.step = 2; chatAsk();
+}
+function chatProd(pid, noSnap) {
+  const p = db.products.filter(x => x.id === pid)[0]; if (!p) return;
+  if (!noSnap) chatSnap();
+  chat.cur = {aid: p.aplikasiId, pid: pid, modal: p.modal, jual: p.jual, tuj: ''};
+  chatPush('bot', 'Produk apa?'); chatPush('me', p.nama); chat.step = 3; chatAsk();
+}
+function chatDetail() {
+  const c = chat.cur, p = db.products.filter(x => x.id === c.pid)[0], a = db.apps.filter(x => x.id === c.aid)[0];
+  const tuj = $('#cTuj').value.trim(), md = numVal('#cMod'), jl = numVal('#cJual');
+  chatSnap();
+  chat.items.push({aplikasi: a ? a.nama : (p ? p.aplikasi : ''), produk: p ? p.nama : '', tujuan: tuj, modal: md, jual: jl});
+  chatPush('bot', 'Nomor tujuan & harga?'); chatPush('me', (tuj || 'tanpa tujuan') + ' • ' + rp(jl));
+  chat.cur = null; chat.step = 4; chatAsk();
+}
+function chatMore() { chatSnap(); chatPush('bot', 'Tambah item lagi?'); chatPush('me', 'Ya, tambah'); chat.step = 1; chatAsk(); }
+function chatPay() { chatSnap(); chatPush('bot', 'Tambah item lagi?'); chatPush('me', 'Cukup, lanjut bayar'); chat.step = 5; chatAsk(); }
+async function chatSave() {
+  if (!chat.items.length) throw new Error('Belum ada item');
+  const st = await askPay(chat.cid, chat.items);
+  if (!st) return false;
+  await tfPost(chat.cid, st, $('#fCat').value, chat.items);
+}
+
+function fmTbl(pid) {
+  tfOpen('tbl', 'Transaksi Baru',
+    '<div class="tblTop"><div>' + tfCust() + '</div><div>' + field('Catatan (opsional)', '<input id="fCat">') + '</div></div>' +
+    '<div class="tfsec">🧾 Item</div>' + favChips() +
+    '<div class="trow head"><span>#</span><span>Aplikasi</span><span>Produk</span><span>No. Tujuan</span><span>Modal</span><span>Jual</span><span></span></div>' +
+    '<div id="itemsBox"></div>' + tfAddBtn('+ Tambah baris') + tfSumBar());
+  itemTpl = 'row'; tfFirst(pid);
+}
+
+function fmTab(pid) {
+  tfOpen('tab', 'Transaksi Baru',
+    '<div class="tfTabs"><button type="button" data-p="1" onclick="tfTabGo(1)">👤 Customer<small id="tbC">Umum</small></button>' +
+    '<button type="button" data-p="2" onclick="tfTabGo(2)">🧾 Item<small id="tbI">0 item</small></button>' +
+    '<button type="button" data-p="3" onclick="tfTabGo(3)">📝 Catatan<small id="tbS">-</small></button></div>' +
+    '<div class="tfp" data-p="1">' + tfCust() + '<div class="mut" style="margin-top:8px">Customer wajib diisi sebelum lanjut.</div></div>' +
+    '<div class="tfp" data-p="2">' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div></div>' +
+    '<div class="tfp" data-p="3">' + tfPay() + '</div>', 'Simpan',
+    async function () {
+      try { return await saveTrx(); }
+      catch (e) { if (/customer/i.test(e.message)) tfTabGo(1); else if (/item/i.test(e.message)) tfTabGo(2); throw e; }
+    });
+  tfHook = tfTabSum; $('#mBody').oninput = $('#mBody').onchange = tfTabSum;
+  tfFirst(pid); tfTabGo(1);
+}
+function tfTabGo(n) {
+  if (n > 1) { try { stepCustomer(); } catch (e) { toast(e.message, 'err'); n = 1; } }
+  document.querySelectorAll('.tfp').forEach(e => e.classList.toggle('on', Number(e.dataset.p) === n));
+  document.querySelectorAll('.tfTabs button').forEach(e => e.classList.toggle('on', Number(e.dataset.p) === n));
+  tfTabSum();
+}
+function tfTabSum() {
+  const T = tfT(), a = $('#tbC'); if (!a) return;
+  a.textContent = $('#fCustTxt').value.trim() || '(kosong)';
+  $('#tbI').textContent = T.n + ' item' + (T.j ? ' • ' + rp(T.j) : ''); $('#tbS').textContent = ($('#fCat').value.trim() || '-');
+}
+
+let accCur = 1;
+function fmAcc(pid) {
+  const sec = (n, t, body, next) => '<div class="acc" data-a="' + n + '"><div class="acc-h" onclick="tfAccGo(' + n + ')"><i>' + n + '</i>' + t + '<span class="sm" id="acS' + n + '"></span></div><div class="acc-b">' + body +
+    (next ? '<div class="acts"><button type="button" class="btn sm" onclick="tfAccGo(' + next + ')">Lanjut ▸</button></div>' : '') + '</div></div>';
+  tfOpen('acc', 'Transaksi Baru',
+    sec(1, '👤 Customer', tfCust(), 2) + sec(2, '🧾 Item', favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>', 3) + sec(3, '📝 Catatan', tfPay()));
+  tfHook = tfAccSum; $('#mBody').oninput = $('#mBody').onchange = tfAccSum;
+  tfFirst(pid); tfAccGo(1);
+}
+function tfAccGo(n) {
+  if (n > 1) { try { stepCustomer(); } catch (e) { toast(e.message, 'err'); n = 1; } }
+  accCur = n; tfAccSum();
+}
+function tfAccSum() {
+  const T = tfT(); if (!$('#acS1')) return;
+  $('#acS1').textContent = $('#fCustTxt').value.trim() || '(kosong)';
+  $('#acS2').textContent = T.n + ' item • ' + rp(T.j); $('#acS3').textContent = $('#fCat').value.trim() || '-';
+  document.querySelectorAll('.acc').forEach(e => { const k = Number(e.dataset.a); e.classList.toggle('open', k === accCur); e.classList.toggle('done', k < accCur); });
+}
+
+function fmNota(pid) {
+  tfOpen('nota', 'Transaksi Baru',
+    '<div class="nota"><div>' + tfCust() + '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + tfPay() + '</div>' +
+    '<div class="strwrap"><div class="mut" style="margin-bottom:6px"><b>🧾 Pratinjau nota (langsung)</b></div><div class="strk" id="liveStrk"></div></div></div>');
+  tfHook = tfNotaDraw; $('#mBody').oninput = $('#mBody').onchange = tfNotaDraw;
+  tfFirst(pid);
+}
+function tfNotaDraw() {
+  const box = $('#liveStrk'); if (!box) return;
+  const rows = Array.prototype.map.call(document.querySelectorAll('.itm'), el => {
+    const p = el.querySelector('.iProd'), po = p.options[p.selectedIndex];
+    return {nm: po ? po.textContent : '-', tuj: el.querySelector('.iTuj').value.trim(), jual: numOf(el.querySelector('.iJual'))};
+  });
+  const tot = rows.reduce((s, x) => s + x.jual, 0);
+  const tgl = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short'});
+  box.innerHTML = '<div class="sc"><b>' + esc(tokoName || appName) + '</b></div><div class="sc">' + esc(tgl) + '</div><hr>' +
+    '<div>Customer: ' + esc($('#fCustTxt').value.trim() || '-') + '</div><hr>' +
+    rows.map(x => '<div>' + esc(x.nm) + '</div>' + (x.tuj ? '<div>  ' + esc(x.tuj) + '</div>' : '') + '<div class="sr"><span></span><span>' + rp(x.jual) + '</span></div>').join('') +
+    '<hr><div class="sr"><b>TOTAL</b><b>' + rp(tot) + '</b></div><div class="sc" style="margin-top:6px">(status bayar dipilih saat Simpan)</div>';
+}
+
+function fmFull(pid) {
+  tfOpen('full', 'Transaksi Baru',
+    '<div class="stats" style="margin-top:10px"><div class="stat hero"><div class="l">Total</div><div class="v tfTot">Rp 0</div></div><div class="stat"><div class="l">Laba</div><div class="v ok tfLaba">Rp 0</div></div><div class="stat"><div class="l">Jumlah item</div><div class="v tfN">0</div></div></div>' +
+    '<div class="fullg"><div class="card"><h2 style="margin:0">👤 Customer & Catatan</h2>' + tfCust() + tfPay() + '</div>' +
+    '<div class="card"><h2 style="margin:0">🧾 Item</h2>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '</div></div>');
+  tfFirst(pid);
+}
+
+let kpAct = null;
+function fmKp(pid) {
+  const kb = (l, k) => '<button type="button" onclick="kpKey(\'' + k + '\')">' + l + '</button>';
+  tfOpen('kp', 'Transaksi Baru',
+    tfCust() + '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>' +
+    '<div class="tfsec">⌨️ Keypad nomor tujuan</div><div class="mut">Pilih kotak item, lalu ketuk angka di bawah.</div>' +
+    '<div class="kpd">' + '123456789'.split('').map(d => kb(d, d)).join('') + kb('C', 'C') + kb('0', '0') + kb('⌫', '<') + '</div>' + tfPay());
+  kpAct = null;
+  tfItemHook = function (el) { const t = el.querySelector('.iTuj'); t.setAttribute('inputmode', 'none'); t.onfocus = function () { kpSet(el); }; kpSet(el); };
+  tfFirst(pid);
+}
+function kpSet(el) { kpAct = el; document.querySelectorAll('.itm').forEach(x => x.classList.toggle('kpOn', x === el)); }
+function kpKey(k) {
+  const l = document.querySelectorAll('.itm'); if (!l.length) return;
+  const el = kpAct && document.body.contains(kpAct) ? kpAct : l[0], t = el.querySelector('.iTuj');
+  if (k === 'C') t.value = ''; else if (k === '<') t.value = t.value.slice(0, -1); else t.value += k;
+  if (tfHook) tfHook();
+}
+
+const TF_STYLES = [
+  {k: 'step', n: 'Bertahap', d: '3 langkah: Customer → Item → Bayar. Tampilan yang lama.', build: fmStep},
+  {k: 'one', n: 'Satu Halaman', d: 'Semua isian di satu layar. Tinggal scroll lalu simpan.', build: fmOne},
+  {k: 'pos', n: 'Kasir Cepat', d: 'Ketuk kotak produk, langsung masuk keranjang. Cocok saat ramai.', build: fmPos},
+  {k: 'chat', n: 'Percakapan', d: 'Ditanya satu per satu seperti chat. Mudah dan tidak bingung.', build: fmChat},
+  {k: 'tbl', n: 'Tabel Ringkas', d: 'Item berjajar seperti spreadsheet. Cepat untuk banyak item.', build: fmTbl},
+  {k: 'tab', n: 'Tab Bebas', d: 'Pindah Customer / Item / Bayar kapan saja lewat tab.', build: fmTab},
+  {k: 'acc', n: 'Akordeon', d: 'Bagian melipat; yang sudah diisi tampil ringkas.', build: fmAcc},
+  {k: 'nota', n: 'Nota Langsung', d: 'Isi form sambil melihat struk terbentuk langsung.', build: fmNota},
+  {k: 'full', n: 'Layar Penuh', d: 'Dua kolom lega dengan total besar. Enak di laptop/tablet.', build: fmFull},
+  {k: 'kp', n: 'Keypad Besar', d: 'Tombol angka besar di layar untuk mengetik nomor tujuan.', build: fmKp}
+];
+function tfThumb(k) {
+  const P = 'var(--p)', G = 'var(--bd)', W = 'var(--surf)', S = 'var(--soft)';
+  const r = (x, y, w, h, c, rx, st) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (rx == null ? 2 : rx) + '" style="fill:' + (c || G) + (st ? ';stroke:' + st + ';stroke-width:.8' : '') + '"/>';
+  const ci = (x, y, rr, c) => '<circle cx="' + x + '" cy="' + y + '" r="' + rr + '" style="fill:' + c + '"/>';
+  let s = '', i, j;
+  switch (k) {
+    case 'step': s = r(20, 7.4, 16, 1.2) + r(44, 7.4, 16, 1.2) + ci(16, 8, 4.5, P) + ci(40, 8, 4.5, G) + ci(64, 8, 4.5, G) + r(8, 19, 64, 8) + r(8, 31, 64, 8) + r(8, 44, 64, 8, P, 4); break;
+    case 'one': s = r(8, 5, 22, 3, P) + r(8, 10, 64, 7) + r(8, 21, 22, 3, P) + r(8, 26, 64, 7) + r(8, 36, 22, 3, P) + r(8, 41, 30, 5) + r(42, 41, 30, 5) + r(8, 49, 64, 5, P, 3); break;
+    case 'pos': for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) s += r(5 + i * 18, 5 + j * 16, 16, 13, i + j === 1 ? P : G, 3); s += r(60, 5, 16, 46, S) + r(62, 9, 12, 2) + r(62, 14, 12, 2) + r(62, 44, 12, 5, P, 2); break;
+    case 'chat': s = r(6, 5, 36, 9, G, 4) + r(38, 17, 36, 9, P, 4) + r(6, 29, 30, 9, G, 4) + r(44, 41, 30, 9, P, 4); break;
+    case 'tbl': s = r(5, 5, 70, 5, S); for (j = 0; j < 4; j++) s += r(5, 13 + j * 9, 6, 7) + r(13, 13 + j * 9, 14, 7) + r(29, 13 + j * 9, 20, 7) + r(51, 13 + j * 9, 12, 7) + r(65, 13 + j * 9, 10, 7, P); s += r(5, 49, 22, 5, P, 3); break;
+    case 'tab': s = r(5, 5, 70, 11, S, 5) + r(7, 7, 21, 7, P, 4) + r(33, 9, 14, 3) + r(55, 9, 14, 3) + r(5, 21, 70, 8) + r(5, 32, 70, 8) + r(5, 48, 70, 6, P, 3); break;
+    case 'acc': s = r(5, 4, 70, 9) + r(5, 16, 70, 25, S, 3, P) + r(10, 21, 60, 6, W) + r(10, 30, 60, 6, W) + r(5, 44, 70, 9); break;
+    case 'nota': s = r(5, 6, 36, 6) + r(5, 16, 36, 6) + r(5, 26, 36, 6) + r(5, 36, 36, 6) + r(5, 47, 36, 6, P, 3) + r(47, 4, 28, 48, W, 2, G) + r(51, 9, 20, 2) + r(51, 15, 20, 2) + r(51, 21, 20, 2) + r(51, 27, 20, 2) + r(51, 41, 20, 3, P); break;
+    case 'full': s = r(4, 4, 72, 13, P, 4) + r(4, 21, 26, 31, S, 3) + r(8, 25, 18, 4, G) + r(8, 32, 18, 4, G) + r(34, 21, 42, 31, S, 3) + r(38, 25, 34, 6, G) + r(38, 34, 34, 6, G); break;
+    default: s = r(10, 4, 60, 9) + r(10, 15, 22, 4, P, 2); for (i = 0; i < 3; i++) for (j = 0; j < 4; j++) s += r(16 + i * 17, 22 + j * 8, 15, 6.5, S, 2);
+  }
+  return '<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + s + '</svg>';
+}
+function tfSettingsCard() {
+  const cur = tfCur();
+  return '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 4px">📝 Tampilan Form Transaksi</h2>' +
+    '<div class="mut">Pilih gaya form “Transaksi Baru”. Bosan? Ganti kapan saja. Tombol <b>Coba</b> membuka form (tekan Batal jika hanya melihat). Pilihan tersimpan di perangkat ini.</div><div class="tfgrid">' +
+    TF_STYLES.map((s, i) => '<div class="tfc' + (s.k === cur ? ' on' : '') + '">' + tfThumb(s.k) + '<b>' + (i + 1) + '. ' + esc(s.n) + (s.k === cur ? ' ✓' : '') + '</b><div class="mut">' + esc(s.d) + '</div>' +
+      '<div class="acts"><button class="btn sm' + (s.k === cur ? '' : ' ghost') + '" onclick="setTf(\'' + s.k + '\')">' + (s.k === cur ? 'Dipakai' : 'Pakai') + '</button><button class="btn sm ghost" onclick="tryTf(\'' + s.k + '\')">Coba</button></div></div>').join('') +
+    '</div></div>';
+}
+
 (function () {
   const MAX = 5; let guard = 0;
   const fill = function () {
@@ -1444,7 +1694,11 @@ function closeThemes() { $('#themes').classList.remove('show'); }
     if (on('#payAsk')) { $('#payC').click(); return; }
     if (on('#confirm')) { $('#cNo').click(); return; }
     if (on('#themes')) { closeThemes(); return; }
-    if (on('#modal')) { closeModal(); return; }
+    if (on('#modal')) {
+      const jd = $('#mTitle').textContent;
+      if (jd === 'Transaksi Baru' || jd === 'Kasir Cepat') return;
+      closeModal(); return;
+    }
     if (on('#login')) return;
     if (page !== 'home') { go('home'); return; }
   });
