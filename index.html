@@ -408,7 +408,7 @@ async function logout() {
   sess.del('ppob_pin'); pin = ''; page = 'home'; fq = ''; fs = ''; fd = ''; cq = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
 
 /* ====== PENGATURAN ====== */
-const APP_VER = '2.2';
+const APP_VER = '2.3';
 let appName = store.get('ppob_appname') || 'PPOB Kasir', tokoName = store.get('ppob_toko') || '', tokoWa = store.get('ppob_wa') || '';
 const sett = () => db.settings || {};
 const favs = () => sett().fav || [];
@@ -597,17 +597,14 @@ function notaCard(l) {
   return '<div class="item"><div class="row"><div><b>👤 ' + esc(t.customer || 'Umum') + '</b><div class="mut">' + esc(t.tanggal) + ' ' + esc(jamOf(t)) + ' • ' + l.length + ' item</div></div>' +
     '<div class="r"><b>' + rp(sum(l, 'jual')) + '</b><div class="ok" style="font-size:13px">Laba ' + rp(sum(l, 'laba')) + '</div></div></div>' +
     '<div style="margin-top:6px"><span class="badge ' + (st === 'Lunas' ? 'g' : 'o') + '">' + esc(st) + '</span></div>' +
-    '<div style="margin-top:8px">' + l.map(x => {
-      const b = x.status === 'Belum Bayar';
-      return '<div style="border-top:1px solid var(--bd);padding:8px 0"><div class="row"><div><b>' + esc(x.produk) + '</b><div class="mut">' + esc(x.aplikasi) + ' • ' + esc(x.tujuan || '-') + '</div></div>' +
-        '<div class="r"><b>' + rp(x.jual) + '</b><div class="ok" style="font-size:12px">Laba ' + rp(x.laba) + '</div>' + (b ? '<span class="badge o">Belum Bayar</span>' : '') + '</div></div>' +
-        '<div class="acts" style="margin-top:6px"><button class="btn sm ghost" onclick="editTrxForm(\'' + x.id + '\')">✏️ Edit</button>' +
-        (b ? '<button class="btn sm green" onclick="payIds([\'' + x.id + '\'])">✔ Lunasi</button>' : '') +
-        '<button class="btn sm red" onclick="delTrx(\'' + x.id + '\')">Hapus</button></div></div>';
-    }).join('') + '</div>' +
-    (t.catatan ? '<div class="mut" style="margin-top:2px">📝 ' + esc(t.catatan) + '</div>' : '') +
+    '<div style="margin-top:8px">' + l.map(x =>
+      '<div class="row" style="border-top:1px solid var(--bd);padding:8px 0"><div><b>' + esc(x.produk) + '</b><div class="mut">' + esc(x.aplikasi) + ' • ' + esc(x.tujuan || '-') + '</div></div>' +
+      '<div class="r"><b>' + rp(x.jual) + '</b><div class="ok" style="font-size:12px">Laba ' + rp(x.laba) + '</div>' + (x.status === 'Belum Bayar' && st !== 'Belum Bayar' ? '<span class="badge o">Belum Bayar</span>' : '') + '</div></div>').join('') + '</div>' +
+    (t.catatan ? '<div class="mut">📝 ' + esc(t.catatan) + '</div>' : '') +
     '<div class="acts"><button class="btn sm ghost" onclick="strukForm(\'' + t.id + '\')">🧾 Struk (' + l.length + ' item)</button>' +
-    (bl.length > 1 ? '<button class="btn sm green" onclick="payIds([\'' + bl.map(x => x.id).join('\',\'') + '\'])">✔ Lunasi Semua</button>' : '') + '</div></div>';
+    (bl.length ? '<button class="btn sm green" onclick="payIds([\'' + bl.map(x => x.id).join('\',\'') + '\'])">✔ Lunasi' + (bl.length > 1 ? ' Semua' : '') + '</button>' : '') +
+    '<button class="btn sm ghost" onclick="editTrxForm(\'' + t.id + '\')">✏️ Edit</button>' +
+    '<button class="btn sm red" onclick="delTrx(\'' + t.id + '\')">Hapus</button></div></div>';
 }
 
 /* --- Beranda --- */
@@ -792,7 +789,7 @@ async function saveTrx() {
   sayBerhasil(); toast(items.length > 1 ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil', 'good');
 }
 
-/* --- Edit transaksi (per baris/item) --- */
+/* --- Edit transaksi (satu nota, semua item) --- */
 function eProdOpts(aid, selName) {
   const l = db.products.filter(p => p.aplikasiId === aid);
   let found = false;
@@ -804,29 +801,32 @@ function eProdOpts(aid, selName) {
   if (selName && !found) h = '<option value="" selected>' + esc(selName) + ' (lama)</option>' + h;
   return h || '<option value="">(belum ada produk)</option>';
 }
-function eAppChg() { $('#eProd').innerHTML = eProdOpts($('#eApp').value, ''); eProdChg(); }
-function eProdChg() {
-  const p = db.products.filter(x => x.id === $('#eProd').value)[0];
-  if (p) { $('#eMod').value = fmtNum(p.modal); $('#eJual').value = fmtNum(p.jual); }
-  eCalc();
+function addItemFrom(x) {
+  const box = $('#itemsBox'); box.insertAdjacentHTML('beforeend', itemHtml());
+  const el = box.lastElementChild;
+  el.dataset.id = x.id; el.dataset.app = x.aplikasi; el.dataset.prod = x.produk;
+  const as = el.querySelector('.iApp'), ps = el.querySelector('.iProd');
+  const a = db.apps.filter(z => z.nama === x.aplikasi)[0];
+  if (a) { as.value = a.id; ps.innerHTML = eProdOpts(a.id, x.produk); }
+  else {
+    as.insertAdjacentHTML('afterbegin', '<option value="" selected>' + esc(x.aplikasi) + ' (lama)</option>'); as.value = '';
+    ps.innerHTML = '<option value="" selected>' + esc(x.produk) + ' (lama)</option>';
+  }
+  el.querySelector('.iTuj').value = x.tujuan || '';
+  el.querySelector('.iMod').value = fmtNum(x.modal); el.querySelector('.iJual').value = fmtNum(x.jual);
+  itemCalc(el.querySelector('.iMod')); renumber();
 }
-function eCalc() { $('#eLaba').textContent = 'Laba: ' + rp(numVal('#eJual') - numVal('#eMod')); }
 function editTrxForm(id) {
   const t = db.trx.filter(x => x.id === id)[0]; if (!t) return;
-  const app = db.apps.filter(a => a.nama === t.aplikasi)[0];
-  const ao = (app ? '' : '<option value="" selected>' + esc(t.aplikasi) + ' (lama)</option>') +
-    db.apps.map(a => '<option value="' + a.id + '"' + (app && a.id === app.id ? ' selected' : '') + '>' + esc(a.nama) + '</option>').join('');
-  const cname = t.customerId ? t.customer : '';
+  const l = grpOf(t).slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  const lab = stLabel(l), cur = lab === 'Sebagian lunas' ? 'keep' : lab;
+  const rd = (v, txt) => '<label><input type="radio" name="est" value="' + v + '"' + (cur === v ? ' checked' : '') + '>' + txt + '</label>';
   modal('Edit Transaksi',
-    '<div class="mut">' + esc(t.tanggal) + ' ' + esc(jamOf(t)) + ' (tanggal & jam tidak berubah)</div>' +
-    field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama)" value="' + esc(cname) + '" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value="' + esc(t.customerId) + '"><div id="csList" class="cs-list"></div></div>') +
-    '<div class="two"><div>' + field('Aplikasi', '<select id="eApp" onchange="eAppChg()">' + ao + '</select>') + '</div>' +
-    '<div>' + field('Produk', '<select id="eProd" onchange="eProdChg()">' + eProdOpts(app ? app.id : '', t.produk) + '</select>') + '</div></div>' +
-    field('No. HP / ID Pelanggan / Tujuan', '<input id="eTuj" inputmode="numeric" value="' + esc(t.tujuan) + '">') +
-    '<div class="two"><div>' + field('Harga Modal', '<input id="eMod" type="text" inputmode="numeric" autocomplete="off" value="' + fmtNum(t.modal) + '" oninput="fmtInput(this);eCalc()">') + '</div>' +
-    '<div>' + field('Harga Jual', '<input id="eJual" type="text" inputmode="numeric" autocomplete="off" value="' + fmtNum(t.jual) + '" oninput="fmtInput(this);eCalc()">') + '</div></div>' +
-    '<div class="ok" id="eLaba" style="margin-top:6px"></div>' +
-    field('Status pembayaran', '<div class="seg"><label><input type="radio" name="est" value="Lunas"' + (t.status === 'Lunas' ? ' checked' : '') + '>✅ Lunas</label><label><input type="radio" name="est" value="Belum Bayar"' + (t.status === 'Belum Bayar' ? ' checked' : '') + '>⏳ Belum Bayar</label></div>') +
+    '<div class="mut">' + esc(t.tanggal) + ' ' + esc(jamOf(t)) + ' • ' + l.length + ' item (tanggal & jam tidak berubah)</div>' +
+    field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama)" value="' + esc(t.customerId ? t.customer : '') + '" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value="' + esc(t.customerId) + '"><div id="csList" class="cs-list"></div></div>') +
+    '<div class="mut" style="margin-top:10px"><b>Daftar item</b></div><div id="itemsBox"></div>' +
+    '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">+ Tambah item</button><div class="ok" id="fTot"></div>' +
+    field('Status pembayaran', '<div class="seg">' + rd('Lunas', '✅ Lunas') + rd('Belum Bayar', '⏳ Belum Bayar') + (cur === 'keep' ? rd('keep', 'Tetap (sebagian lunas)') : '') + '</div>') +
     field('Catatan (opsional)', '<input id="eCat" value="' + esc(t.catatan) + '">'),
     async function () {
       let cid = $('#fCust').value;
@@ -837,22 +837,26 @@ function editTrxForm(id) {
         if (m.length === 1) cid = m[0].id; else throw new Error('Pilih customer dari daftar yang muncul');
       }
       const st = document.querySelector('input[name=est]:checked').value;
-      if (st === 'Belum Bayar' && !cid) throw new Error('Pilih customer untuk transaksi belum bayar');
-      const a = db.apps.filter(x => x.id === $('#eApp').value)[0];
-      const p = db.products.filter(x => x.id === $('#eProd').value)[0];
-      setDb(await api('editTrx', {
-        id: id, customerId: cid, customer: ct, status: st, catatan: $('#eCat').value.trim(),
-        aplikasi: a ? a.nama : t.aplikasi, produk: p ? p.nama : t.produk,
-        tujuan: $('#eTuj').value.trim(), modal: numVal('#eMod'), jual: numVal('#eJual')
-      }));
+      if (st !== 'Lunas' && !cid) throw new Error('Pilih customer untuk transaksi belum bayar');
+      const items = Array.prototype.map.call(document.querySelectorAll('.itm'), function (el, i) {
+        const p = db.products.filter(x => x.id === el.querySelector('.iProd').value)[0];
+        const a = db.apps.filter(x => x.id === el.querySelector('.iApp').value)[0];
+        const an = a ? a.nama : (el.dataset.app || ''), pn = p ? p.nama : (el.dataset.prod || '');
+        if (!an || !pn) throw new Error('Item ' + (i + 1) + ': pilih aplikasi dan produk');
+        return {id: el.dataset.id || '', aplikasi: an, produk: pn, tujuan: el.querySelector('.iTuj').value.trim(), modal: numOf(el.querySelector('.iMod')), jual: numOf(el.querySelector('.iJual'))};
+      });
+      if (!items.length) throw new Error('Tambahkan minimal 1 item');
+      setDb(await api('editNota', {base: nota(id), customerId: cid, customer: ct, status: st, catatan: $('#eCat').value.trim(), items: items}));
       render(); toast('Transaksi diperbarui', 'good');
     }, 'Simpan Perubahan');
-  eCalc();
+  l.forEach(addItemFrom); updTot();
 }
 
 async function delTrx(id) {
-  if (!(await askConfirm('Hapus transaksi?', 'Transaksi yang dihapus tidak bisa dikembalikan.', 'Hapus', '🗑️', true))) return;
-  try { setBusy(true); setDb(await api('deleteTrx', {id: id})); render(); toast('Transaksi dihapus'); }
+  const t = db.trx.filter(x => x.id === id)[0]; if (!t) return;
+  const ids = grpOf(t).map(x => x.id);
+  if (!(await askConfirm('Hapus transaksi?', ids.length > 1 ? 'Semua ' + ids.length + ' item dalam transaksi ini akan dihapus. Tidak bisa dikembalikan.' : 'Transaksi yang dihapus tidak bisa dikembalikan.', 'Hapus', '🗑️', true))) return;
+  try { setBusy(true); setDb(await api('deleteNota', {ids: ids})); render(); toast('Transaksi dihapus'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
 async function payIds(ids) {
