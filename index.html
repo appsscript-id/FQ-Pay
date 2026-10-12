@@ -224,7 +224,6 @@ label.f{font-size:calc(13px*var(--fs))}.sec h2,.card h2{font-size:calc(17px*var(
 <div id="toast"></div>
 <div id="login"><div class="box"><div class="big">🔐</div><h2 id="loginName" style="margin:6px 0">PPOB Kasir</h2><div class="mut" id="loginToko"></div>
   <p class="mut">Masukkan PIN untuk masuk</p>
-  <div id="loginThemes" style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0 12px"></div>
   <input id="pinIn" type="password" inputmode="numeric" placeholder="PIN" onkeydown="if(event.key==='Enter')doLogin()">
   <button class="btn" style="width:100%;margin-top:14px" onclick="doLogin()">Masuk</button></div></div>
 
@@ -538,7 +537,6 @@ function buildNav() {
   const mk = n => '<button class="nav" data-nav="' + n[0] + '" onclick="go(\'' + n[0] + '\')"><span class="ic">' + n[1] + '</span><span>' + n[2] + '</span>' + (n[0] === 'unpaid' ? '<span class="cnt" data-cnt style="display:none"></span>' : '') + '</button>';
   $('#side').innerHTML = '<div class="brand"><i>💳</i>' + esc(appName) + '</div>' + NAV.map(mk).join('') +
     '<div class="sp"></div><button class="btn" onclick="trxForm()">+ Transaksi Baru</button>' +
-    '<button class="nav" onclick="openThemes()"><span class="ic">🎨</span><span>Tema</span></button>' +
     '<button class="nav" onclick="logout()"><span class="ic">🚪</span><span>Keluar</span></button>';
   $('#bottom').innerHTML = NAV.map(mk).join('');
 }
@@ -549,7 +547,8 @@ function render() {
   document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === page));
   $('#title').textContent = NAV.filter(n => n[0] === page)[0][2];
   const pages = {home: pHome, trx: pTrx, unpaid: pUnpaid, cust: pCust, apps: pApps, prod: pProd, rekap: pRekap, laba: pLaba, set: pSet};
-  $('#view').innerHTML = pages[page]();
+  try { $('#view').innerHTML = pages[page](); }
+  catch (e) { $('#view').innerHTML = '<div class="empty">Gagal menampilkan halaman: ' + esc(e.message) + '</div>'; }
   if (page === 'set') drawThemes();
   const nb = db.trx.filter(t => t.status === 'Belum Bayar').length;
   document.querySelectorAll('[data-cnt]').forEach(e => { e.textContent = nb; e.style.display = nb ? '' : 'none'; });
@@ -787,16 +786,12 @@ function applyTheme(t) {
   document.documentElement.dataset.theme = t; store.set('ppob_theme', t);
   const m = document.querySelector('meta[name=theme-color]');
   if (m) m.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--p').trim());
-  drawThemes(); drawLoginThemes();
+  drawThemes();
 }
 function drawThemes() {
   const gh = THEMES.map(t => '<button class="tcard' + (t[0] === curTheme() ? ' on' : '') + '" onclick="applyTheme(\'' + t[0] + '\')">' +
     '<div class="sw" data-theme="' + t[0] + '">' + t[2] + '</div><span>' + t[1] + (t[0] === curTheme() ? ' ✓' : '') + '</span></button>').join('');
   document.querySelectorAll('.tgrid').forEach(e => { e.innerHTML = gh; });
-}
-function drawLoginThemes() {
-  const el = $('#loginThemes'); if (!el) return;
-  el.innerHTML = THEMES.map(t => '<button title="' + t[1] + '" onclick="applyTheme(\'' + t[0] + '\')" style="width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;border:2px solid ' + (t[0] === curTheme() ? 'var(--p)' : 'var(--bd)') + '">' + t[2] + '</button>').join('');
 }
 function openThemes() { drawThemes(); $('#themes').classList.add('show'); }
 function closeThemes() { $('#themes').classList.remove('show'); }
