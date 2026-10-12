@@ -560,7 +560,7 @@ function render() {
   document.querySelectorAll('[data-cnt]').forEach(e => { e.textContent = nb; e.style.display = nb ? '' : 'none'; });
 }
 
-function trxCard(t) {
+function singleCard(t) {
   const belum = t.status === 'Belum Bayar';
   return '<div class="item"><div class="row"><div><b>' + esc(t.produk) + '</b><div class="mut">' + esc(t.aplikasi) + ' • ' + esc(t.tujuan || '-') + '</div></div>' +
     '<div class="r"><b>' + rp(t.jual) + '</b><div class="ok" style="font-size:13px">Laba ' + rp(t.laba) + '</div></div></div>' +
@@ -572,6 +572,33 @@ function trxCard(t) {
     '<button class="btn sm red" onclick="delTrx(\'' + t.id + '\')">Hapus</button></div></div>';
 }
 const sorted = a => a.slice().sort((x, y) => (y.tanggal + y.jam + y.id).localeCompare(x.tanggal + x.jam + x.id));
+
+/* Kelompokkan baris transaksi per nota (id sama, beda akhiran huruf) */
+function groupTrx(l) {
+  const m = {}, out = [];
+  l.forEach(t => { const k = nota(t.id); if (!m[k]) { m[k] = []; out.push(m[k]); } m[k].push(t); });
+  out.forEach(g => g.sort((a, b) => String(a.id).localeCompare(String(b.id))));
+  return out;
+}
+/* Satu kartu per nota: 1 item = kartu biasa, >1 item = kartu gabungan */
+function notaCard(l) {
+  if (l.length === 1) return singleCard(l[0]);
+  const t = l[0], bl = l.filter(x => x.status === 'Belum Bayar'), st = stLabel(l);
+  return '<div class="item"><div class="row"><div><b>👤 ' + esc(t.customer || 'Umum') + '</b><div class="mut">' + esc(t.tanggal) + ' ' + esc(jamOf(t)) + ' • ' + l.length + ' item</div></div>' +
+    '<div class="r"><b>' + rp(sum(l, 'jual')) + '</b><div class="ok" style="font-size:13px">Laba ' + rp(sum(l, 'laba')) + '</div></div></div>' +
+    '<div style="margin-top:6px"><span class="badge ' + (st === 'Lunas' ? 'g' : 'o') + '">' + esc(st) + '</span></div>' +
+    '<div style="margin-top:8px">' + l.map(x => {
+      const b = x.status === 'Belum Bayar';
+      return '<div style="border-top:1px solid var(--bd);padding:8px 0"><div class="row"><div><b>' + esc(x.produk) + '</b><div class="mut">' + esc(x.aplikasi) + ' • ' + esc(x.tujuan || '-') + '</div></div>' +
+        '<div class="r"><b>' + rp(x.jual) + '</b><div class="ok" style="font-size:12px">Laba ' + rp(x.laba) + '</div>' + (b ? '<span class="badge o">Belum Bayar</span>' : '') + '</div></div>' +
+        '<div class="acts" style="margin-top:6px"><button class="btn sm ghost" onclick="editTrxForm(\'' + x.id + '\')">✏️ Edit</button>' +
+        (b ? '<button class="btn sm green" onclick="payIds([\'' + x.id + '\'])">✔ Lunasi</button>' : '') +
+        '<button class="btn sm red" onclick="delTrx(\'' + x.id + '\')">Hapus</button></div></div>';
+    }).join('') + '</div>' +
+    (t.catatan ? '<div class="mut" style="margin-top:2px">📝 ' + esc(t.catatan) + '</div>' : '') +
+    '<div class="acts"><button class="btn sm ghost" onclick="strukForm(\'' + t.id + '\')">🧾 Struk (' + l.length + ' item)</button>' +
+    (bl.length > 1 ? '<button class="btn sm green" onclick="payIds([\'' + bl.map(x => x.id).join('\',\'') + '\'])">✔ Lunasi Semua</button>' : '') + '</div></div>';
+}
 
 /* --- Beranda --- */
 function pHome() {
@@ -586,7 +613,7 @@ function pHome() {
     '<div class="stat"><div class="l">Laba bulan ini</div><div class="v">' + rp(sum(bl, 'laba')) + '</div></div>' +
     '<div class="stat" style="cursor:pointer" onclick="go(\'unpaid\')"><div class="l">Belum bayar (' + Object.keys(custBelum).length + ' customer)</div><div class="v bad">' + rp(sum(bb, 'jual')) + '</div></div></div>' +
     favHome() + '<div class="sec"><h2>Transaksi terbaru</h2><button class="btn sm" onclick="trxForm()">+ Transaksi</button></div>' +
-    (T.length ? '<div class="grid">' + sorted(T).slice(0, 8).map(trxCard).join('') + '</div>' : '<div class="empty">Belum ada transaksi. Tekan tombol + untuk memulai.</div>');
+    (T.length ? '<div class="grid">' + groupTrx(sorted(T)).slice(0, 8).map(notaCard).join('') + '</div>' : '<div class="empty">Belum ada transaksi. Tekan tombol + untuk memulai.</div>');
 }
 
 /* --- Transaksi --- */
@@ -598,8 +625,9 @@ function filteredTrx() {
 }
 function trxListHtml() {
   const l = filteredTrx();
-  return '<div class="mut" style="margin-bottom:8px">' + l.length + ' transaksi • Total ' + rp(sum(l, 'jual')) + ' • Laba ' + rp(sum(l, 'laba')) + '</div>' +
-    (l.length ? '<div class="grid">' + l.slice(0, 200).map(trxCard).join('') + '</div>' : '<div class="empty">Tidak ada transaksi</div>');
+  const g = groupTrx(l);
+  return '<div class="mut" style="margin-bottom:8px">' + g.length + ' transaksi (' + l.length + ' item) • Total ' + rp(sum(l, 'jual')) + ' • Laba ' + rp(sum(l, 'laba')) + '</div>' +
+    (l.length ? '<div class="grid">' + g.slice(0, 200).map(notaCard).join('') + '</div>' : '<div class="empty">Tidak ada transaksi</div>');
 }
 function updTrx() { $('#trxList').innerHTML = trxListHtml(); }
 function pTrx() {
