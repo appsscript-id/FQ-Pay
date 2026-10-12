@@ -88,6 +88,16 @@ tfoot td{font-weight:750;background:#f6f7fd}
 .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:99px}
 .barrow{margin-bottom:14px}
 
+/* dialog konfirmasi */
+#confirm{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:85;padding:18px}
+#confirm.show{display:flex}
+.cbox{background:#fff;border-radius:22px;padding:22px;width:min(380px,100%);text-align:center;animation:pop .15s ease-out}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.cic{font-size:38px}
+.cbox h3{margin:6px 0 4px;font-size:18px}
+.cbox p{margin:0;color:var(--mut)}
+.btn.dng{background:var(--bad)}
+
 /* pencarian customer */
 .cs-list{display:none;border:1px solid var(--bd);border-radius:12px;margin-top:6px;max-height:210px;overflow:auto;background:#fff}
 .cs-list.show{display:block}
@@ -137,6 +147,8 @@ tfoot td{font-weight:750;background:#f6f7fd}
 <div id="modal"><div class="sheet"><h3 id="mTitle"></h3><div id="mBody"></div>
   <div class="mfoot"><button class="btn ghost" onclick="closeModal()">Batal</button><button class="btn" id="mOk" onclick="submitModal()">Simpan</button></div></div></div>
 <div id="busy"><div class="spin"></div></div>
+<div id="confirm"><div class="cbox"><div class="cic" id="cIc">❓</div><h3 id="cTitle"></h3><p id="cMsg"></p>
+  <div class="mfoot"><button class="btn ghost" id="cNo">Batal</button><button class="btn" id="cYes">Ya</button></div></div></div>
 <div id="toast"></div>
 <div id="login"><div class="box"><div class="big">🔐</div><h2 style="margin:6px 0">PPOB Kasir</h2>
   <p class="mut">Masukkan PIN untuk masuk</p>
@@ -271,6 +283,20 @@ async function submitModal() {
 }
 const field = (l, h) => '<label class="f">' + l + '</label>' + h;
 
+/* Dialog konfirmasi (pengganti confirm bawaan browser) */
+function askConfirm(title, msg, okText, icon, danger) {
+  return new Promise(function (resolve) {
+    $('#cIc').textContent = icon || '❓'; $('#cTitle').textContent = title; $('#cMsg').textContent = msg || '';
+    const y = $('#cYes'), n = $('#cNo'), box = $('#confirm');
+    y.textContent = okText || 'Ya'; y.className = 'btn' + (danger ? ' dng' : '');
+    box.classList.add('show');
+    const done = function (v) { box.classList.remove('show'); y.onclick = n.onclick = box.onclick = null; resolve(v); };
+    y.onclick = function () { done(true); };
+    n.onclick = function () { done(false); };
+    box.onclick = function (e) { if (e.target === box) done(false); };
+  });
+}
+
 /* Format angka ribuan: 10000 -> 10.000 */
 function fmtNum(v) { const d = String(v == null ? '' : v).replace(/\D/g, ''); return d ? Number(d).toLocaleString('id-ID') : ''; }
 function numVal(sel) { return Number(String($(sel).value).replace(/\D/g, '')) || 0; }
@@ -294,7 +320,9 @@ async function doLogin() {
     $('#login').classList.remove('show');
   } catch (e) { toast(e.message, 'err'); if (/PIN/.test(e.message)) $('#pinIn').value = ''; }
 }
-function logout() { sess.del('ppob_pin'); pin = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
+async function logout() {
+  if (!(await askConfirm('Keluar dari aplikasi?', 'Anda perlu memasukkan PIN lagi untuk masuk.', 'Keluar', '🚪'))) return;
+  sess.del('ppob_pin'); pin = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
 
 /* ====== NAVIGASI ====== */
 function buildNav() {
@@ -320,7 +348,7 @@ function trxCard(t) {
   const belum = t.status === 'Belum Bayar';
   return '<div class="item"><div class="row"><div><b>' + esc(t.produk) + '</b><div class="mut">' + esc(t.aplikasi) + ' • ' + esc(t.tujuan || '-') + '</div></div>' +
     '<div class="r"><b>' + rp(t.jual) + '</b><div class="ok" style="font-size:13px">Laba ' + rp(t.laba) + '</div></div></div>' +
-    '<div class="row s"><span class="mut">👤 ' + esc(t.customer || 'Umum') + ' • ' + esc(t.tanggal) + ' ' + esc(t.jam) + '</span>' +
+    '<div class="row s"><span class="mut">👤 ' + esc(t.customer || 'Umum') + ' • ' + esc(t.tanggal) + ' ' + esc(/^\d{1,2}:\d{2}/.test(t.jam) ? t.jam : '') + '</span>' +
     '<span class="badge ' + (belum ? 'o' : 'g') + '">' + esc(t.status) + '</span></div>' +
     (t.catatan ? '<div class="mut" style="margin-top:6px">📝 ' + esc(t.catatan) + '</div>' : '') +
     '<div class="acts">' + (belum ? '<button class="btn sm green" onclick="payIds([\'' + t.id + '\'])">✔ Lunasi</button>' : '') +
@@ -427,12 +455,12 @@ async function saveTrx() {
   sayBerhasil(); toast('✅ Transaksi Berhasil', 'good');
 }
 async function delTrx(id) {
-  if (!confirm('Hapus transaksi ini?')) return;
+  if (!(await askConfirm('Hapus transaksi?', 'Transaksi yang dihapus tidak bisa dikembalikan.', 'Hapus', '🗑️', true))) return;
   try { setBusy(true); setDb(await api('deleteTrx', {id: id})); render(); toast('Transaksi dihapus'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
 async function payIds(ids) {
-  if (!confirm('Tandai ' + ids.length + ' transaksi sebagai LUNAS?')) return;
+  if (!(await askConfirm('Tandai lunas?', ids.length + ' transaksi akan ditandai LUNAS.', 'Ya, Lunas', '✅'))) return;
   try { setBusy(true); setDb(await api('pay', {ids: ids})); render(); sayBerhasil(); toast('✅ Pembayaran dilunasi', 'good'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
@@ -504,7 +532,7 @@ function prodForm(id) {
     async function () { setDb(await api('saveProduk', {id: id || '', aplikasiId: $('#pApp').value, nama: $('#pNama').value, modal: numVal('#pModal'), jual: numVal('#pJual')})); render(); toast('Tersimpan', 'good'); });
 }
 async function delItem(action, id) {
-  if (!confirm('Hapus data ini?')) return;
+  if (!(await askConfirm('Hapus data?', 'Data yang dihapus tidak bisa dikembalikan.', 'Hapus', '🗑️', true))) return;
   try { setBusy(true); setDb(await api(action, {id: id})); render(); toast('Data dihapus'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
