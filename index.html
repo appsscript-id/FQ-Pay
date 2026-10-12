@@ -189,9 +189,14 @@ function toast(msg, type) {
   const t = $('#toast'); t.textContent = msg; t.className = 'show ' + (type || '');
   clearTimeout(tt); tt = setTimeout(() => t.className = '', 2600);
 }
+function setDb(d) { db = d; try { store.set('ppob_cache', JSON.stringify(d)); } catch (e) {} }
+function warmUp() {   // bangunkan server Apps Script selagi pengguna mengetik PIN
+  if (API_URL.indexOf('GANTI') >= 0) return;
+  try { fetch(API_URL, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({action: 'ping'})}).catch(function () {}); } catch (e) {}
+}
 async function load() {
   setBusy(true);
-  try { db = await api('getAll'); render(); }
+  try { setDb(await api('getAll')); render(); }
   finally { setBusy(false); }
 }
 async function reload() {
@@ -283,7 +288,7 @@ async function doLogin() {
     $('#login').classList.remove('show');
   } catch (e) { toast(e.message, 'err'); if (/PIN/.test(e.message)) $('#pinIn').value = ''; }
 }
-function logout() { store.del('ppob_pin'); pin = ''; showLogin(); }
+function logout() { store.del('ppob_pin'); store.del('ppob_cache'); pin = ''; showLogin(); }
 
 /* ====== NAVIGASI ====== */
 function buildNav() {
@@ -410,19 +415,19 @@ async function saveTrx() {
     if (m.length === 1) cid = m[0].id; else throw new Error('Pilih customer dari daftar yang muncul');
   }
   if (st === 'Belum Bayar' && !cid) throw new Error('Pilih customer untuk transaksi belum bayar');
-  await api('addTrx', {customerId: cid, aplikasi: a.nama, produk: p.nama, tujuan: $('#fTujuan').value,
-    modal: numVal('#fModal'), jual: numVal('#fJual'), status: st, catatan: $('#fCat').value});
-  db = await api('getAll'); render();
+  setDb(await api('addTrx', {customerId: cid, aplikasi: a.nama, produk: p.nama, tujuan: $('#fTujuan').value,
+    modal: numVal('#fModal'), jual: numVal('#fJual'), status: st, catatan: $('#fCat').value}));
+  render();
   sayBerhasil(); toast('✅ Transaksi Berhasil', 'good');
 }
 async function delTrx(id) {
   if (!confirm('Hapus transaksi ini?')) return;
-  try { setBusy(true); await api('deleteTrx', {id: id}); db = await api('getAll'); render(); toast('Transaksi dihapus'); }
+  try { setBusy(true); setDb(await api('deleteTrx', {id: id})); render(); toast('Transaksi dihapus'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
 async function payIds(ids) {
   if (!confirm('Tandai ' + ids.length + ' transaksi sebagai LUNAS?')) return;
-  try { setBusy(true); await api('pay', {ids: ids}); db = await api('getAll'); render(); sayBerhasil(); toast('✅ Pembayaran dilunasi', 'good'); }
+  try { setBusy(true); setDb(await api('pay', {ids: ids})); render(); sayBerhasil(); toast('✅ Pembayaran dilunasi', 'good'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
 
@@ -458,7 +463,7 @@ function custForm(id) {
   modal(id ? 'Edit Customer' : 'Customer Baru',
     field('Nama', '<input id="cNama" value="' + esc(c.nama) + '">') + field('Alamat', '<textarea id="cAlamat" rows="2">' + esc(c.alamat) + '</textarea>') +
     field('Telepon / WhatsApp (opsional)', '<input id="cTelp" inputmode="tel" value="' + esc(c.telepon) + '">'),
-    async function () { await api('saveCustomer', {id: id || '', nama: $('#cNama').value, alamat: $('#cAlamat').value, telepon: $('#cTelp').value}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
+    async function () { setDb(await api('saveCustomer', {id: id || '', nama: $('#cNama').value, alamat: $('#cAlamat').value, telepon: $('#cTelp').value})); render(); toast('Tersimpan', 'good'); });
 }
 
 /* --- Aplikasi --- */
@@ -470,7 +475,7 @@ function pApps() {
 function appForm(id) {
   const a = db.apps.filter(x => x.id === id)[0] || {};
   modal(id ? 'Edit Aplikasi' : 'Aplikasi Baru', field('Nama aplikasi (mis. My BCA, Mitra Shopee)', '<input id="aNama" value="' + esc(a.nama) + '">'),
-    async function () { await api('saveAplikasi', {id: id || '', nama: $('#aNama').value}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
+    async function () { setDb(await api('saveAplikasi', {id: id || '', nama: $('#aNama').value})); render(); toast('Tersimpan', 'good'); });
 }
 
 /* --- Produk --- */
@@ -490,11 +495,11 @@ function prodForm(id) {
   modal(id ? 'Edit Produk' : 'Produk Baru',
     field('Aplikasi', '<select id="pApp">' + ao + '</select>') + field('Nama produk (mis. Token Listrik 20)', '<input id="pNama" value="' + esc(p.nama) + '">') +
     '<div class="two"><div>' + field('Harga modal', '<input id="pModal" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(p.modal) + '">') + '</div><div>' + field('Harga jual', '<input id="pJual" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(p.jual) + '">') + '</div></div>',
-    async function () { await api('saveProduk', {id: id || '', aplikasiId: $('#pApp').value, nama: $('#pNama').value, modal: numVal('#pModal'), jual: numVal('#pJual')}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
+    async function () { setDb(await api('saveProduk', {id: id || '', aplikasiId: $('#pApp').value, nama: $('#pNama').value, modal: numVal('#pModal'), jual: numVal('#pJual')})); render(); toast('Tersimpan', 'good'); });
 }
 async function delItem(action, id) {
   if (!confirm('Hapus data ini?')) return;
-  try { setBusy(true); await api(action, {id: id}); db = await api('getAll'); render(); toast('Data dihapus'); }
+  try { setBusy(true); setDb(await api(action, {id: id})); render(); toast('Data dihapus'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
 
@@ -534,8 +539,18 @@ function pLaba() {
 /* ====== START ====== */
 buildNav();
 $('#btnSound').textContent = soundOn ? '🔊' : '🔇';
+warmUp();
 (async function () {
   if (!pin) { showLogin(); return; }
+  // Tampilkan data tersimpan dulu (langsung muncul), lalu segarkan di latar belakang
+  let cached = null;
+  try { const c = store.get('ppob_cache'); if (c) cached = JSON.parse(c); } catch (e) {}
+  if (cached && cached.trx) {
+    db = cached; render();
+    try { setDb(await api('getAll')); render(); }
+    catch (e) { if (/PIN/.test(e.message)) showLogin(); else toast(e.message, 'err'); }
+    return;
+  }
   try { await load(); }
   catch (e) { if (/PIN/.test(e.message)) showLogin(); else { render(); toast(e.message, 'err'); } }
 })();
