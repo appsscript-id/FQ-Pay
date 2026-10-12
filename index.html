@@ -285,6 +285,10 @@ label.f{font-size:calc(13px*var(--fs))}.sec h2,.card h2{font-size:calc(17px*var(
 #modal[data-tf="full"] .sheet{display:flex;flex-direction:column}
 #modal[data-tf="full"] #mBody{flex:1}
 #modal[data-tf="full"] .mfoot{bottom:-16px}
+#payAsk{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:86;padding:18px}
+#payAsk.show{display:flex}
+.paybtns{display:grid;gap:10px;margin-top:14px}.paybtns .btn{padding:14px;font-size:16px}
+.btn.wr{background:var(--warnbg);color:var(--warn)}
 </style>
 </head>
 <body>
@@ -311,6 +315,8 @@ label.f{font-size:calc(13px*var(--fs))}.sec h2,.card h2{font-size:calc(17px*var(
 <div id="busy"><div class="spin"></div></div>
 <div id="confirm"><div class="cbox"><div class="cic" id="cIc">❓</div><h3 id="cTitle"></h3><p id="cMsg"></p>
   <div class="mfoot"><button class="btn ghost" id="cNo">Batal</button><button class="btn" id="cYes">Ya</button></div></div></div>
+<div id="payAsk"><div class="cbox"><div class="cic">💳</div><h3>Status pembayaran?</h3><p id="payMsg"></p>
+  <div class="paybtns"><button class="btn green" id="payL">✅ Lunas</button><button class="btn wr" id="payB">⏳ Belum Bayar</button></div><button class="btn ghost" id="payC" style="width:100%;margin-top:10px">Batal</button></div></div>
 <div id="toast"></div>
 <div id="login"><div class="box"><div class="big">🔐</div><h2 id="loginName" style="margin:6px 0">PPOB Kasir</h2><div class="mut" id="loginToko"></div>
   <p class="mut">Masukkan PIN untuk masuk</p>
@@ -430,7 +436,7 @@ function toggleSound() {
 
 /* ====== MODAL ====== */
 function modal(title, html, onSubmit, okText) {
-  $('#modal').dataset.tf = ''; itemTpl = 'classic'; tfOkLabel = ''; tfHook = null; tfItemHook = null; $('#mOk').style.display = '';
+  $('#modal').dataset.tf = ''; tfReqCust = false; itemTpl = 'classic'; tfOkLabel = ''; tfHook = null; tfItemHook = null; $('#mOk').style.display = '';
   $('#mBody').oninput = $('#mBody').onchange = null;
   $('#mTitle').textContent = title; $('#mBody').innerHTML = html;
   $('#mOk').textContent = okText || 'Simpan';
@@ -735,19 +741,18 @@ function trxFormClassic() {
   const sd = (n, t) => '<div class="sd" data-s="' + n + '"><i>' + n + '</i><span>' + t + '</span></div>';
   modal('Transaksi Baru',
     '<div id="stepper">' + sd(1, 'Customer') + sd(2, 'Item') + sd(3, 'Bayar') + '</div>' +
-    '<div class="stp" data-s="1">' + field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama) — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>') +
-      '<div class="mut" style="margin-top:8px">Kosongkan jika tanpa nama (Umum).</div></div>' +
+    '<div class="stp" data-s="1">' + field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Wajib diisi — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>') +
+      '<div class="mut" style="margin-top:8px">Customer wajib diisi sebelum lanjut.</div></div>' +
     '<div class="stp" data-s="2">' + favChips() + '<div class="mut" style="margin-top:10px"><b>Daftar item</b></div><div id="itemsBox"></div>' +
       '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">+ Tambah item lagi</button><div class="ok" id="fTot"></div></div>' +
     '<div class="stp" data-s="3"><div class="card" id="sumBox" style="margin-top:10px"></div>' +
-      field('Status pembayaran', '<div class="seg"><label><input type="radio" name="st" value="Lunas" checked>✅ Lunas</label><label><input type="radio" name="st" value="Belum Bayar">⏳ Belum Bayar</label></div>') +
-      field('Catatan (opsional)', '<input id="fCat">') + '</div>',
+      field('Catatan (opsional)', '<input id="fCat">') + '<div class="mut" style="margin-top:8px">Status Lunas / Belum Bayar dipilih setelah menekan Simpan.</div></div>',
     async function () {
       if (trxStep === 1) { stepCustomer(); goStep(2); return false; }
       if (trxStep === 2) { stepItems(); goStep(3); return false; }
       return saveTrx();
     }, 'Lanjut');
-  trxStep = 1; addItem(); goStep(1);
+  tfReqCust = true; trxStep = 1; addItem(); goStep(1);
 }
 function goStep(n) {
   trxStep = n;
@@ -761,6 +766,7 @@ function goStep(n) {
 }
 function stepCustomer() {
   const ct = $('#fCustTxt').value.trim();
+  if (!$('#fCust').value && !ct) throw new Error('Customer wajib diisi dulu');
   if (!$('#fCust').value && ct) {
     const m = db.customers.filter(c => c.nama.toLowerCase() === ct.toLowerCase());
     if (m.length === 1) pickCust(m[0].id); else throw new Error('Pilih customer dari daftar yang muncul');
@@ -900,7 +906,7 @@ async function qaSaveProd(btn) {
 function custRender() {
   const q = $('#fCustTxt').value.trim().toLowerCase(), box = $('#csList');
   const l = db.customers.filter(c => !q || (c.nama + ' ' + c.telepon + ' ' + c.alamat).toLowerCase().indexOf(q) >= 0).slice(0, 30);
-  let h = (!q || 'umum'.indexOf(q) === 0) ? '<div class="cs-item" onclick="pickCust(\'\')"><b>Umum</b><small>Tanpa nama customer</small></div>' : '';
+  let h = (!tfReqCust && (!q || 'umum'.indexOf(q) === 0)) ? '<div class="cs-item" onclick="pickCust(\'\')"><b>Umum</b><small>Tanpa nama customer</small></div>' : '';
   h += l.map(c => '<div class="cs-item" onclick="pickCust(\'' + c.id + '\')"><b>' + esc(c.nama) + '</b><small>' + esc([c.telepon, c.alamat].filter(Boolean).join(' • ')) + '</small></div>').join('');
   box.innerHTML = h || '<div class="cs-item" style="cursor:default;color:var(--mut)">Customer tidak ditemukan</div>';
   box.classList.add('show');
@@ -917,13 +923,8 @@ document.addEventListener('click', function (e) {
   if (l && !e.target.closest('.cs')) l.classList.remove('show');
 });
 async function saveTrx() {
-  const st = document.querySelector('input[name=st]:checked').value;
-  let cid = $('#fCust').value;
-  const ct = $('#fCustTxt').value.trim();
-  if (!cid && ct) {
-    const m = db.customers.filter(c => c.nama.toLowerCase() === ct.toLowerCase());
-    if (m.length === 1) cid = m[0].id; else throw new Error('Pilih customer dari daftar yang muncul');
-  }
+  stepCustomer();
+  const cid = $('#fCust').value;
   const items = Array.prototype.map.call(document.querySelectorAll('.itm'), function (el, i) {
     const p = db.products.filter(x => x.id === el.querySelector('.iProd').value)[0];
     const a = db.apps.filter(x => x.id === el.querySelector('.iApp').value)[0];
@@ -931,11 +932,9 @@ async function saveTrx() {
     return {aplikasi: a.nama, produk: p.nama, tujuan: el.querySelector('.iTuj').value.trim(), modal: numOf(el.querySelector('.iMod')), jual: numOf(el.querySelector('.iJual'))};
   });
   if (!items.length) throw new Error('Tambahkan minimal 1 item');
-  if (st === 'Belum Bayar' && !cid) throw new Error('Pilih customer untuk transaksi belum bayar');
-  const base = {customerId: cid, status: st, catatan: $('#fCat').value};
-  setDb(items.length === 1 ? await api('addTrx', Object.assign(base, items[0])) : await api('addTrxMulti', Object.assign(base, {items: items})));
-  render();
-  sayBerhasil(); toast(items.length > 1 ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil', 'good');
+  const st = await askPay(cid, items);
+  if (!st) return false;
+  await tfPost(cid, st, $('#fCat').value, items);
 }
 
 /* --- Edit transaksi (satu nota, semua item) --- */
@@ -1145,7 +1144,7 @@ function openThemes() { drawThemes(); $('#themes').classList.add('show'); }
 function closeThemes() { $('#themes').classList.remove('show'); }
 
 /* ====== 10 GAYA FORM TRANSAKSI ====== */
-let itemTpl = 'classic', tfOkLabel = '', tfHook = null, tfItemHook = null;
+let itemTpl = 'classic', tfOkLabel = '', tfHook = null, tfItemHook = null, tfReqCust = false;
 const tfCur = () => { const k = store.get('ppob_tf'); return TF_STYLES.some(s => s.k === k) ? k : 'step'; };
 function setTf(k) { store.set('ppob_tf', k); render(); toast('Form transaksi: ' + TF_STYLES.filter(s => s.k === k)[0].n, 'good'); }
 function tryTf(k) { trxForm('', k); }
@@ -1156,14 +1155,26 @@ function trxForm(pid, key) {
 }
 
 /* --- potongan bersama --- */
-const tfCust = () => field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama) — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>');
-const tfSeg = () => '<div class="seg"><label><input type="radio" name="st" value="Lunas" checked>✅ Lunas</label><label><input type="radio" name="st" value="Belum Bayar">⏳ Belum Bayar</label></div>';
-const tfPay = () => field('Status pembayaran', tfSeg()) + field('Catatan (opsional)', '<input id="fCat">');
+const tfCust = () => field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Wajib diisi — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>');
+const tfPay = () => field('Catatan (opsional)', '<input id="fCat">');
+const tfMust = () => { $('#fCustTxt'); stepCustomer(); };
+/* Status Lunas / Belum Bayar ditanyakan SETELAH menekan Simpan */
+function askPay(cid, items) {
+  const cu = db.customers.filter(x => x.id === cid)[0], tot = items.reduce((s, x) => s + x.jual, 0);
+  return new Promise(function (resolve) {
+    $('#payMsg').innerHTML = '👤 <b>' + esc(cu ? cu.nama : '-') + '</b><br>' + items.length + ' item • <b>' + rp(tot) + '</b>';
+    const box = $('#payAsk'), L = $('#payL'), B = $('#payB'), C = $('#payC');
+    setBusy(false); box.classList.add('show');
+    const done = function (v) { box.classList.remove('show'); L.onclick = B.onclick = C.onclick = box.onclick = null; if (v) setBusy(true); resolve(v); };
+    L.onclick = function () { done('Lunas'); }; B.onclick = function () { done('Belum Bayar'); };
+    C.onclick = function () { done(null); }; box.onclick = function (e) { if (e.target === box) done(null); };
+  });
+}
 const tfAddBtn = (t) => '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">' + (t || '+ Tambah item lagi') + '</button>';
 const tfSumBar = () => '<div class="tfsum"><span><span class="tfN">0</span> item</span><b class="tfTot">Rp 0</b></div><div class="ok" style="margin-top:4px">Laba: <span class="tfLaba">Rp 0</span></div>';
 function tfOpen(key, title, html, okText, submit) {
   modal(title, html, submit || (async function () { return saveTrx(); }), okText || 'Simpan');
-  $('#modal').dataset.tf = key; tfOkLabel = okText || 'Simpan';
+  $('#modal').dataset.tf = key; tfOkLabel = okText || 'Simpan'; tfReqCust = true;
 }
 function tfFirst(pid) { addItem(); if (pid) pickFav(pid); updTot(); }
 function tfT() {
@@ -1171,7 +1182,6 @@ function tfT() {
   document.querySelectorAll('.itm').forEach(el => { n++; j += numOf(el.querySelector('.iJual')); m += numOf(el.querySelector('.iMod')); });
   return {j: j, m: m, n: n};
 }
-function tfStatus() { const r = document.querySelector('input[name=st]:checked'); return r ? r.value : 'Lunas'; }
 function tfLabel(el) {
   const nm = el.querySelector('.iNm'); if (!nm) return;
   const p = el.querySelector('.iProd'), a = el.querySelector('.iApp');
@@ -1181,7 +1191,7 @@ function tfLabel(el) {
 async function tfPost(cid, st, cat, items) {
   const base = {customerId: cid, status: st, catatan: cat};
   setDb(items.length === 1 ? await api('addTrx', Object.assign(base, items[0])) : await api('addTrxMulti', Object.assign(base, {items: items})));
-  render(); sayBerhasil(); toast(items.length > 1 ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil', 'good');
+  render(); sayBerhasil(); toast((items.length > 1 ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil') + ' — ' + (st === 'Lunas' ? 'LUNAS' : 'BELUM BAYAR'), 'good');
 }
 function appIcon(n) {
   n = String(n).toLowerCase();
@@ -1215,7 +1225,7 @@ function fmOne(pid) {
   tfOpen('one', 'Transaksi Baru',
     '<div class="tfsec">👤 Customer</div>' + tfCust() +
     '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>' +
-    '<div class="tfsec">💳 Pembayaran</div>' + tfPay());
+    '<div class="tfsec">📝 Catatan</div>' + tfPay());
   tfFirst(pid);
 }
 
@@ -1266,7 +1276,7 @@ function chatAsk() {
   let h = '';
   if (chat.step === 0) {
     h = chatQ('Halo! 👋 Transaksi ini untuk siapa?') + tfCust() +
-      '<div class="acts"><button type="button" class="btn sm ghost" onclick="chatCust(true)">Umum (tanpa nama)</button><button type="button" class="btn sm" onclick="chatCust()">Lanjut</button></div>';
+      '<div class="acts"><button type="button" class="btn sm" onclick="chatCust()">Lanjut</button></div>';
   } else if (chat.step === 1) {
     const fv = favProducts();
     h = chatQ('Pakai aplikasi apa?') + (db.apps.length ? '<div class="atiles">' + db.apps.map(a => '<button type="button" class="atile" onclick="chatApp(\'' + a.id + '\')"><i>' + appIcon(a.nama) + '</i>' + esc(a.nama) + '</button>').join('') + '</div>' : '') +
@@ -1284,19 +1294,18 @@ function chatAsk() {
       '<div class="acts"><button type="button" class="btn sm ghost" onclick="chatMore()">+ Item lagi</button><button type="button" class="btn sm" onclick="chatPay()">Lanjut ke pembayaran</button></div>';
   } else {
     const j = chatTotal(), m = chat.items.reduce((s, x) => s + x.modal, 0);
-    h = chatQ('Terakhir, pembayarannya bagaimana?') + tfSeg() + field('Catatan (opsional)', '<input id="fCat">') +
+    h = chatQ('Terakhir, ada catatan? (boleh dikosongkan)') + field('Catatan (opsional)', '<input id="fCat">') +
       '<div class="card" style="margin-top:12px"><div class="mut">👤 ' + esc(chat.cname) + '</div>' + chat.items.map(x => '<div class="row s" style="border-top:1px solid var(--bd);padding-top:6px"><div><b>' + esc(x.produk) + '</b><div class="mut">' + esc(x.aplikasi + (x.tujuan ? ' • ' + x.tujuan : '')) + '</div></div><b>' + rp(x.jual) + '</b></div>').join('') +
       '<div class="row s" style="border-top:1px solid var(--bd);padding-top:6px"><b>Total</b><b>' + rp(j) + '</b></div><div class="ok">Laba: ' + rp(j - m) + '</div></div>';
     ok.textContent = 'Simpan • ' + rp(j);
   }
   box.innerHTML = h;
 }
-function chatCust(umum) {
+function chatCust() {
   try {
-    if (umum) { $('#fCust').value = ''; $('#fCustTxt').value = ''; }
     stepCustomer();
     const id = $('#fCust').value, cu = db.customers.filter(x => x.id === id)[0];
-    chatSnap(); chat.cid = id; chat.cname = cu ? cu.nama : 'Umum';
+    chatSnap(); chat.cid = id; chat.cname = cu ? cu.nama : '-';
     chatPush('bot', 'Transaksi untuk siapa?'); chatPush('me', chat.cname);
     if (chat.pre) { const pid = chat.pre; chat.pre = ''; chatProd(pid, true); } else { chat.step = 1; chatAsk(); }
   } catch (e) { toast(e.message, 'err'); }
@@ -1322,19 +1331,19 @@ function chatDetail() {
 function chatMore() { chatSnap(); chatPush('bot', 'Tambah item lagi?'); chatPush('me', 'Ya, tambah'); chat.step = 1; chatAsk(); }
 function chatPay() { chatSnap(); chatPush('bot', 'Tambah item lagi?'); chatPush('me', 'Cukup, lanjut bayar'); chat.step = 5; chatAsk(); }
 async function chatSave() {
-  const st = tfStatus();
   if (!chat.items.length) throw new Error('Belum ada item');
-  if (st === 'Belum Bayar' && !chat.cid) throw new Error('Pilih customer untuk transaksi belum bayar (tekan Kembali)');
+  const st = await askPay(chat.cid, chat.items);
+  if (!st) return false;
   await tfPost(chat.cid, st, $('#fCat').value, chat.items);
 }
 
 /* ====== 5. Tabel Ringkas ====== */
 function fmTbl(pid) {
   tfOpen('tbl', 'Transaksi Baru',
-    '<div class="tblTop"><div>' + tfCust() + '</div><div>' + field('Status pembayaran', tfSeg()) + '</div></div>' +
+    '<div class="tblTop"><div>' + tfCust() + '</div><div>' + field('Catatan (opsional)', '<input id="fCat">') + '</div></div>' +
     '<div class="tfsec">🧾 Item</div>' + favChips() +
     '<div class="trow head"><span>#</span><span>Aplikasi</span><span>Produk</span><span>No. Tujuan</span><span>Modal</span><span>Jual</span><span></span></div>' +
-    '<div id="itemsBox"></div>' + tfAddBtn('+ Tambah baris') + tfSumBar() + field('Catatan (opsional)', '<input id="fCat">'));
+    '<div id="itemsBox"></div>' + tfAddBtn('+ Tambah baris') + tfSumBar());
   itemTpl = 'row'; tfFirst(pid);
 }
 
@@ -1343,8 +1352,8 @@ function fmTab(pid) {
   tfOpen('tab', 'Transaksi Baru',
     '<div class="tfTabs"><button type="button" data-p="1" onclick="tfTabGo(1)">👤 Customer<small id="tbC">Umum</small></button>' +
     '<button type="button" data-p="2" onclick="tfTabGo(2)">🧾 Item<small id="tbI">0 item</small></button>' +
-    '<button type="button" data-p="3" onclick="tfTabGo(3)">💳 Bayar<small id="tbS">Lunas</small></button></div>' +
-    '<div class="tfp" data-p="1">' + tfCust() + '<div class="mut" style="margin-top:8px">Kosongkan jika tanpa nama (Umum).</div></div>' +
+    '<button type="button" data-p="3" onclick="tfTabGo(3)">📝 Catatan<small id="tbS">-</small></button></div>' +
+    '<div class="tfp" data-p="1">' + tfCust() + '<div class="mut" style="margin-top:8px">Customer wajib diisi sebelum lanjut.</div></div>' +
     '<div class="tfp" data-p="2">' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div></div>' +
     '<div class="tfp" data-p="3">' + tfPay() + '</div>', 'Simpan',
     async function () {
@@ -1352,17 +1361,18 @@ function fmTab(pid) {
       catch (e) { if (/customer/i.test(e.message)) tfTabGo(1); else if (/item/i.test(e.message)) tfTabGo(2); throw e; }
     });
   tfHook = tfTabSum; $('#mBody').oninput = $('#mBody').onchange = tfTabSum;
-  tfFirst(pid); tfTabGo(pid ? 2 : 1);
+  tfFirst(pid); tfTabGo(1);
 }
 function tfTabGo(n) {
+  if (n > 1) { try { stepCustomer(); } catch (e) { toast(e.message, 'err'); n = 1; } }
   document.querySelectorAll('.tfp').forEach(e => e.classList.toggle('on', Number(e.dataset.p) === n));
   document.querySelectorAll('.tfTabs button').forEach(e => e.classList.toggle('on', Number(e.dataset.p) === n));
   tfTabSum();
 }
 function tfTabSum() {
   const T = tfT(), a = $('#tbC'); if (!a) return;
-  a.textContent = $('#fCustTxt').value.trim() || 'Umum';
-  $('#tbI').textContent = T.n + ' item' + (T.j ? ' • ' + rp(T.j) : ''); $('#tbS').textContent = tfStatus();
+  a.textContent = $('#fCustTxt').value.trim() || '(kosong)';
+  $('#tbI').textContent = T.n + ' item' + (T.j ? ' • ' + rp(T.j) : ''); $('#tbS').textContent = ($('#fCat').value.trim() || '-');
 }
 
 /* ====== 7. Akordeon ====== */
@@ -1371,15 +1381,18 @@ function fmAcc(pid) {
   const sec = (n, t, body, next) => '<div class="acc" data-a="' + n + '"><div class="acc-h" onclick="tfAccGo(' + n + ')"><i>' + n + '</i>' + t + '<span class="sm" id="acS' + n + '"></span></div><div class="acc-b">' + body +
     (next ? '<div class="acts"><button type="button" class="btn sm" onclick="tfAccGo(' + next + ')">Lanjut ▸</button></div>' : '') + '</div></div>';
   tfOpen('acc', 'Transaksi Baru',
-    sec(1, '👤 Customer', tfCust(), 2) + sec(2, '🧾 Item', favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>', 3) + sec(3, '💳 Pembayaran', tfPay()));
+    sec(1, '👤 Customer', tfCust(), 2) + sec(2, '🧾 Item', favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>', 3) + sec(3, '📝 Catatan', tfPay()));
   tfHook = tfAccSum; $('#mBody').oninput = $('#mBody').onchange = tfAccSum;
-  tfFirst(pid); tfAccGo(pid ? 2 : 1);
+  tfFirst(pid); tfAccGo(1);
 }
-function tfAccGo(n) { accCur = n; tfAccSum(); }
+function tfAccGo(n) {
+  if (n > 1) { try { stepCustomer(); } catch (e) { toast(e.message, 'err'); n = 1; } }
+  accCur = n; tfAccSum();
+}
 function tfAccSum() {
   const T = tfT(); if (!$('#acS1')) return;
-  $('#acS1').textContent = $('#fCustTxt').value.trim() || 'Umum';
-  $('#acS2').textContent = T.n + ' item • ' + rp(T.j); $('#acS3').textContent = tfStatus();
+  $('#acS1').textContent = $('#fCustTxt').value.trim() || '(kosong)';
+  $('#acS2').textContent = T.n + ' item • ' + rp(T.j); $('#acS3').textContent = $('#fCat').value.trim() || '-';
   document.querySelectorAll('.acc').forEach(e => { const k = Number(e.dataset.a); e.classList.toggle('open', k === accCur); e.classList.toggle('done', k < accCur); });
 }
 
@@ -1400,16 +1413,16 @@ function tfNotaDraw() {
   const tot = rows.reduce((s, x) => s + x.jual, 0);
   const tgl = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short'});
   box.innerHTML = '<div class="sc"><b>' + esc(tokoName || appName) + '</b></div><div class="sc">' + esc(tgl) + '</div><hr>' +
-    '<div>Customer: ' + esc($('#fCustTxt').value.trim() || 'Umum') + '</div><hr>' +
+    '<div>Customer: ' + esc($('#fCustTxt').value.trim() || '-') + '</div><hr>' +
     rows.map(x => '<div>' + esc(x.nm) + '</div>' + (x.tuj ? '<div>  ' + esc(x.tuj) + '</div>' : '') + '<div class="sr"><span></span><span>' + rp(x.jual) + '</span></div>').join('') +
-    '<hr><div class="sr"><b>TOTAL</b><b>' + rp(tot) + '</b></div><div class="sc" style="margin-top:6px">' + (tfStatus() === 'Lunas' ? '*** LUNAS ***' : '*** BELUM BAYAR ***') + '</div>';
+    '<hr><div class="sr"><b>TOTAL</b><b>' + rp(tot) + '</b></div><div class="sc" style="margin-top:6px">(status bayar dipilih saat Simpan)</div>';
 }
 
 /* ====== 9. Layar Penuh ====== */
 function fmFull(pid) {
   tfOpen('full', 'Transaksi Baru',
     '<div class="stats" style="margin-top:10px"><div class="stat hero"><div class="l">Total</div><div class="v tfTot">Rp 0</div></div><div class="stat"><div class="l">Laba</div><div class="v ok tfLaba">Rp 0</div></div><div class="stat"><div class="l">Jumlah item</div><div class="v tfN">0</div></div></div>' +
-    '<div class="fullg"><div class="card"><h2 style="margin:0">👤 Customer & Bayar</h2>' + tfCust() + tfPay() + '</div>' +
+    '<div class="fullg"><div class="card"><h2 style="margin:0">👤 Customer & Catatan</h2>' + tfCust() + tfPay() + '</div>' +
     '<div class="card"><h2 style="margin:0">🧾 Item</h2>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '</div></div>');
   tfFirst(pid);
 }
@@ -1475,6 +1488,25 @@ function tfSettingsCard() {
     '</div></div>';
 }
 
+
+/* ====== TOMBOL KEMBALI HP: tidak keluar aplikasi ====== */
+(function () {
+  const trap = function () { try { history.pushState({ppob: 1}, ''); } catch (e) {} };
+  try { history.replaceState({ppob: 0}, ''); } catch (e) {}
+  trap();
+  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, function once() { trap(); document.removeEventListener(ev, once); }, {passive: true}); });
+  window.addEventListener('popstate', function () {
+    trap();
+    const on = function (s) { const e = $(s); return e && e.classList.contains('show'); };
+    if (on('#payAsk')) { $('#payC').click(); return; }
+    if (on('#confirm')) { $('#cNo').click(); return; }
+    if (on('#themes')) { closeThemes(); return; }
+    if (on('#modal')) { closeModal(); return; }
+    if (on('#login')) return;
+    if (page !== 'home') { go('home'); return; }
+    toast('Untuk keluar, gunakan tombol Keluar 🚪');
+  });
+})();
 /* ====== START ====== */
 buildNav();
 applyTheme(curTheme());
