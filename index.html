@@ -459,13 +459,14 @@ function chime() {
     o.start(t + p[1]); o.stop(t + p[1] + 0.45);
   });
 }
-function sayBerhasil() {
+function sayBerhasil(teks) {
   if (!soundOn) return;
+  if (typeof teks !== 'string') teks = 'Transaksi Berhasil';
   try { chime(); } catch (e) {}
   try {
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance('Transaksi Berhasil');
+      const u = new SpeechSynthesisUtterance(teks);
       u.lang = 'id-ID'; u.rate = 1; u.volume = 1;
       const v = speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().indexOf('id') === 0)[0];
       if (v) u.voice = v;
@@ -1086,7 +1087,7 @@ async function delTrx(id) {
 }
 async function payIds(ids) {
   if (!(await askConfirm('Tandai lunas?', ids.length + ' transaksi akan ditandai LUNAS.', 'Ya, Lunas', '✅'))) return;
-  try { setBusy(true); setDb(await api('pay', {ids: ids})); render(); sayBerhasil(); toast('✅ Pembayaran dilunasi', 'good'); }
+  try { setBusy(true); setDb(await api('pay', {ids: ids})); render(); sayBerhasil(page === 'unpaid' ? 'Tagihan Lunas' : 'Transaksi Berhasil'); toast('✅ Pembayaran dilunasi', 'good'); }
   catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
 }
 
@@ -1582,7 +1583,11 @@ function tfSettingsCard() {
     if (on('#payAsk')) { $('#payC').click(); return; }
     if (on('#confirm')) { $('#cNo').click(); return; }
     if (on('#themes')) { closeThemes(); return; }
-    if (on('#modal')) { closeModal(); return; }
+    if (on('#modal')) {
+      const jd = $('#mTitle').textContent;
+      if (jd === 'Transaksi Baru' || jd === 'Kasir Cepat') return;   // form transaksi baru: tombol kembali HP dinonaktifkan
+      closeModal(); return;
+    }
     if (on('#login')) return;
     if (page !== 'home') { go('home'); return; }
     // Di Beranda: tidak melakukan apa-apa (tanpa notifikasi)
