@@ -205,6 +205,86 @@ label.f{font-size:calc(13px*var(--fs))}.sec h2,.card h2{font-size:calc(17px*var(
   body::before{display:none!important}html,body{background:#fff!important;padding:0!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ====== 10 GAYA FORM TRANSAKSI (dipilih di Pengaturan) ====== */
+#modal[data-tf] .mfoot{position:sticky;bottom:-18px;background:var(--surf);padding:10px 0 2px;margin-top:12px;border-top:1px solid var(--bd);z-index:3}
+#modal[data-tf="pos"] .sheet,#modal[data-tf="tbl"] .sheet,#modal[data-tf="nota"] .sheet{width:min(960px,100%)}
+#modal[data-tf="chat"] .sheet{width:min(460px,100%)}
+#modal[data-tf="full"]{padding:0}
+#modal[data-tf="full"] .sheet{width:100%;height:100%;max-height:100vh;border-radius:0;padding:16px 18px}
+.tfsec{font-weight:750;margin:16px 0 2px;font-size:calc(15px*var(--fs))}
+.tfsum{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--soft);font-weight:700}
+/* kasir cepat */
+.pos{display:grid;gap:14px;grid-template-columns:1fr;margin-top:8px}
+@media(min-width:760px){.pos{grid-template-columns:1.25fr 1fr}.pos-r{position:sticky;top:0;align-self:start}}
+.posgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));max-height:46vh;overflow:auto;padding:2px;margin-top:6px}
+.ptile{border:1px solid var(--bd);border-radius:14px;padding:10px;text-align:left;cursor:pointer;background:var(--surf);color:var(--tx);position:relative}
+.ptile:active{transform:scale(.97)}
+.ptile b{display:block;font-size:13.5px;line-height:1.25;padding-right:14px}
+.ptile small{color:var(--mut);display:block;font-size:11.5px}
+.ptile .pp{color:var(--ptx);font-weight:750;margin-top:6px;font-size:13px}
+.ptile .st{position:absolute;top:6px;right:8px;font-size:12px}
+.crow{border:1px solid var(--bd);border-radius:12px;padding:8px 10px;margin-top:8px;background:var(--soft2)}
+.crow .cr1{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.crow .cr2{display:grid;grid-template-columns:1.2fr 1fr;gap:8px;margin-top:6px}
+.crow input{padding:8px 10px;font-size:15px}
+.crow .iLaba{font-size:12px;margin-top:4px}
+/* percakapan */
+.chatlog{display:flex;flex-direction:column;gap:8px;margin:8px 0;max-height:34vh;overflow:auto}
+.bb{max-width:86%;padding:9px 13px;border-radius:16px;font-size:calc(14.5px*var(--fs));line-height:1.35;word-break:break-word}
+.bb.bot{background:var(--soft);align-self:flex-start;border-bottom-left-radius:4px}
+.bb.me{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+#chatAsk{border-top:1px dashed var(--bd);padding-top:10px;margin-top:6px}
+.atiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.atile{border:1px solid var(--bd);background:var(--surf);color:var(--tx);border-radius:14px;padding:12px 6px;text-align:center;font-weight:650;cursor:pointer;font-size:13px}
+.atile i{display:block;font-style:normal;font-size:26px;margin-bottom:4px}
+.pl{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;border:1px solid var(--bd);background:var(--surf);color:var(--tx);border-radius:12px;padding:11px 12px;margin-bottom:6px;cursor:pointer;text-align:left}
+/* tabel */
+.tblTop{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+@media(max-width:600px){.tblTop{grid-template-columns:1fr}}
+.rowt,.trow.head{display:grid;gap:6px;grid-template-columns:24px 1fr 1.5fr 1.2fr 100px 100px 34px;align-items:center}
+.trow.head{font-size:12px;color:var(--mut);font-weight:700;padding:0 6px;margin-top:8px}
+.rowt{grid-template-areas:"no app prod tuj mod jual del" ". lab lab lab lab lab lab";margin-top:6px;padding:6px;border:1px solid var(--bd);border-radius:12px;background:var(--soft2)}
+.rowt .iNo{grid-area:no;text-align:center;color:var(--mut)}.rowt .iApp{grid-area:app}.rowt .iProd{grid-area:prod}.rowt .iTuj{grid-area:tuj}
+.rowt .iMod{grid-area:mod}.rowt .iJual{grid-area:jual}.rowt .iDel{grid-area:del;padding:6px 0}.rowt .iLaba{grid-area:lab;font-size:12px}
+.rowt input,.rowt select{padding:8px;font-size:14px;border-radius:9px;min-width:0}
+@media(max-width:700px){.trow.head{display:none}
+  .rowt{grid-template-columns:24px 1fr 1fr 34px;grid-template-areas:"no app app del" ". prod prod prod" ". tuj tuj tuj" ". mod jual jual" ". lab lab lab"}}
+/* tab & akordeon */
+.tfTabs{display:flex;gap:6px;margin:8px 0 10px;background:var(--soft);padding:4px;border-radius:14px}
+.tfTabs button{flex:1;border:0;background:transparent;border-radius:11px;padding:8px 4px;font-weight:650;color:var(--nav);cursor:pointer;font-size:13px}
+.tfTabs button.on{background:var(--surf);color:var(--ptx);box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.tfTabs small{display:block;font-weight:500;color:var(--mut);font-size:11px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tfp{display:none}.tfp.on{display:block}
+.acc{border:1px solid var(--bd);border-radius:14px;margin-top:8px;background:var(--surf)}
+.acc-h{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;font-weight:700}
+.acc-h i{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-style:normal;font-size:13px}
+.acc.done .acc-h i{background:var(--p);color:#fff}
+.acc-h .sm{margin-left:auto;color:var(--mut);font-weight:500;font-size:13px;text-align:right;max-width:52%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-b{display:none;padding:0 14px 14px}
+.acc.open .acc-b{display:block}.acc.open{border-color:var(--p)}
+/* nota langsung, layar penuh, keypad */
+.nota{display:grid;gap:14px;margin-top:8px}
+@media(min-width:780px){.nota{grid-template-columns:1.2fr 1fr}.nota .strwrap{position:sticky;top:0;align-self:start}}
+.fullg{display:grid;gap:14px}
+@media(min-width:860px){.fullg{grid-template-columns:minmax(300px,390px) 1fr;align-items:start}}
+.kpd{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px auto 0;max-width:360px}
+.kpd button{border:1px solid var(--bd);background:var(--surf);color:var(--tx);border-radius:14px;padding:14px 0;font-size:22px;font-weight:700;cursor:pointer}
+.kpd button:active{background:var(--soft)}
+.itm.kpOn{box-shadow:0 0 0 2px var(--p)}
+.itm.kpOn .iTuj{font-size:22px;font-weight:700;letter-spacing:1px}
+/* pemilih di Pengaturan */
+.tfgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));margin-top:10px}
+.tfc{border:2px solid var(--bd);border-radius:16px;padding:8px;background:var(--surf);display:flex;flex-direction:column;gap:6px}
+.tfc.on{border-color:var(--p);box-shadow:0 0 0 3px var(--ring)}
+.tfc svg{width:100%;height:auto;border-radius:10px;background:var(--soft2);display:block}
+.tfc b{font-size:calc(13.5px*var(--fs))}
+.tfc .mut{font-size:calc(12px*var(--fs));flex:1}
+.tfc .acts{margin-top:2px}
+#modal[data-tf] #mOk{white-space:nowrap}
+#modal[data-tf="full"] .sheet{display:flex;flex-direction:column}
+#modal[data-tf="full"] #mBody{flex:1}
+#modal[data-tf="full"] .mfoot{bottom:-16px}
 </style>
 </head>
 <body>
@@ -350,6 +430,8 @@ function toggleSound() {
 
 /* ====== MODAL ====== */
 function modal(title, html, onSubmit, okText) {
+  $('#modal').dataset.tf = ''; itemTpl = 'classic'; tfOkLabel = ''; tfHook = null; tfItemHook = null; $('#mOk').style.display = '';
+  $('#mBody').oninput = $('#mBody').onchange = null;
   $('#mTitle').textContent = title; $('#mBody').innerHTML = html;
   $('#mOk').textContent = okText || 'Simpan';
   const gb = $('#modal .mfoot .btn.ghost'); gb.textContent = 'Batal'; gb.onclick = closeModal;
@@ -409,7 +491,7 @@ async function logout() {
   sess.del('ppob_pin'); pin = ''; page = 'home'; fq = ''; fs = ''; fd = ''; cq = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
 
 /* ====== PENGATURAN ====== */
-const APP_VER = '2.4';
+const APP_VER = '2.5';
 let appName = store.get('ppob_appname') || 'PPOB Kasir', tokoName = store.get('ppob_toko') || '', tokoWa = store.get('ppob_wa') || '';
 const sett = () => db.settings || {};
 const favs = () => sett().fav || [];
@@ -464,7 +546,7 @@ function pickFav(id) {
   const l = document.querySelectorAll('.itm');
   if (l.length === 1 && !l[0].querySelector('.iTuj').value.trim()) setItemProd(l[0], id); else addItem(id);
 }
-function quickTrx(id) { trxForm(); if ($('#itemsBox')) { pickFav(id); goStep(2); } }
+function quickTrx(id) { trxForm(id); }
 
 /* --- Cetak: struk & laporan PDF --- */
 function printHtml(html, size, margin) {
@@ -539,6 +621,7 @@ function pSet() {
       field('Nomor WhatsApp toko', '<input id="setWa" inputmode="tel" value="' + esc(tokoWa) + '">') + '<div class="acts"><button class="btn" onclick="saveIdent()">Simpan</button></div>') +
     scard('🔐 Keamanan', '<div class="mut">Ganti PIN masuk aplikasi. PIN berlaku di semua perangkat.</div><div class="acts"><button class="btn" onclick="pinForm()">Ganti PIN</button></div>') +
     scard('🎨 Tampilan', '<div class="tgrid"></div><label class="f">Ukuran huruf</label><div class="acts" style="margin-top:0">' + fsb + '</div>') +
+    tfSettingsCard() +
     scard('🔊 Suara', '<div class="mut">Bunyi dan suara "Transaksi Berhasil".</div><div class="acts"><button class="btn sm" onclick="toggleSound();render()">' + (soundOn ? '🔊 Aktif' : '🔇 Mati') + '</button><button class="btn sm ghost" onclick="sayBerhasil()">Tes suara</button></div>') +
     scard('⭐ Produk favorit', '<div class="mut">' + nf + ' produk favorit. Beri bintang di menu Produk; tampil sebagai tombol cepat di Beranda dan form transaksi.</div><div class="acts"><button class="btn sm ghost" onclick="go(\'prod\')">Kelola di Produk</button></div>') +
     scard('🖨️ Cetak PDF', '<div class="mut">Laporan bulanan (rekap per hari + daftar transaksi). Di dialog cetak pilih "Simpan sebagai PDF".</div><input type="month" id="prMonth" value="' + esc(rekapMonth) + '" style="margin-top:8px"><div class="acts"><button class="btn" onclick="printReport($(\'#prMonth\').value)">🖨️ Cetak / PDF</button></div>') +
@@ -647,7 +730,7 @@ function pTrx() {
 
 /* --- Form transaksi --- */
 let trxStep = 1;
-function trxForm() {
+function trxFormClassic() {
   if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
   const sd = (n, t) => '<div class="sd" data-s="' + n + '"><i>' + n + '</i><span>' + t + '</span></div>';
   modal('Transaksi Baru',
@@ -701,7 +784,7 @@ function fillSummary() {
 }
 /* --- Item transaksi (banyak item) --- */
 const numOf = el => Number(String(el.value).replace(/\D/g, '')) || 0;
-function itemHtml() {
+function itemHtmlClassic() {
   const ao = db.apps.map(a => '<option value="' + a.id + '">' + esc(a.nama) + '</option>').join('');
   return '<div class="itm" style="border:1px solid var(--bd);border-radius:14px;padding:10px;margin-top:8px;background:var(--soft2)">' +
     '<div class="row"><b class="iNo"></b><button type="button" class="btn sm red iDel" onclick="rmItem(this)">✕ Hapus</button></div>' +
@@ -718,12 +801,13 @@ function addItem(pid) {
   const el = box.lastElementChild; itemApp(el.querySelector('.iApp'));
   if (pid) setItemProd(el, pid);
   renumber();
+  if (tfItemHook) tfItemHook(el);
   if (box.children.length > 1) el.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 function rmItem(btn) { btn.closest('.itm').remove(); renumber(); updTot(); }
 function renumber() {
   const l = document.querySelectorAll('.itm');
-  l.forEach((el, i) => { el.querySelector('.iNo').textContent = 'Item ' + (i + 1); el.querySelector('.iDel').style.display = l.length > 1 ? '' : 'none'; });
+  l.forEach((el, i) => { el.querySelector('.iNo').textContent = el.classList.contains('classic') || !(el.classList.contains('rowt') || el.classList.contains('crow')) ? 'Item ' + (i + 1) : String(i + 1); el.querySelector('.iDel').style.display = (l.length > 1 || el.classList.contains('crow')) ? '' : 'none'; });
 }
 function itemApp(sel) {
   const el = sel.closest('.itm'), aid = sel.value;
@@ -738,12 +822,16 @@ function itemProd(sel) {
 function itemCalc(x) {
   const el = x.closest('.itm');
   el.querySelector('.iLaba').textContent = 'Laba item: ' + rp(numOf(el.querySelector('.iJual')) - numOf(el.querySelector('.iMod')));
-  updTot();
+  tfLabel(el); updTot();
 }
 function updTot() {
-  let j = 0, m = 0, n = 0;
-  document.querySelectorAll('.itm').forEach(el => { n++; j += numOf(el.querySelector('.iJual')); m += numOf(el.querySelector('.iMod')); });
+  const T = tfT(), j = T.j, m = T.m, n = T.n;
   const t = $('#fTot'); if (t) t.textContent = n + ' item • Total jual: ' + rp(j) + ' • Total laba: ' + rp(j - m);
+  document.querySelectorAll('.tfTot').forEach(e => e.textContent = rp(j));
+  document.querySelectorAll('.tfLaba').forEach(e => e.textContent = rp(j - m));
+  document.querySelectorAll('.tfN').forEach(e => e.textContent = n);
+  const ok = $('#mOk'); if (tfOkLabel && ok) ok.textContent = tfOkLabel + (n && j ? ' • ' + rp(j) : '');
+  if (tfHook) { try { tfHook(); } catch (e) {} }
 }
 function setItemProd(el, pid) {
   const p = db.products.filter(x => x.id === pid)[0]; if (!p) return;
@@ -822,6 +910,7 @@ function pickCust(id) {
   const c = db.customers.filter(x => x.id === id)[0];
   $('#fCust').value = id; $('#fCustTxt').value = c ? c.nama : '';
   $('#csList').classList.remove('show');
+  if (tfHook) tfHook();
 }
 document.addEventListener('click', function (e) {
   const l = document.getElementById('csList');
@@ -1054,6 +1143,337 @@ function drawThemes() {
 }
 function openThemes() { drawThemes(); $('#themes').classList.add('show'); }
 function closeThemes() { $('#themes').classList.remove('show'); }
+
+/* ====== 10 GAYA FORM TRANSAKSI ====== */
+let itemTpl = 'classic', tfOkLabel = '', tfHook = null, tfItemHook = null;
+const tfCur = () => { const k = store.get('ppob_tf'); return TF_STYLES.some(s => s.k === k) ? k : 'step'; };
+function setTf(k) { store.set('ppob_tf', k); render(); toast('Form transaksi: ' + TF_STYLES.filter(s => s.k === k)[0].n, 'good'); }
+function tryTf(k) { trxForm('', k); }
+function trxForm(pid, key) {
+  if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
+  const s = TF_STYLES.filter(x => x.k === (key || tfCur()))[0] || TF_STYLES[0];
+  s.build(typeof pid === 'string' ? pid : '');
+}
+
+/* --- potongan bersama --- */
+const tfCust = () => field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama) — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>');
+const tfSeg = () => '<div class="seg"><label><input type="radio" name="st" value="Lunas" checked>✅ Lunas</label><label><input type="radio" name="st" value="Belum Bayar">⏳ Belum Bayar</label></div>';
+const tfPay = () => field('Status pembayaran', tfSeg()) + field('Catatan (opsional)', '<input id="fCat">');
+const tfAddBtn = (t) => '<button type="button" class="btn sm ghost" style="margin:10px 0" onclick="addItem()">' + (t || '+ Tambah item lagi') + '</button>';
+const tfSumBar = () => '<div class="tfsum"><span><span class="tfN">0</span> item</span><b class="tfTot">Rp 0</b></div><div class="ok" style="margin-top:4px">Laba: <span class="tfLaba">Rp 0</span></div>';
+function tfOpen(key, title, html, okText, submit) {
+  modal(title, html, submit || (async function () { return saveTrx(); }), okText || 'Simpan');
+  $('#modal').dataset.tf = key; tfOkLabel = okText || 'Simpan';
+}
+function tfFirst(pid) { addItem(); if (pid) pickFav(pid); updTot(); }
+function tfT() {
+  let j = 0, m = 0, n = 0;
+  document.querySelectorAll('.itm').forEach(el => { n++; j += numOf(el.querySelector('.iJual')); m += numOf(el.querySelector('.iMod')); });
+  return {j: j, m: m, n: n};
+}
+function tfStatus() { const r = document.querySelector('input[name=st]:checked'); return r ? r.value : 'Lunas'; }
+function tfLabel(el) {
+  const nm = el.querySelector('.iNm'); if (!nm) return;
+  const p = el.querySelector('.iProd'), a = el.querySelector('.iApp');
+  const po = p.options[p.selectedIndex], ao = a.options[a.selectedIndex];
+  nm.textContent = po ? po.textContent : ''; el.querySelector('.iAp').textContent = ao ? ao.textContent : '';
+}
+async function tfPost(cid, st, cat, items) {
+  const base = {customerId: cid, status: st, catatan: cat};
+  setDb(items.length === 1 ? await api('addTrx', Object.assign(base, items[0])) : await api('addTrxMulti', Object.assign(base, {items: items})));
+  render(); sayBerhasil(); toast(items.length > 1 ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil', 'good');
+}
+function appIcon(n) {
+  n = String(n).toLowerCase();
+  const m = [[/listrik|pln|token/, '⚡'], [/pulsa|telkomsel|indosat|xl|axis|tri\b|smartfren|data|paket/, '📶'], [/air|pdam/, '💧'], [/bpjs|kesehatan/, '🏥'],
+    [/game|ml\b|mobile|free ?fire|ff\b|steam|voucher|garena/, '🎮'], [/bank|bri|bca|mandiri|bni|transfer/, '🏦'], [/dana|ovo|gopay|linkaja|shopeepay|saldo/, '👛'],
+    [/tokopedia|shopee|lazada|tiktok|bukalapak/, '🛍️'], [/tv|wifi|indihome|internet/, '📺'], [/pajak|pbb|samsat/, '🏛️']];
+  for (let i = 0; i < m.length; i++) if (m[i][0].test(n)) return m[i][1];
+  return '📱';
+}
+
+/* --- template item: klasik / baris tabel / baris keranjang --- */
+function itemHtml() {
+  if (itemTpl === 'classic') return itemHtmlClassic();
+  const ao = db.apps.map(a => '<option value="' + a.id + '">' + esc(a.nama) + '</option>').join('');
+  const money = (c) => '<input class="' + c + '" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this);itemCalc(this)">';
+  if (itemTpl === 'row') {
+    return '<div class="itm rowt"><b class="iNo"></b><select class="iApp" onchange="itemApp(this)">' + ao + '</select><select class="iProd" onchange="itemProd(this)"></select>' +
+      '<input class="iTuj" inputmode="numeric" placeholder="08xxxxxxxxxx">' + money('iMod') + money('iJual') +
+      '<button type="button" class="btn sm red iDel" onclick="rmItem(this)">✕</button><div class="ok iLaba"></div></div>';
+  }
+  return '<div class="itm crow"><select class="iApp" hidden onchange="itemApp(this)">' + ao + '</select><select class="iProd" hidden onchange="itemProd(this)"></select><input class="iMod" type="hidden">' +
+    '<div class="cr1"><div><b class="iNm"></b> <span class="mut iAp"></span></div><button type="button" class="btn sm red iDel" onclick="rmItem(this)">✕</button></div>' +
+    '<div class="cr2"><input class="iTuj" inputmode="numeric" placeholder="No. HP / ID tujuan">' + money('iJual') + '</div><b class="iNo" style="display:none"></b><div class="ok iLaba"></div></div>';
+}
+
+/* ====== 1. Bertahap (tampilan lama) ====== */
+function fmStep(pid) { trxFormClassic(); if (pid && $('#itemsBox')) { pickFav(pid); goStep(2); } }
+
+/* ====== 2. Satu Halaman ====== */
+function fmOne(pid) {
+  tfOpen('one', 'Transaksi Baru',
+    '<div class="tfsec">👤 Customer</div>' + tfCust() +
+    '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>' +
+    '<div class="tfsec">💳 Pembayaran</div>' + tfPay());
+  tfFirst(pid);
+}
+
+/* ====== 3. Kasir Cepat ====== */
+let posF = 'all';
+function fmPos(pid) {
+  posF = 'all';
+  tfOpen('pos', 'Kasir Cepat',
+    '<div class="pos"><div><input id="posQ" placeholder="🔍 Cari produk..." oninput="posDraw()"><div class="chips" id="posChips"></div><div class="posgrid" id="posGrid"></div></div>' +
+    '<div class="pos-r">' + tfCust() + '<div class="mut" style="margin-top:12px"><b>🛒 Keranjang</b></div>' +
+    '<div id="posEmpty" class="empty" style="padding:16px">Ketuk produk untuk menambahkan</div><div id="itemsBox"></div>' + tfSumBar() + tfPay() + '</div></div>');
+  itemTpl = 'cart';
+  tfHook = function () { const e = $('#posEmpty'); if (e) e.style.display = tfT().n ? 'none' : ''; };
+  posDraw(); if (pid) addItem(pid); updTot();
+}
+function posDraw() {
+  const q = ($('#posQ').value || '').trim().toLowerCase();
+  const chips = [['all', 'Semua'], ['fav', '⭐ Favorit']].concat(db.apps.map(a => [a.id, a.nama]));
+  $('#posChips').innerHTML = chips.map(c => '<button type="button" class="chip" style="' + (posF === c[0] ? 'background:var(--p);color:#fff' : '') + '" onclick="posF=\'' + c[0] + '\';posDraw()">' + esc(c[1]) + '</button>').join('');
+  let l = db.products.filter(p => posF === 'all' || (posF === 'fav' ? isFav(p.id) : p.aplikasiId === posF));
+  if (q) l = l.filter(p => (p.nama + ' ' + p.aplikasi).toLowerCase().indexOf(q) >= 0);
+  $('#posGrid').innerHTML = l.map(p => '<button type="button" class="ptile" onclick="posAdd(\'' + p.id + '\')">' + (isFav(p.id) ? '<span class="st">⭐</span>' : '') +
+    '<b>' + esc(p.nama) + '</b><small>' + esc(p.aplikasi) + '</small><div class="pp">' + rp(p.jual) + '</div></button>').join('') ||
+    '<div class="mut" style="grid-column:1/-1;padding:10px">Produk tidak ditemukan</div>';
+}
+function posAdd(id) { addItem(id); const b = $('#itemsBox'); if (b.lastElementChild) b.lastElementChild.scrollIntoView({block: 'nearest', behavior: 'smooth'}); }
+
+/* ====== 4. Percakapan ====== */
+let chat = {};
+function fmChat(pid) {
+  tfOpen('chat', 'Transaksi Baru', '<div class="chatlog" id="chatLog"></div><div id="chatAsk"></div>', 'Simpan', async function () { return chatSave(); });
+  chat = {step: 0, cid: '', cname: '', items: [], cur: null, log: [], hist: [], pre: pid || ''};
+  tfOkLabel = '';
+  chatAsk();
+}
+function chatPush(who, txt) { chat.log.push([who, txt]); }
+function chatSnap() { chat.hist.push(JSON.stringify({step: chat.step, cid: chat.cid, cname: chat.cname, items: chat.items, cur: chat.cur, log: chat.log})); }
+function chatBack() { if (!chat.hist.length) { closeModal(); return; } Object.assign(chat, JSON.parse(chat.hist.pop())); chatAsk(); }
+const chatQ = t => '<div class="bb bot" style="margin-bottom:10px">' + t + '</div>';
+function chatTotal() { return chat.items.reduce((s, x) => s + x.jual, 0); }
+function chatAsk() {
+  const log = $('#chatLog'), box = $('#chatAsk'), ok = $('#mOk'), gb = $('#modal .mfoot .btn.ghost');
+  log.innerHTML = chat.log.map(x => '<div class="bb ' + x[0] + '">' + esc(x[1]) + '</div>').join('');
+  log.scrollTop = log.scrollHeight;
+  gb.textContent = chat.hist.length ? '↩ Kembali' : 'Batal'; gb.onclick = chatBack;
+  ok.style.display = chat.step === 5 ? '' : 'none';
+  const c = chat.cur, p = c && c.pid ? db.products.filter(x => x.id === c.pid)[0] : null;
+  let h = '';
+  if (chat.step === 0) {
+    h = chatQ('Halo! 👋 Transaksi ini untuk siapa?') + tfCust() +
+      '<div class="acts"><button type="button" class="btn sm ghost" onclick="chatCust(true)">Umum (tanpa nama)</button><button type="button" class="btn sm" onclick="chatCust()">Lanjut</button></div>';
+  } else if (chat.step === 1) {
+    const fv = favProducts();
+    h = chatQ('Pakai aplikasi apa?') + (db.apps.length ? '<div class="atiles">' + db.apps.map(a => '<button type="button" class="atile" onclick="chatApp(\'' + a.id + '\')"><i>' + appIcon(a.nama) + '</i>' + esc(a.nama) + '</button>').join('') + '</div>' : '') +
+      (fv.length ? '<div class="mut" style="margin-top:12px">⭐ Atau langsung pilih favorit</div><div class="chips">' + fv.map(x => '<button type="button" class="chip" onclick="chatProd(\'' + x.id + '\')">' + esc(x.nama) + '</button>').join('') + '</div>' : '');
+  } else if (chat.step === 2) {
+    const l = db.products.filter(x => x.aplikasiId === c.aid);
+    h = chatQ('Produk apa yang dibeli?') + (l.map(x => '<button type="button" class="pl" onclick="chatProd(\'' + x.id + '\')"><span><b>' + (isFav(x.id) ? '⭐ ' : '') + esc(x.nama) + '</b></span><b>' + rp(x.jual) + '</b></button>').join('') || '<div class="empty">Belum ada produk di aplikasi ini.</div>');
+  } else if (chat.step === 3) {
+    h = chatQ('Nomor HP / ID pelanggan / tujuan untuk <b>' + esc(p ? p.nama : '') + '</b>?') + '<input id="cTuj" inputmode="numeric" placeholder="08xxxxxxxxxx" value="' + esc(c.tuj || '') + '">' +
+      '<div class="two"><div>' + field('Harga modal', '<input id="cMod" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(c.modal) + '">') + '</div>' +
+      '<div>' + field('Harga jual', '<input id="cJual" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(c.jual) + '">') + '</div></div>' +
+      '<div class="acts"><button type="button" class="btn sm" onclick="chatDetail()">Lanjut</button></div>';
+  } else if (chat.step === 4) {
+    h = chatQ('Siap! ✅ ' + chat.items.length + ' item tercatat (' + rp(chatTotal()) + '). Mau tambah item lagi?') +
+      '<div class="acts"><button type="button" class="btn sm ghost" onclick="chatMore()">+ Item lagi</button><button type="button" class="btn sm" onclick="chatPay()">Lanjut ke pembayaran</button></div>';
+  } else {
+    const j = chatTotal(), m = chat.items.reduce((s, x) => s + x.modal, 0);
+    h = chatQ('Terakhir, pembayarannya bagaimana?') + tfSeg() + field('Catatan (opsional)', '<input id="fCat">') +
+      '<div class="card" style="margin-top:12px"><div class="mut">👤 ' + esc(chat.cname) + '</div>' + chat.items.map(x => '<div class="row s" style="border-top:1px solid var(--bd);padding-top:6px"><div><b>' + esc(x.produk) + '</b><div class="mut">' + esc(x.aplikasi + (x.tujuan ? ' • ' + x.tujuan : '')) + '</div></div><b>' + rp(x.jual) + '</b></div>').join('') +
+      '<div class="row s" style="border-top:1px solid var(--bd);padding-top:6px"><b>Total</b><b>' + rp(j) + '</b></div><div class="ok">Laba: ' + rp(j - m) + '</div></div>';
+    ok.textContent = 'Simpan • ' + rp(j);
+  }
+  box.innerHTML = h;
+}
+function chatCust(umum) {
+  try {
+    if (umum) { $('#fCust').value = ''; $('#fCustTxt').value = ''; }
+    stepCustomer();
+    const id = $('#fCust').value, cu = db.customers.filter(x => x.id === id)[0];
+    chatSnap(); chat.cid = id; chat.cname = cu ? cu.nama : 'Umum';
+    chatPush('bot', 'Transaksi untuk siapa?'); chatPush('me', chat.cname);
+    if (chat.pre) { const pid = chat.pre; chat.pre = ''; chatProd(pid, true); } else { chat.step = 1; chatAsk(); }
+  } catch (e) { toast(e.message, 'err'); }
+}
+function chatApp(aid) {
+  const a = db.apps.filter(x => x.id === aid)[0]; chatSnap();
+  chat.cur = {aid: aid}; chatPush('bot', 'Pakai aplikasi apa?'); chatPush('me', a ? a.nama : '-'); chat.step = 2; chatAsk();
+}
+function chatProd(pid, noSnap) {
+  const p = db.products.filter(x => x.id === pid)[0]; if (!p) return;
+  if (!noSnap) chatSnap();
+  chat.cur = {aid: p.aplikasiId, pid: pid, modal: p.modal, jual: p.jual, tuj: ''};
+  chatPush('bot', 'Produk apa?'); chatPush('me', p.nama); chat.step = 3; chatAsk();
+}
+function chatDetail() {
+  const c = chat.cur, p = db.products.filter(x => x.id === c.pid)[0], a = db.apps.filter(x => x.id === c.aid)[0];
+  const tuj = $('#cTuj').value.trim(), md = numVal('#cMod'), jl = numVal('#cJual');
+  chatSnap();
+  chat.items.push({aplikasi: a ? a.nama : (p ? p.aplikasi : ''), produk: p ? p.nama : '', tujuan: tuj, modal: md, jual: jl});
+  chatPush('bot', 'Nomor tujuan & harga?'); chatPush('me', (tuj || 'tanpa tujuan') + ' • ' + rp(jl));
+  chat.cur = null; chat.step = 4; chatAsk();
+}
+function chatMore() { chatSnap(); chatPush('bot', 'Tambah item lagi?'); chatPush('me', 'Ya, tambah'); chat.step = 1; chatAsk(); }
+function chatPay() { chatSnap(); chatPush('bot', 'Tambah item lagi?'); chatPush('me', 'Cukup, lanjut bayar'); chat.step = 5; chatAsk(); }
+async function chatSave() {
+  const st = tfStatus();
+  if (!chat.items.length) throw new Error('Belum ada item');
+  if (st === 'Belum Bayar' && !chat.cid) throw new Error('Pilih customer untuk transaksi belum bayar (tekan Kembali)');
+  await tfPost(chat.cid, st, $('#fCat').value, chat.items);
+}
+
+/* ====== 5. Tabel Ringkas ====== */
+function fmTbl(pid) {
+  tfOpen('tbl', 'Transaksi Baru',
+    '<div class="tblTop"><div>' + tfCust() + '</div><div>' + field('Status pembayaran', tfSeg()) + '</div></div>' +
+    '<div class="tfsec">🧾 Item</div>' + favChips() +
+    '<div class="trow head"><span>#</span><span>Aplikasi</span><span>Produk</span><span>No. Tujuan</span><span>Modal</span><span>Jual</span><span></span></div>' +
+    '<div id="itemsBox"></div>' + tfAddBtn('+ Tambah baris') + tfSumBar() + field('Catatan (opsional)', '<input id="fCat">'));
+  itemTpl = 'row'; tfFirst(pid);
+}
+
+/* ====== 6. Tab Bebas ====== */
+function fmTab(pid) {
+  tfOpen('tab', 'Transaksi Baru',
+    '<div class="tfTabs"><button type="button" data-p="1" onclick="tfTabGo(1)">👤 Customer<small id="tbC">Umum</small></button>' +
+    '<button type="button" data-p="2" onclick="tfTabGo(2)">🧾 Item<small id="tbI">0 item</small></button>' +
+    '<button type="button" data-p="3" onclick="tfTabGo(3)">💳 Bayar<small id="tbS">Lunas</small></button></div>' +
+    '<div class="tfp" data-p="1">' + tfCust() + '<div class="mut" style="margin-top:8px">Kosongkan jika tanpa nama (Umum).</div></div>' +
+    '<div class="tfp" data-p="2">' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div></div>' +
+    '<div class="tfp" data-p="3">' + tfPay() + '</div>', 'Simpan',
+    async function () {
+      try { return await saveTrx(); }
+      catch (e) { if (/customer/i.test(e.message)) tfTabGo(1); else if (/item/i.test(e.message)) tfTabGo(2); throw e; }
+    });
+  tfHook = tfTabSum; $('#mBody').oninput = $('#mBody').onchange = tfTabSum;
+  tfFirst(pid); tfTabGo(pid ? 2 : 1);
+}
+function tfTabGo(n) {
+  document.querySelectorAll('.tfp').forEach(e => e.classList.toggle('on', Number(e.dataset.p) === n));
+  document.querySelectorAll('.tfTabs button').forEach(e => e.classList.toggle('on', Number(e.dataset.p) === n));
+  tfTabSum();
+}
+function tfTabSum() {
+  const T = tfT(), a = $('#tbC'); if (!a) return;
+  a.textContent = $('#fCustTxt').value.trim() || 'Umum';
+  $('#tbI').textContent = T.n + ' item' + (T.j ? ' • ' + rp(T.j) : ''); $('#tbS').textContent = tfStatus();
+}
+
+/* ====== 7. Akordeon ====== */
+let accCur = 1;
+function fmAcc(pid) {
+  const sec = (n, t, body, next) => '<div class="acc" data-a="' + n + '"><div class="acc-h" onclick="tfAccGo(' + n + ')"><i>' + n + '</i>' + t + '<span class="sm" id="acS' + n + '"></span></div><div class="acc-b">' + body +
+    (next ? '<div class="acts"><button type="button" class="btn sm" onclick="tfAccGo(' + next + ')">Lanjut ▸</button></div>' : '') + '</div></div>';
+  tfOpen('acc', 'Transaksi Baru',
+    sec(1, '👤 Customer', tfCust(), 2) + sec(2, '🧾 Item', favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>', 3) + sec(3, '💳 Pembayaran', tfPay()));
+  tfHook = tfAccSum; $('#mBody').oninput = $('#mBody').onchange = tfAccSum;
+  tfFirst(pid); tfAccGo(pid ? 2 : 1);
+}
+function tfAccGo(n) { accCur = n; tfAccSum(); }
+function tfAccSum() {
+  const T = tfT(); if (!$('#acS1')) return;
+  $('#acS1').textContent = $('#fCustTxt').value.trim() || 'Umum';
+  $('#acS2').textContent = T.n + ' item • ' + rp(T.j); $('#acS3').textContent = tfStatus();
+  document.querySelectorAll('.acc').forEach(e => { const k = Number(e.dataset.a); e.classList.toggle('open', k === accCur); e.classList.toggle('done', k < accCur); });
+}
+
+/* ====== 8. Nota Langsung ====== */
+function fmNota(pid) {
+  tfOpen('nota', 'Transaksi Baru',
+    '<div class="nota"><div>' + tfCust() + '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + tfPay() + '</div>' +
+    '<div class="strwrap"><div class="mut" style="margin-bottom:6px"><b>🧾 Pratinjau nota (langsung)</b></div><div class="strk" id="liveStrk"></div></div></div>');
+  tfHook = tfNotaDraw; $('#mBody').oninput = $('#mBody').onchange = tfNotaDraw;
+  tfFirst(pid);
+}
+function tfNotaDraw() {
+  const box = $('#liveStrk'); if (!box) return;
+  const rows = Array.prototype.map.call(document.querySelectorAll('.itm'), el => {
+    const p = el.querySelector('.iProd'), po = p.options[p.selectedIndex];
+    return {nm: po ? po.textContent : '-', tuj: el.querySelector('.iTuj').value.trim(), jual: numOf(el.querySelector('.iJual'))};
+  });
+  const tot = rows.reduce((s, x) => s + x.jual, 0);
+  const tgl = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short'});
+  box.innerHTML = '<div class="sc"><b>' + esc(tokoName || appName) + '</b></div><div class="sc">' + esc(tgl) + '</div><hr>' +
+    '<div>Customer: ' + esc($('#fCustTxt').value.trim() || 'Umum') + '</div><hr>' +
+    rows.map(x => '<div>' + esc(x.nm) + '</div>' + (x.tuj ? '<div>  ' + esc(x.tuj) + '</div>' : '') + '<div class="sr"><span></span><span>' + rp(x.jual) + '</span></div>').join('') +
+    '<hr><div class="sr"><b>TOTAL</b><b>' + rp(tot) + '</b></div><div class="sc" style="margin-top:6px">' + (tfStatus() === 'Lunas' ? '*** LUNAS ***' : '*** BELUM BAYAR ***') + '</div>';
+}
+
+/* ====== 9. Layar Penuh ====== */
+function fmFull(pid) {
+  tfOpen('full', 'Transaksi Baru',
+    '<div class="stats" style="margin-top:10px"><div class="stat hero"><div class="l">Total</div><div class="v tfTot">Rp 0</div></div><div class="stat"><div class="l">Laba</div><div class="v ok tfLaba">Rp 0</div></div><div class="stat"><div class="l">Jumlah item</div><div class="v tfN">0</div></div></div>' +
+    '<div class="fullg"><div class="card"><h2 style="margin:0">👤 Customer & Bayar</h2>' + tfCust() + tfPay() + '</div>' +
+    '<div class="card"><h2 style="margin:0">🧾 Item</h2>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '</div></div>');
+  tfFirst(pid);
+}
+
+/* ====== 10. Keypad Besar ====== */
+let kpAct = null;
+function fmKp(pid) {
+  const kb = (l, k) => '<button type="button" onclick="kpKey(\'' + k + '\')">' + l + '</button>';
+  tfOpen('kp', 'Transaksi Baru',
+    tfCust() + '<div class="tfsec">🧾 Item</div>' + favChips() + '<div id="itemsBox"></div>' + tfAddBtn() + '<div class="ok" id="fTot"></div>' +
+    '<div class="tfsec">⌨️ Keypad nomor tujuan</div><div class="mut">Pilih kotak item, lalu ketuk angka di bawah.</div>' +
+    '<div class="kpd">' + '123456789'.split('').map(d => kb(d, d)).join('') + kb('C', 'C') + kb('0', '0') + kb('⌫', '<') + '</div>' + tfPay());
+  kpAct = null;
+  tfItemHook = function (el) { const t = el.querySelector('.iTuj'); t.setAttribute('inputmode', 'none'); t.onfocus = function () { kpSet(el); }; kpSet(el); };
+  tfFirst(pid);
+}
+function kpSet(el) { kpAct = el; document.querySelectorAll('.itm').forEach(x => x.classList.toggle('kpOn', x === el)); }
+function kpKey(k) {
+  const l = document.querySelectorAll('.itm'); if (!l.length) return;
+  const el = kpAct && document.body.contains(kpAct) ? kpAct : l[0], t = el.querySelector('.iTuj');
+  if (k === 'C') t.value = ''; else if (k === '<') t.value = t.value.slice(0, -1); else t.value += k;
+  if (tfHook) tfHook();
+}
+
+/* ====== daftar gaya + pemilih di Pengaturan ====== */
+const TF_STYLES = [
+  {k: 'step', n: 'Bertahap', d: '3 langkah: Customer → Item → Bayar. Tampilan yang lama.', build: fmStep},
+  {k: 'one', n: 'Satu Halaman', d: 'Semua isian di satu layar. Tinggal scroll lalu simpan.', build: fmOne},
+  {k: 'pos', n: 'Kasir Cepat', d: 'Ketuk kotak produk, langsung masuk keranjang. Cocok saat ramai.', build: fmPos},
+  {k: 'chat', n: 'Percakapan', d: 'Ditanya satu per satu seperti chat. Mudah dan tidak bingung.', build: fmChat},
+  {k: 'tbl', n: 'Tabel Ringkas', d: 'Item berjajar seperti spreadsheet. Cepat untuk banyak item.', build: fmTbl},
+  {k: 'tab', n: 'Tab Bebas', d: 'Pindah Customer / Item / Bayar kapan saja lewat tab.', build: fmTab},
+  {k: 'acc', n: 'Akordeon', d: 'Bagian melipat; yang sudah diisi tampil ringkas.', build: fmAcc},
+  {k: 'nota', n: 'Nota Langsung', d: 'Isi form sambil melihat struk terbentuk langsung.', build: fmNota},
+  {k: 'full', n: 'Layar Penuh', d: 'Dua kolom lega dengan total besar. Enak di laptop/tablet.', build: fmFull},
+  {k: 'kp', n: 'Keypad Besar', d: 'Tombol angka besar di layar untuk mengetik nomor tujuan.', build: fmKp}
+];
+function tfThumb(k) {
+  const P = 'var(--p)', G = 'var(--bd)', W = 'var(--surf)', S = 'var(--soft)';
+  const r = (x, y, w, h, c, rx, st) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (rx == null ? 2 : rx) + '" style="fill:' + (c || G) + (st ? ';stroke:' + st + ';stroke-width:.8' : '') + '"/>';
+  const ci = (x, y, rr, c) => '<circle cx="' + x + '" cy="' + y + '" r="' + rr + '" style="fill:' + c + '"/>';
+  let s = '', i, j;
+  switch (k) {
+    case 'step': s = r(20, 7.4, 16, 1.2) + r(44, 7.4, 16, 1.2) + ci(16, 8, 4.5, P) + ci(40, 8, 4.5, G) + ci(64, 8, 4.5, G) + r(8, 19, 64, 8) + r(8, 31, 64, 8) + r(8, 44, 64, 8, P, 4); break;
+    case 'one': s = r(8, 5, 22, 3, P) + r(8, 10, 64, 7) + r(8, 21, 22, 3, P) + r(8, 26, 64, 7) + r(8, 36, 22, 3, P) + r(8, 41, 30, 5) + r(42, 41, 30, 5) + r(8, 49, 64, 5, P, 3); break;
+    case 'pos': for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) s += r(5 + i * 18, 5 + j * 16, 16, 13, i + j === 1 ? P : G, 3); s += r(60, 5, 16, 46, S) + r(62, 9, 12, 2) + r(62, 14, 12, 2) + r(62, 44, 12, 5, P, 2); break;
+    case 'chat': s = r(6, 5, 36, 9, G, 4) + r(38, 17, 36, 9, P, 4) + r(6, 29, 30, 9, G, 4) + r(44, 41, 30, 9, P, 4); break;
+    case 'tbl': s = r(5, 5, 70, 5, S); for (j = 0; j < 4; j++) s += r(5, 13 + j * 9, 6, 7) + r(13, 13 + j * 9, 14, 7) + r(29, 13 + j * 9, 20, 7) + r(51, 13 + j * 9, 12, 7) + r(65, 13 + j * 9, 10, 7, P); s += r(5, 49, 22, 5, P, 3); break;
+    case 'tab': s = r(5, 5, 70, 11, S, 5) + r(7, 7, 21, 7, P, 4) + r(33, 9, 14, 3) + r(55, 9, 14, 3) + r(5, 21, 70, 8) + r(5, 32, 70, 8) + r(5, 48, 70, 6, P, 3); break;
+    case 'acc': s = r(5, 4, 70, 9) + r(5, 16, 70, 25, S, 3, P) + r(10, 21, 60, 6, W) + r(10, 30, 60, 6, W) + r(5, 44, 70, 9); break;
+    case 'nota': s = r(5, 6, 36, 6) + r(5, 16, 36, 6) + r(5, 26, 36, 6) + r(5, 36, 36, 6) + r(5, 47, 36, 6, P, 3) + r(47, 4, 28, 48, W, 2, G) + r(51, 9, 20, 2) + r(51, 15, 20, 2) + r(51, 21, 20, 2) + r(51, 27, 20, 2) + r(51, 41, 20, 3, P); break;
+    case 'full': s = r(4, 4, 72, 13, P, 4) + r(4, 21, 26, 31, S, 3) + r(8, 25, 18, 4, G) + r(8, 32, 18, 4, G) + r(34, 21, 42, 31, S, 3) + r(38, 25, 34, 6, G) + r(38, 34, 34, 6, G); break;
+    default: s = r(10, 4, 60, 9) + r(10, 15, 22, 4, P, 2); for (i = 0; i < 3; i++) for (j = 0; j < 4; j++) s += r(16 + i * 17, 22 + j * 8, 15, 6.5, S, 2);
+  }
+  return '<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + s + '</svg>';
+}
+function tfSettingsCard() {
+  const cur = tfCur();
+  return '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 4px">📝 Tampilan Form Transaksi</h2>' +
+    '<div class="mut">Pilih gaya form “Transaksi Baru”. Bosan? Ganti kapan saja. Tombol <b>Coba</b> membuka form (tekan Batal jika hanya melihat). Pilihan tersimpan di perangkat ini.</div><div class="tfgrid">' +
+    TF_STYLES.map((s, i) => '<div class="tfc' + (s.k === cur ? ' on' : '') + '">' + tfThumb(s.k) + '<b>' + (i + 1) + '. ' + esc(s.n) + (s.k === cur ? ' ✓' : '') + '</b><div class="mut">' + esc(s.d) + '</div>' +
+      '<div class="acts"><button class="btn sm' + (s.k === cur ? '' : ' ghost') + '" onclick="setTf(\'' + s.k + '\')">' + (s.k === cur ? 'Dipakai' : 'Pakai') + '</button><button class="btn sm ghost" onclick="tryTf(\'' + s.k + '\')">Coba</button></div></div>').join('') +
+    '</div></div>';
+}
 
 /* ====== START ====== */
 buildNav();
