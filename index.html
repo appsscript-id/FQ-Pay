@@ -474,8 +474,57 @@ function sayBerhasil(teks) {
     }
   } catch (e) {}
 }
+
+/* ====== SUARA PEMBUKA (±8 detik, dimainkan setelah login) ====== */
+let introMaster = null;
+function stopIntro() {
+  try {
+    if (introMaster && audioCtx) {
+      const t = audioCtx.currentTime;
+      introMaster.gain.cancelScheduledValues(t);
+      introMaster.gain.setValueAtTime(introMaster.gain.value, t);
+      introMaster.gain.linearRampToValueAtTime(0.0001, t + 0.3);
+    }
+  } catch (e) {}
+  introMaster = null;
+}
+function playIntro() {
+  if (!soundOn) return;
+  try {
+    unlockAudio();
+    if (!audioCtx) return;
+    stopIntro();
+    const ctx = audioCtx, T0 = ctx.currentTime + 0.1, DUR = 8;
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, T0);
+    master.gain.linearRampToValueAtTime(0.4, T0 + 0.3);
+    master.gain.setValueAtTime(0.4, T0 + DUR - 1.6);
+    master.gain.linearRampToValueAtTime(0.0001, T0 + DUR);   // memudar di akhir
+    master.connect(ctx.destination);
+    introMaster = master;
+    const tone = function (f, st, d, type, vol, atk) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.value = f;
+      o.connect(g); g.connect(master);
+      const a = T0 + st;
+      g.gain.setValueAtTime(0.0001, a);
+      g.gain.linearRampToValueAtTime(vol, a + (atk || 0.03));
+      g.gain.exponentialRampToValueAtTime(0.0001, a + d);
+      o.start(a); o.stop(a + d + 0.05);
+    };
+    // alas akor yang lembut
+    [[[261.63, 329.63, 392], 0, 2.4], [[349.23, 440, 523.25], 2.3, 2.5], [[392, 493.88, 587.33], 4.6, 1.9], [[261.63, 329.63, 392, 523.25], 6.4, 1.6]]
+      .forEach(function (c) { c[0].forEach(function (f) { tone(f, c[1], c[2] + 0.4, 'sine', 0.09, 0.5); }); });
+    // melodi + kilau
+    [[523.25, 0, .5], [659.25, .45, .5], [783.99, .9, .5], [1046.5, 1.35, .9],
+     [880, 2.4, .45], [783.99, 2.8, .45], [698.46, 3.2, .45], [880, 3.6, .9],
+     [783.99, 4.7, .45], [987.77, 5.1, .45], [1174.66, 5.5, .45], [1318.5, 5.9, .55],
+     [1046.5, 6.5, 1.5]]
+      .forEach(function (n) { tone(n[0], n[1], n[2] + 0.5, 'triangle', 0.16); tone(n[0] * 2, n[1], n[2] + 0.3, 'sine', 0.035); });
+  } catch (e) {}
+}
 function toggleSound() {
-  soundOn = !soundOn; store.set('ppob_sound', soundOn ? '1' : '0');
+  soundOn = !soundOn; if (!soundOn) stopIntro(); store.set('ppob_sound', soundOn ? '1' : '0');
   $('#btnSound').textContent = soundOn ? '🔊' : '🔇';
   toast(soundOn ? 'Suara aktif' : 'Suara dimatikan');
   if (soundOn) sayBerhasil();
@@ -532,16 +581,18 @@ function showLogin() { $('#login').classList.add('show'); setTimeout(() => $('#p
 async function doLogin() {
   pin = $('#pinIn').value.trim();
   if (!pin) return;
+  unlockAudio();
   page = 'home'; fq = ''; fs = ''; fd = ''; cq = '';
   try {
     await load();
     sess.set('ppob_pin', pin);
     $('#login').classList.remove('show');
+    playIntro();
   } catch (e) { toast(e.message, 'err'); if (/PIN/.test(e.message)) $('#pinIn').value = ''; }
 }
 async function logout() {
   if (!(await askConfirm('Keluar dari aplikasi?', 'Anda perlu memasukkan PIN lagi untuk masuk.', 'Keluar', '🚪'))) return;
-  sess.del('ppob_pin'); pin = ''; page = 'home'; fq = ''; fs = ''; fd = ''; cq = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
+  stopIntro(); sess.del('ppob_pin'); pin = ''; page = 'home'; fq = ''; fs = ''; fd = ''; cq = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
 
 /* ====== PENGATURAN ====== */
 const APP_VER = '2.6';
@@ -706,7 +757,7 @@ function pSet() {
       '<div class="acts"><button class="btn sm" onclick="$(\'#bgFile\').click()">📷 Pilih foto</button>' +
       (store.get('ppob_loginbg') ? '<button class="btn sm red" onclick="resetLoginBg()">Hapus foto</button>' : '') + '</div>') +
     tfSettingsCard() +
-    scard('🔊 Suara', '<div class="mut">Bunyi dan suara "Transaksi Berhasil".</div><div class="acts"><button class="btn sm" onclick="toggleSound();render()">' + (soundOn ? '🔊 Aktif' : '🔇 Mati') + '</button><button class="btn sm ghost" onclick="sayBerhasil()">Tes suara</button></div>') +
+    scard('🔊 Suara', '<div class="mut">Bunyi pembuka setelah login, serta suara "Transaksi Berhasil".</div><div class="acts"><button class="btn sm" onclick="toggleSound();render()">' + (soundOn ? '🔊 Aktif' : '🔇 Mati') + '</button><button class="btn sm ghost" onclick="sayBerhasil()">Tes suara</button><button class="btn sm ghost" onclick="playIntro()">Tes suara pembuka</button></div>') +
     scard('⭐ Produk favorit', '<div class="mut">' + nf + ' produk favorit. Beri bintang di menu Produk; tampil sebagai tombol cepat di Beranda dan form transaksi.</div><div class="acts"><button class="btn sm ghost" onclick="go(\'prod\')">Kelola di Produk</button></div>') +
     scard('🖨️ Cetak PDF', '<div class="mut">Laporan bulanan (rekap per hari + daftar transaksi). Di dialog cetak pilih "Simpan sebagai PDF".</div><input type="month" id="prMonth" value="' + esc(rekapMonth) + '" style="margin-top:8px"><div class="acts"><button class="btn" onclick="printReport($(\'#prMonth\').value)">🖨️ Cetak / PDF</button></div>') +
     scard('💾 Backup data', '<div class="mut">Unduh data sebagai file CSV (untuk Excel / Sheets).</div><div class="acts">' + csvb + '</div>' +
