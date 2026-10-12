@@ -39,7 +39,7 @@ main{min-height:100vh}
 .bottom .nav.on{box-shadow:none}
 .bottom .nav .cnt{position:absolute;top:0;right:8px;margin:0;font-size:10px;min-width:18px;padding:0 5px}
 .fab{position:fixed;right:18px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:25;width:58px;height:58px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:30px;box-shadow:0 10px 24px rgba(79,70,229,.45);cursor:pointer}
-@media(min-width:900px){.side{display:flex}.bottom,.fab{display:none}main{margin-left:248px}#view{padding:24px}.top{padding:18px 24px}}
+@media(min-width:900px){.side{display:flex}.bottom,.fab,.top .out{display:none}main{margin-left:248px}#view{padding:24px}.top{padding:18px 24px}}
 @media(max-width:899px){main{padding-bottom:90px}}
 
 /* components */
@@ -126,6 +126,7 @@ tfoot td{font-weight:750;background:#f6f7fd}
       <h1 id="title">Beranda</h1>
       <button id="btnSound" onclick="toggleSound()" title="Suara">🔊</button>
       <button onclick="reload()" title="Muat ulang">⟳</button>
+      <button class="out" onclick="logout()" title="Keluar">🚪</button>
     </header>
     <div id="view"></div>
   </main>
@@ -159,7 +160,12 @@ const ymd = () => new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Jakarta
 const sum = (a, k) => a.reduce((s, x) => s + Number(x[k] || 0), 0);
 
 let db = {customers:[], apps:[], products:[], trx:[]};
-let page = 'home', pin = store.get('ppob_pin') || '';
+const sess = {   // PIN hanya disimpan selama tab terbuka: buka link baru = diminta PIN lagi
+  get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} },
+  del(k){ try{ sessionStorage.removeItem(k); }catch(e){} }
+};
+let page = 'home', pin = sess.get('ppob_pin') || '';
 let fq = '', fs = '', fd = '';
 let rekapMonth = ymd().slice(0, 7);
 let soundOn = store.get('ppob_sound') !== '0';
@@ -189,7 +195,7 @@ function toast(msg, type) {
   const t = $('#toast'); t.textContent = msg; t.className = 'show ' + (type || '');
   clearTimeout(tt); tt = setTimeout(() => t.className = '', 2600);
 }
-function setDb(d) { db = d; try { store.set('ppob_cache', JSON.stringify(d)); } catch (e) {} }
+function setDb(d) { db = d; }
 function warmUp() {   // bangunkan server Apps Script selagi pengguna mengetik PIN
   if (API_URL.indexOf('GANTI') >= 0) return;
   try { fetch(API_URL, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({action: 'ping'})}).catch(function () {}); } catch (e) {}
@@ -284,11 +290,11 @@ async function doLogin() {
   if (!pin) return;
   try {
     await load();
-    store.set('ppob_pin', pin);
+    sess.set('ppob_pin', pin);
     $('#login').classList.remove('show');
   } catch (e) { toast(e.message, 'err'); if (/PIN/.test(e.message)) $('#pinIn').value = ''; }
 }
-function logout() { store.del('ppob_pin'); store.del('ppob_cache'); pin = ''; showLogin(); }
+function logout() { sess.del('ppob_pin'); pin = ''; db = {customers:[], apps:[], products:[], trx:[]}; closeModal(); $('#pinIn').value = ''; showLogin(); }
 
 /* ====== NAVIGASI ====== */
 function buildNav() {
@@ -540,17 +546,9 @@ function pLaba() {
 buildNav();
 $('#btnSound').textContent = soundOn ? '🔊' : '🔇';
 warmUp();
+store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
 (async function () {
   if (!pin) { showLogin(); return; }
-  // Tampilkan data tersimpan dulu (langsung muncul), lalu segarkan di latar belakang
-  let cached = null;
-  try { const c = store.get('ppob_cache'); if (c) cached = JSON.parse(c); } catch (e) {}
-  if (cached && cached.trx) {
-    db = cached; render();
-    try { setDb(await api('getAll')); render(); }
-    catch (e) { if (/PIN/.test(e.message)) showLogin(); else toast(e.message, 'err'); }
-    return;
-  }
   try { await load(); }
   catch (e) { if (/PIN/.test(e.message)) showLogin(); else { render(); toast(e.message, 'err'); } }
 })();
