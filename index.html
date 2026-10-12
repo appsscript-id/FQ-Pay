@@ -88,6 +88,14 @@ tfoot td{font-weight:750;background:#f6f7fd}
 .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:99px}
 .barrow{margin-bottom:14px}
 
+/* pencarian customer */
+.cs-list{display:none;border:1px solid var(--bd);border-radius:12px;margin-top:6px;max-height:210px;overflow:auto;background:#fff}
+.cs-list.show{display:block}
+.cs-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--bd)}
+.cs-item:last-child{border-bottom:0}
+.cs-item:hover{background:#eef0fb}
+.cs-item small{display:block;color:var(--mut);font-size:12.5px}
+
 /* modal */
 #modal{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
 #modal.show{display:flex}
@@ -252,6 +260,18 @@ async function submitModal() {
 }
 const field = (l, h) => '<label class="f">' + l + '</label>' + h;
 
+/* Format angka ribuan: 10000 -> 10.000 */
+function fmtNum(v) { const d = String(v == null ? '' : v).replace(/\D/g, ''); return d ? Number(d).toLocaleString('id-ID') : ''; }
+function numVal(sel) { return Number(String($(sel).value).replace(/\D/g, '')) || 0; }
+function fmtInput(el) {
+  const pos = el.selectionStart, before = el.value;
+  const digitsBefore = before.slice(0, pos).replace(/\D/g, '').length;
+  el.value = fmtNum(before);
+  let i = 0, c = 0;
+  while (i < el.value.length && c < digitsBefore) { if (/\d/.test(el.value[i])) c++; i++; }
+  try { el.setSelectionRange(i, i); } catch (e) {}
+}
+
 /* ====== LOGIN ====== */
 function showLogin() { $('#login').classList.add('show'); setTimeout(() => $('#pinIn').focus(), 50); }
 async function doLogin() {
@@ -336,20 +356,38 @@ function pTrx() {
 /* --- Form transaksi --- */
 function trxForm() {
   if (!db.apps.length || !db.products.length) { toast('Tambahkan Aplikasi dan Produk dulu', 'err'); go(db.apps.length ? 'prod' : 'apps'); return; }
-  const co = '<option value="">— Umum (tanpa nama) —</option>' + db.customers.map(c => '<option value="' + c.id + '">' + esc(c.nama) + '</option>').join('');
   const ao = db.apps.map(a => '<option value="' + a.id + '">' + esc(a.nama) + '</option>').join('');
   modal('Transaksi Baru',
-    field('Customer', '<select id="fCust">' + co + '</select>') +
+    field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Umum (tanpa nama) — ketik nama / HP / alamat" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value=""><div id="csList" class="cs-list"></div></div>') +
     '<div class="two"><div>' + field('Aplikasi', '<select id="fApp" onchange="fillProd()">' + ao + '</select>') + '</div>' +
     '<div>' + field('Produk', '<select id="fProd" onchange="fillHarga()"></select>') + '</div></div>' +
     field('No. HP / ID Pelanggan / Tujuan', '<input id="fTujuan" inputmode="numeric" placeholder="08xxxxxxxxxx">') +
-    '<div class="two"><div>' + field('Harga Modal', '<input id="fModal" type="number" inputmode="numeric" oninput="prevLaba()">') + '</div>' +
-    '<div>' + field('Harga Jual', '<input id="fJual" type="number" inputmode="numeric" oninput="prevLaba()">') + '</div></div>' +
+    '<div class="two"><div>' + field('Harga Modal', '<input id="fModal" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this);prevLaba()">') + '</div>' +
+    '<div>' + field('Harga Jual', '<input id="fJual" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this);prevLaba()">') + '</div></div>' +
     '<div class="ok" id="fLaba" style="margin-top:6px"></div>' +
     field('Status pembayaran', '<div class="seg"><label><input type="radio" name="st" value="Lunas" checked>✅ Lunas</label><label><input type="radio" name="st" value="Belum Bayar">⏳ Belum Bayar</label></div>') +
     field('Catatan (opsional)', '<input id="fCat">'), saveTrx, 'Simpan Transaksi');
   fillProd();
 }
+/* Pencarian customer saat transaksi baru */
+function custRender() {
+  const q = $('#fCustTxt').value.trim().toLowerCase(), box = $('#csList');
+  const l = db.customers.filter(c => !q || (c.nama + ' ' + c.telepon + ' ' + c.alamat).toLowerCase().indexOf(q) >= 0).slice(0, 30);
+  let h = (!q || 'umum'.indexOf(q) === 0) ? '<div class="cs-item" onclick="pickCust(\'\')"><b>Umum</b><small>Tanpa nama customer</small></div>' : '';
+  h += l.map(c => '<div class="cs-item" onclick="pickCust(\'' + c.id + '\')"><b>' + esc(c.nama) + '</b><small>' + esc([c.telepon, c.alamat].filter(Boolean).join(' • ')) + '</small></div>').join('');
+  box.innerHTML = h || '<div class="cs-item" style="cursor:default;color:var(--mut)">Customer tidak ditemukan</div>';
+  box.classList.add('show');
+}
+function custInput() { $('#fCust').value = ''; custRender(); }
+function pickCust(id) {
+  const c = db.customers.filter(x => x.id === id)[0];
+  $('#fCust').value = id; $('#fCustTxt').value = c ? c.nama : '';
+  $('#csList').classList.remove('show');
+}
+document.addEventListener('click', function (e) {
+  const l = document.getElementById('csList');
+  if (l && !e.target.closest('.cs')) l.classList.remove('show');
+});
 function fillProd() {
   const aid = $('#fApp').value;
   $('#fProd').innerHTML = db.products.filter(p => p.aplikasiId === aid).map(p => '<option value="' + p.id + '">' + esc(p.nama) + '</option>').join('') || '<option value="">(belum ada produk)</option>';
@@ -357,18 +395,23 @@ function fillProd() {
 }
 function fillHarga() {
   const p = db.products.filter(x => x.id === $('#fProd').value)[0];
-  $('#fModal').value = p ? p.modal : ''; $('#fJual').value = p ? p.jual : ''; prevLaba();
+  $('#fModal').value = p ? fmtNum(p.modal) : ''; $('#fJual').value = p ? fmtNum(p.jual) : ''; prevLaba();
 }
-function prevLaba() { $('#fLaba').textContent = 'Laba: ' + rp((+$('#fJual').value || 0) - (+$('#fModal').value || 0)); }
+function prevLaba() { $('#fLaba').textContent = 'Laba: ' + rp(numVal('#fJual') - numVal('#fModal')); }
 async function saveTrx() {
   const p = db.products.filter(x => x.id === $('#fProd').value)[0];
   const a = db.apps.filter(x => x.id === $('#fApp').value)[0];
   if (!a || !p) throw new Error('Pilih aplikasi dan produk');
   const st = document.querySelector('input[name=st]:checked').value;
-  const cid = $('#fCust').value;
+  let cid = $('#fCust').value;
+  const ct = $('#fCustTxt').value.trim();
+  if (!cid && ct) {
+    const m = db.customers.filter(c => c.nama.toLowerCase() === ct.toLowerCase());
+    if (m.length === 1) cid = m[0].id; else throw new Error('Pilih customer dari daftar yang muncul');
+  }
   if (st === 'Belum Bayar' && !cid) throw new Error('Pilih customer untuk transaksi belum bayar');
   await api('addTrx', {customerId: cid, aplikasi: a.nama, produk: p.nama, tujuan: $('#fTujuan').value,
-    modal: $('#fModal').value, jual: $('#fJual').value, status: st, catatan: $('#fCat').value});
+    modal: numVal('#fModal'), jual: numVal('#fJual'), status: st, catatan: $('#fCat').value});
   db = await api('getAll'); render();
   sayBerhasil(); toast('✅ Transaksi Berhasil', 'good');
 }
@@ -446,8 +489,8 @@ function prodForm(id) {
   const ao = db.apps.map(a => '<option value="' + a.id + '"' + (a.id === p.aplikasiId ? ' selected' : '') + '>' + esc(a.nama) + '</option>').join('');
   modal(id ? 'Edit Produk' : 'Produk Baru',
     field('Aplikasi', '<select id="pApp">' + ao + '</select>') + field('Nama produk (mis. Token Listrik 20)', '<input id="pNama" value="' + esc(p.nama) + '">') +
-    '<div class="two"><div>' + field('Harga modal', '<input id="pModal" type="number" inputmode="numeric" value="' + esc(p.modal) + '">') + '</div><div>' + field('Harga jual', '<input id="pJual" type="number" inputmode="numeric" value="' + esc(p.jual) + '">') + '</div></div>',
-    async function () { await api('saveProduk', {id: id || '', aplikasiId: $('#pApp').value, nama: $('#pNama').value, modal: $('#pModal').value, jual: $('#pJual').value}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
+    '<div class="two"><div>' + field('Harga modal', '<input id="pModal" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(p.modal) + '">') + '</div><div>' + field('Harga jual', '<input id="pJual" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(p.jual) + '">') + '</div></div>',
+    async function () { await api('saveProduk', {id: id || '', aplikasiId: $('#pApp').value, nama: $('#pNama').value, modal: numVal('#pModal'), jual: numVal('#pJual')}); db = await api('getAll'); render(); toast('Tersimpan', 'good'); });
 }
 async function delItem(action, id) {
   if (!confirm('Hapus data ini?')) return;
