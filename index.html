@@ -1,641 +1,200 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light only">
-<meta name="supported-color-schemes" content="light">
-<meta name="theme-color" content="#4f46e5">
-<title>PPOB Kasir</title>
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('ppob_theme')||'klasik';document.documentElement.dataset.fs=localStorage.getItem('ppob_fs')||'n'}catch(e){document.documentElement.dataset.theme='klasik'}</script>
 <script>
-(function () {
-  var I = {
-    card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
-    wallet: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h5v4h-5a2 2 0 010-4z"/>',
-    rp: '<circle cx="12" cy="12" r="9"/><path d="M9 16V8h4a2 2 0 010 4H9m4 0 3 4"/>',
-    bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
-    phone: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
-    qr: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM14 20h7M20 17v3"/>',
-    receipt: '<path d="M5 2v20l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5Z"/>',
-    wifi: '<path d="M2 9a15 15 0 0120 0M5 13a10 10 0 0114 0M8.5 16.5a5 5 0 017 0"/><circle cx="12" cy="20" r="1"/>',
-    drop: '<path d="M12 3S5 11 5 15a7 7 0 0014 0c0-4-7-12-7-12z"/>',
-    check: '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>'
-  };
-  var PS = ['translate(14 16) rotate(-12) scale(1.5)', 'translate(112 10) rotate(10) scale(1.6)', 'translate(62 80) rotate(-6) scale(1.7)',
-            'translate(150 92) scale(1.4)', 'translate(12 134) rotate(8) scale(1.6)', 'translate(114 150) rotate(-8) scale(1.3)'];
-  var TH = {
-    klasik:  ['#4f46e5', 'card', ['card', 'wallet', 'rp', 'bolt', 'phone', 'qr']],
-    hijau:   ['#059669', 'wallet', ['wallet', 'rp', 'receipt', 'check', 'card', 'rp']],
-    listrik: ['#ea580c', 'bolt', ['bolt', 'bolt', 'rp', 'receipt', 'bolt', 'phone']],
-    pulsa:   ['#0284c7', 'wifi', ['phone', 'wifi', 'rp', 'wifi', 'phone', 'qr']],
-    qris:    ['#e11d48', 'qr', ['qr', 'card', 'rp', 'qr', 'wallet', 'check']],
-    air:     ['#0d9488', 'drop', ['drop', 'receipt', 'drop', 'rp', 'drop', 'card']],
-    emas:    ['#a16207', 'rp', ['rp', 'rp', 'card', 'wallet', 'rp', 'check']],
-    malam:   ['#fbbf24', 'card', ['card', 'rp', 'bolt', 'wallet', 'qr', 'phone']]
-  };
-  function g(n, t, sw) { return '<g transform="' + t + '" stroke-width="' + sw + '">' + I[n] + '</g>'; }
-  function uri(w, h, body, col, op, sw0) {
-    var s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '"><g fill="none" stroke="' + col + '" stroke-opacity="' + op + '"' + (sw0 ? ' stroke-width="' + sw0 + '"' : '') + ' stroke-linecap="round" stroke-linejoin="round">' + body + '</g></svg>';
-    return 'url("data:image/svg+xml,' + encodeURIComponent(s) + '")';
-  }
-  var FRAME = '<rect x="110" y="30" width="110" height="200" rx="18"/><path d="M150 48h30"/><circle cx="165" cy="115" r="30"/><path d="m150 115 11 11 21-24"/><path d="M130 170h70M130 188h45"/>';
-  var css = '';
-  Object.keys(TH).forEach(function (k) {
-    var c = TH[k][0], main = TH[k][1], sl = TH[k][2];
-    var p = sl.map(function (n, i) { return g(n, PS[i], 1.6); }).join('');
-    var h = FRAME + g(main, 'translate(14 22) rotate(-10) scale(4.2)', 0.7) + g('card', 'translate(16 150) rotate(-14) scale(5)', 0.6) +
-      g('rp', 'translate(232 140) scale(3.2)', 0.9) + g('rp', 'translate(246 186) scale(2.4)', 1.1) + g('receipt', 'translate(236 40) rotate(12) scale(2.6)', 1.1);
-    css += '[data-theme="' + k + '"]{--pat:' + uri(200, 200, p, c, k === 'malam' ? 0.12 : 0.13) + ';--patw:' + uri(200, 200, p, '#ffffff', 0.16) +
-      ';--hero:' + uri(320, 260, h, c, 0.2, 3) + ';--herow:' + uri(320, 260, h, '#ffffff', 0.28, 3) + '}\n';
-  });
-  var st = document.createElement('style'); st.id = 'themeArt'; st.textContent = css; document.head.appendChild(st);
-})();
-</script>
-<style>
-:root{color-scheme:light only;--p:#4f46e5;--p2:#7c3aed;--bg:#f3f5fb;--card:#ffffff;--tx:#1e2235;--mut:#6b7280;--bd:#e6e9f2;--ok:#059669;--okbg:#d1fae5;--warn:#b45309;--warnbg:#fef3c7;--bad:#dc2626;--badbg:#fee2e2;--r:16px}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{color-scheme:light;background:#f3f5fb}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
-button,input,select,textarea{font-family:inherit;font-size:16px;color:var(--tx);background:#fff;color-scheme:light}
-b{font-weight:650}
-.mut{color:var(--mut);font-size:13px}
-.ok{color:var(--ok);font-weight:600}
-.bad{color:var(--bad);font-weight:600}
+/* ===================================================================
+   TAMBAHAN v2.7  (tempel TEPAT SEBELUM tag </body> di index.html)
+   - Menu Hutang (pelanggan berhutang ke toko, terpisah dari transaksi)
+   - Menu Pengeluaran (uang laba yang diambil) + peringatan jika > total laba
+   - Nada pembuka nomor 2 sampai 10 diganti baru (nomor 1 tetap)
+   =================================================================== */
 
-/* layout */
-.side{display:none;position:fixed;inset:0 auto 0 0;width:248px;background:#fff;border-right:1px solid var(--bd);padding:20px 14px;flex-direction:column;gap:6px;z-index:20}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;padding:4px 10px 18px}
-.brand i{font-style:normal;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:20px}
-.nav{display:flex;align-items:center;gap:12px;border:0;background:none;padding:11px 14px;border-radius:12px;cursor:pointer;font-weight:600;color:#4b5266;text-align:left;width:100%}
-.nav:hover{background:#f1f2fb}
-.nav.on{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 6px 16px rgba(79,70,229,.3)}
-.nav .cnt{margin-left:auto;background:var(--bad);color:#fff;border-radius:99px;padding:0 8px;font-size:12px;min-width:22px;text-align:center}
-.side .sp{flex:1}
-main{min-height:100vh}
-.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
-.top h1{margin:0;font-size:19px;flex:1}
-.top button{border:0;background:rgba(255,255,255,.2);color:#fff;border-radius:12px;width:40px;height:40px;cursor:pointer;font-size:18px}
-#view{padding:16px;max-width:1100px;margin:0 auto}
-.bottom{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;overflow-x:auto;background:#fff;border-top:1px solid var(--bd);padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px;scrollbar-width:none}
-.bottom::-webkit-scrollbar{display:none}
-.bottom .nav{flex:0 0 auto;flex-direction:column;gap:2px;width:auto;min-width:72px;padding:6px 8px;font-size:11px;align-items:center;position:relative;text-align:center}
-.bottom .nav span.ic{font-size:20px}
-.bottom .nav.on{box-shadow:none}
-.bottom .nav .cnt{position:absolute;top:0;right:8px;margin:0;font-size:10px;min-width:18px;padding:0 5px}
-.fab{position:fixed;right:18px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:25;width:58px;height:58px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:30px;box-shadow:0 10px 24px rgba(79,70,229,.45);cursor:pointer}
-@media(min-width:900px){.side{display:flex}.bottom,.fab,.top .out{display:none}main{margin-left:248px}#view{padding:24px}.top{padding:18px 24px}}
-@media(max-width:899px){main{padding-bottom:90px}}
+/* ---------- 1. Menu di sidebar & bawah ---------- */
+NAV.splice(NAV.length - 1, 0, ['hutang', '💸', 'Hutang'], ['keluar', '📤', 'Pengeluaran']);
 
-/* components */
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(310px,1fr))}
-.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px}
-.stat{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px}
-.stat .l{color:var(--mut);font-size:12.5px}
-.stat .v{font-size:20px;font-weight:750;margin-top:4px;word-break:break-word}
-.stat.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:0}
-.item,.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 2px rgba(20,25,60,.04)}
-.row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.row.s{margin-top:8px;align-items:center;flex-wrap:wrap}
-.r{text-align:right}
-.badge{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:700}
-.badge.g{background:var(--okbg);color:var(--ok)}
-.badge.o{background:var(--warnbg);color:var(--warn)}
-.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:650;cursor:pointer;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
-.btn.sm{padding:6px 12px;font-size:13px;border-radius:10px}
-.btn.ghost{background:#eef0fb;color:var(--p)}
-.btn.red{background:var(--badbg);color:var(--bad)}
-.btn.green{background:var(--okbg);color:var(--ok)}
-.btn.wa{background:#dcfce7;color:#15803d;text-decoration:none;display:inline-block}
-.sec{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;gap:10px;flex-wrap:wrap}
-.sec h2{margin:0;font-size:17px}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.tools input,.tools select{flex:1;min-width:130px}
-input,select,textarea{width:100%;border:1px solid var(--bd);border-radius:12px;padding:11px 12px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
-label.f{display:block;font-size:13px;font-weight:600;margin:12px 0 5px;color:#4b5266}
-.empty{text-align:center;color:var(--mut);padding:36px 10px;background:#fff;border:1px dashed var(--bd);border-radius:var(--r)}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden}
-.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r)}
-th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap;font-size:14px}
-th:first-child,td:first-child{text-align:left}
-th{background:#f6f7fd;color:#4b5266;font-size:12.5px}
-tfoot td{font-weight:750;background:#f6f7fd}
-
-/* dialog konfirmasi */
-#confirm{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:85;padding:18px}
-#confirm.show{display:flex}
-.cbox{background:#fff;border-radius:22px;padding:22px;width:min(380px,100%);text-align:center;animation:pop .15s ease-out}
-@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
-.cic{font-size:38px}
-.cbox h3{margin:6px 0 4px;font-size:18px}
-.cbox p{margin:0;color:var(--mut)}
-.btn.dng{background:var(--bad)}
-
-/* pencarian customer */
-.cs-list{display:none;border:1px solid var(--bd);border-radius:12px;margin-top:6px;max-height:210px;overflow:auto;background:#fff}
-.cs-list.show{display:block}
-.cs-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--bd)}
-.cs-item:last-child{border-bottom:0}
-.cs-item:hover{background:#eef0fb}
-.cs-item small{display:block;color:var(--mut);font-size:12.5px}
-
-/* modal */
-#modal{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
-#modal.show{display:flex}
-.sheet{background:#fff;border-radius:22px;width:min(520px,100%);max-height:92vh;overflow:auto;padding:18px}
-.sheet h3{margin:0 0 4px;font-size:18px}
-.mfoot{display:flex;gap:10px;margin-top:18px}
-.mfoot .btn{flex:1}
-@media(max-width:599px){#modal{align-items:flex-end;padding:0}.sheet{border-radius:22px 22px 0 0;max-height:94vh}}
-#busy{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;align-items:center;justify-content:center;z-index:80}
-#busy.show{display:flex}
-.spin{width:44px;height:44px;border:5px solid #dfe2f7;border-top-color:var(--p);border-radius:50%;animation:sp .8s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-#toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-160%);opacity:0;pointer-events:none;background:#111827;color:#fff;padding:12px 20px;border-radius:14px;z-index:90;transition:.3s;max-width:90vw;text-align:center;font-weight:600}
-#toast.show{transform:translate(-50%,0);opacity:1}
-#toast.err{background:var(--bad)}
-#toast.good{background:var(--ok)}
-#login{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--p),var(--p2));padding:20px}
-#login.show{display:flex}
-#login .box{background:#fff;border-radius:22px;padding:26px;width:min(380px,100%);text-align:center}
-#login .big{font-size:44px}
-
-/* TEMA */
-[data-theme="klasik"]{--p:#4f46e5;--p2:#7c3aed;--bg:#f3f5fb;--soft:#eef0fb;--soft2:#f6f7fd;--ring:#4f46e533}
-[data-theme="hijau"]{--p:#059669;--p2:#10b981;--bg:#eefaf4;--soft:#dcf5e9;--soft2:#f1fbf6;--ring:#05966933}
-[data-theme="listrik"]{--p:#ea580c;--p2:#f59e0b;--bg:#fff7ed;--soft:#ffedd5;--soft2:#fff4e6;--ring:#ea580c33}
-[data-theme="pulsa"]{--p:#0284c7;--p2:#06b6d4;--bg:#eff8ff;--soft:#e0f2fe;--soft2:#f0f9ff;--ring:#0284c733}
-[data-theme="qris"]{--p:#e11d48;--p2:#f43f5e;--bg:#fff1f3;--soft:#ffe4e9;--soft2:#fff5f6;--ring:#e11d4833}
-[data-theme="air"]{--p:#0d9488;--p2:#14b8a6;--bg:#effcf9;--soft:#ccfbf1;--soft2:#f0fdfa;--ring:#0d948833}
-[data-theme="emas"]{--p:#a16207;--p2:#ca8a04;--bg:#fefce8;--soft:#fef3c7;--soft2:#fffbeb;--ring:#a1620733}
-[data-theme="malam"]{--p:#b45309;--p2:#d97706;--bg:#0b1220;--soft:#1c2740;--soft2:#17223a;--ring:#b4530933;--card:#131c2f;--surf:#131c2f;--tx:#e8ecf5;--mut:#94a3b8;--bd:#22304a;--nav:#b6c2d9;--ptx:#fbbf24;--ok:#34d399;--okbg:#064e3b;--warn:#fbbf24;--warnbg:#451a03;--bad:#f87171;--badbg:#450a0a;color-scheme:dark}
-
-:root{--surf:#fff;--nav:#4b5266;--ptx:var(--p)}
-html{background:var(--bg)}
-body{position:relative}
-.nav.on{box-shadow:0 6px 16px var(--ring)}
-.fab{box-shadow:0 10px 24px var(--ring)}
-input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px var(--ring)}
-.nav{color:var(--nav)} label.f,th{color:var(--nav)}
-.nav:hover,.cs-item:hover{background:var(--soft)}
-.side,.bottom,.sheet,.cbox,#login .box,.empty,table,.cs-list,input,select,textarea{background-color:var(--surf)}
-.item,.card,.stat{background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(2px)}
-.stat.hero{background:linear-gradient(135deg,var(--p),var(--p2))}
-
-#themes{position:fixed;inset:0;background:rgba(20,22,45,.5);display:none;align-items:center;justify-content:center;z-index:60;padding:14px}
-#themes.show{display:flex}
-.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.tcard{border:2px solid var(--bd);border-radius:16px;padding:6px;cursor:pointer;text-align:left;font-weight:650;color:var(--tx);background:var(--surf)}
-.tcard.on{border-color:var(--p);box-shadow:0 0 0 3px var(--ring)}
-.tcard .sw{height:70px;border-radius:11px;margin-bottom:6px;display:grid;place-items:center;font-size:30px}
-.tcard span{display:block;padding:0 4px 2px;font-size:13px}
-</style>
-</head>
-<body>
-<div id="app">
-  <aside class="side" id="side"></aside>
-  <main>
-    <header class="top">
-      <h1><small id="hdrApp"></small><span id="title">Beranda</span></h1>
-      <button onclick="openThemes()" title="Tema">🎨</button>
-      <button id="btnSound" onclick="toggleSound()" title="Suara">🔊</button>
-      <button onclick="reload()" title="Muat ulang">⟳</button>
-      <button class="out" onclick="logout()" title="Keluar">🚪</button>
-    </header>
-    <div id="view"></div>
-  </main>
-  <nav class="bottom" id="bottom"></nav>
-</div>
-<button class="fab" onclick="trxForm()" aria-label="Transaksi baru">+</button>
-
-<div id="modal"><div class="sheet"><h3 id="mTitle"></h3><div id="mBody"></div>
-  <div class="mfoot"><button class="btn ghost" onclick="closeModal()">Batal</button><button class="btn" id="mOk" onclick="submitModal()">Simpan</button></div></div></div>
-<div id="themes" onclick="if(event.target===this)closeThemes()"><div class="sheet"><h3>🎨 Pilih Tema</h3><div class="mut">Tampilan tersimpan di perangkat ini.</div><div class="tgrid" id="tgrid"></div><div class="mfoot"><button class="btn ghost" onclick="closeThemes()">Tutup</button></div></div></div>
-<div id="printArea"></div><style id="pageStyle"></style>
-<div id="busy"><div class="spin"></div></div>
-<div id="confirm"><div class="cbox"><div class="cic" id="cIc">❓</div><h3 id="cTitle"></h3><p id="cMsg"></p>
-  <div class="mfoot"><button class="btn ghost" id="cNo">Batal</button><button class="btn" id="cYes">Ya</button></div></div></div>
-<div id="toast"></div>
-<div id="login"><div class="box"><div class="big">🔐</div><h2 id="loginName" style="margin:6px 0">PPOB Kasir</h2><div class="mut" id="loginToko"></div>
-  <p class="mut">Masukkan PIN untuk masuk</p>
-  <input id="pinIn" type="password" inputmode="numeric" placeholder="PIN" onkeydown="if(event.key==='Enter')doLogin()">
-  <button class="btn" style="width:100%;margin-top:14px" onclick="doLogin()">Masuk</button></div></div>
-
-<script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwiJwddPtszCwX8FN_3xXKcDjYmI1QaUfv_k-SMPnSiddW9EoLlCHrc-fYI-DgIr7PY/exec'; // URL Web App Anda
-
-const $ = s => document.querySelector(s);
-const rp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
-const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const store = {
-  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
-  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
-  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
-};
-const ymd = () => new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Jakarta'});
-const sum = (a, k) => a.reduce((s, x) => s + Number(x[k] || 0), 0);
-
-let db = {customers:[], apps:[], products:[], trx:[], hutang:[]};
-const sess = {
-  get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } },
-  set(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} },
-  del(k){ try{ sessionStorage.removeItem(k); }catch(e){} }
-};
-let page = 'home', pin = sess.get('ppob_pin') || '';
-let fq = '', fs = '', fd = '', cq = '';
-let rekapMonth = ymd().slice(0, 7);
-let soundOn = store.get('ppob_sound') !== '0';
-let modalSubmit = null;
-
-const NAV = [
-  ['home','🏠','Beranda'], ['trx','🧾','Transaksi'], ['unpaid','⏳','Belum Bayar'],
-  ['hutang','💸','Hutang Customer'], ['cust','👥','Customer'], ['apps','📱','Aplikasi'], ['prod','📦','Produk'],
-  ['rekap','📊','Rekapitulasi'], ['laba','💰','Laba'], ['set','⚙️','Pengaturan']
-];
-
-async function api(action, data) {
-  if (API_URL.indexOf('GANTI') >= 0) throw new Error('API_URL belum diisi di index.html');
-  const r = await fetch(API_URL, {
-    method: 'POST',
-    headers: {'Content-Type': 'text/plain;charset=utf-8'},
-    body: JSON.stringify({action: action, pin: pin, data: data || {}})
-  });
-  const j = await r.json();
-  if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan');
-  return j.data;
-}
-function setBusy(b){ $('#busy').classList.toggle('show', b); }
-let tt;
-function toast(msg, type) {
-  const t = $('#toast'); t.textContent = msg; t.className = 'show ' + (type || '');
-  clearTimeout(tt); tt = setTimeout(() => t.className = '', 2600);
-}
-function setDb(d) { db = d; applySettings(); }
-async function load() {
-  setBusy(true);
-  try { setDb(await api('getAll')); render(); }
-  finally { setBusy(false); }
-}
-async function reload() {
-  try { await load(); toast('Data dimuat ulang'); } catch (e) { toast(e.message, 'err'); }
-}
-
-let audioCtx;
-function unlockAudio() {
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  } catch (e) {}
-}
-document.addEventListener('click', unlockAudio);
-document.addEventListener('touchstart', unlockAudio, {passive: true});
-function chime() {
-  if (!audioCtx) return;
-  const t = audioCtx.currentTime;
-  [[880, 0], [1319, 0.13]].forEach(function (p) {
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = 'sine'; o.frequency.value = p[0];
-    o.connect(g); g.connect(audioCtx.destination);
-    g.gain.setValueAtTime(0.0001, t + p[1]);
-    g.gain.exponentialRampToValueAtTime(0.25, t + p[1] + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + p[1] + 0.4);
-    o.start(t + p[1]); o.stop(t + p[1] + 0.45);
-  });
-}
-function sayBerhasil(teks) {
-  if (!soundOn) return;
-  try { chime(); } catch (e) {}
-  try {
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(teks || 'Berhasil');
-      u.lang = 'id-ID'; u.rate = 1;
-      setTimeout(() => speechSynthesis.speak(u), 250);
+/* ---------- 2. Nada pembuka 2-10 (nomor 1 "Klasik Lembut" dipertahankan) ---------- */
+INTROS.length = 1;
+INTROS.push(
+  {k: 'bintang', n: 'Bintang Berkelip', d: 'Dentingan cepat naik turun seperti bintang berkelip.', play: function (T) {
+    const B = [[1, 1], [2.76, .4], [5.4, .15]], P = [72, 76, 79, 84, 88, 91, 96, 100];
+    for (let r = 0; r < 3; r++) P.concat(P.slice(1, 7).reverse()).forEach((m, i) => T(midi(m + (r === 2 ? 5 : 0)), r * 2.3 + i * 0.15, 1.4, {parts: B, vol: 0.07, atk: 0.004}));
+    [48, 55, 60, 64].forEach(m => T(midi(m), 0, 7, {vol: 0.05, atk: 1}));
+    [60, 67, 72, 76, 79].forEach(m => T(midi(m), 6.8, 1.2, {parts: B, vol: 0.1, atk: 0.004}));
+  }},
+  {k: 'tropis', n: 'Pantai Tropis', d: 'Marimba riang bernuansa pantai, santai dan cerah.', play: function (T) {
+    const M = {type: 'triangle', parts: [[1, 1], [4, .25]], vol: 0.16, atk: 0.004};
+    [67, 71, 74, 71, 76, 74, 71, 67, 69, 72, 76, 72, 79, 76, 72, 69].forEach((m, i) => T(midi(m), i * 0.42, 0.5, M));
+    [43, 50, 43, 50, 45, 52, 45, 52].forEach((m, i) => T(midi(m), i * 0.84, 0.7, {type: 'triangle', vol: 0.18, atk: 0.01}));
+    [67, 71, 74, 79].forEach(m => T(midi(m), 6.9, 1.1, M));
+  }},
+  {k: 'dangdut', n: 'Dangdut Ceria', d: 'Suling dan kendang bernuansa dangdut yang meriah.', play: function (T, N) {
+    const S = {parts: [[1, 1], [2, .2]], vol: 0.14, atk: 0.03};
+    [[69, 0, .4], [72, .5, .4], [71, 1, .4], [69, 1.5, .4], [68, 2, .8], [69, 3, .4], [72, 3.5, .4], [76, 4, .4], [74, 4.5, .4], [72, 5, .4], [71, 5.5, .4], [69, 6, 1.4]]
+      .forEach(x => T(midi(x[0]), x[1], x[2] + 0.3, S));
+    for (let i = 0; i < 15; i++) {
+      const t = i * 0.5;
+      if (i % 4 === 0) T(98, t, 0.3, {vol: 0.5, atk: 0.003});
+      else if (i % 4 === 2) { T(196, t, 0.15, {vol: 0.35, atk: 0.003}); N(t, 0.06, 0.12, 2500); }
+      else if (i % 4 === 3) N(t, 0.04, 0.08, 5000);
     }
-  } catch (e) {}
-}
-function toggleSound() {
-  soundOn = !soundOn; store.set('ppob_sound', soundOn ? '1' : '0');
-  $('#btnSound').textContent = soundOn ? '🔊' : '🔇';
-  toast(soundOn ? 'Suara aktif' : 'Suara dimatikan');
+  }},
+  {k: 'orkestra', n: 'Orkestra Mini', d: 'Gesekan string yang membesar lalu ditutup tabuhan megah.', play: function (T) {
+    const V = {type: 'sawtooth', lp: 1400, parts: [[1, 1], [1.005, .8]], vol: 0.045, atk: 1.2};
+    [[[48, 55, 64, 67], 0], [[53, 57, 65, 69], 2], [[55, 59, 67, 71], 4], [[48, 55, 60, 64, 67, 72], 6]].forEach(c => c[0].forEach(m => T(midi(m), c[1], c[1] === 6 ? 1.9 : 2.3, V)));
+    [72, 76, 79, 77, 79, 83, 84].forEach((m, i) => T(midi(m), 0.8 + i * 0.9, 1.2, {type: 'triangle', parts: [[1, 1], [2, .3]], vol: 0.12, atk: 0.08}));
+    T(midi(36), 6, 1.8, {vol: 0.5, atk: 0.005});
+  }},
+  {k: 'elektro', n: 'Elektro Pop', d: 'Denyut bass dan arpeggio synth yang energik.', play: function (T, N) {
+    const A = [[60, 64, 67, 72], [57, 60, 64, 69], [53, 57, 60, 65], [55, 59, 62, 67]];
+    for (let b = 0; b < 4; b++) for (let s = 0; s < 16; s++) {
+      const t = b * 1.8 + s * 0.1125;
+      T(midi(A[b][s % 4] + 12), t, 0.16, {type: 'square', lp: 3000, vol: 0.05, atk: 0.004});
+      if (s % 4 === 0) { T(midi(A[b][0] - 24), t, 0.4, {type: 'sawtooth', lp: 600, vol: 0.22, atk: 0.005}); N(t, 0.05, 0.12, 6000); }
+    }
+    [72, 76, 79, 84].forEach(m => T(midi(m), 7.2, 0.7, {type: 'sawtooth', lp: 2500, vol: 0.06, atk: 0.01}));
+  }},
+  {k: 'harpa', n: 'Harpa Surga', d: 'Sapuan harpa lembut yang menenangkan.', play: function (T) {
+    const H = {parts: [[1, 1], [2, .4], [3, .15]], vol: 0.1, atk: 0.005}, sc = [0, 4, 7, 11, 12, 16, 19, 23, 24];
+    [[48, 0], [53, 2], [55, 4], [48, 6]].forEach(c => sc.forEach((o, i) => T(midi(c[0] + o), c[1] + i * 0.09, 2.4, H)));
+    T(midi(96), 6.9, 1.1, H);
+  }},
+  {k: 'akustik', n: 'Gitar Akustik', d: 'Petikan gitar hangat ala lagu santai.', play: function (T) {
+    const G = {type: 'triangle', parts: [[1, 1], [2, .5], [3, .25]], vol: 0.11, atk: 0.003};
+    [[48, 55, 64, 67, 72], [45, 52, 60, 64, 69], [41, 48, 57, 60, 65], [43, 50, 59, 62, 67]].forEach((c, b) => {
+      const t = b * 1.75;
+      c.forEach((m, i) => { T(midi(m), t + i * 0.035, 1.5, G); T(midi(m), t + 0.875 + (4 - i) * 0.035, 1.2, G); });
+    });
+    [76, 79, 76, 74, 72, 74, 76, 72].forEach((m, i) => T(midi(m + 12), 0.35 + i * 0.875, 0.9, {type: 'triangle', vol: 0.12, atk: 0.004}));
+    [48, 55, 64, 72, 76].forEach((m, i) => T(midi(m), 7 + i * 0.03, 1, G));
+  }},
+  {k: 'angkasa', n: 'Angkasa Luar', d: 'Nada melayang pelan seperti menjelajah ruang angkasa.', play: function (T) {
+    const S = {type: 'sawtooth', parts: [[1, 1], [1.004, 1]], vol: 0.03, atk: 1.5, sweep: [200, 1800]};
+    [[[36, 43, 51, 58], 0], [[34, 41, 50, 57], 3.5]].forEach(c => c[0].forEach(m => T(midi(m), c[1], 4, S)));
+    [91, 98, 94, 103, 96, 100, 106].forEach((m, i) => T(midi(m), 0.7 + i * 1.0, 2, {parts: [[1, 1], [2.01, .3]], vol: 0.07, atk: 0.01}));
+    T(midi(108), 7, 0.9, {vol: 0.05, atk: 0.005});
+  }},
+  {k: 'ceria', n: 'Parade Ceria', d: 'Irama baris-berbaris yang riang dengan tabuhan snare.', play: function (T, N) {
+    [72, 72, 76, 79, 77, 76, 74, 72, 74, 77, 81, 79, 77, 76, 74, 72].forEach((m, i) => {
+      const t = i * 0.45;
+      T(midi(m), t, 0.4, {type: 'square', lp: 3500, vol: 0.06, atk: 0.005});
+      N(t, 0.06, i % 2 ? 0.18 : 0.08, 3000);
+      if (i % 2 === 0) T(midi(i % 8 < 4 ? 48 : 55), t, 0.3, {type: 'triangle', vol: 0.2, atk: 0.005});
+    });
+    [60, 64, 67, 72].forEach(m => T(midi(m), 7.2, 0.7, {type: 'square', lp: 3500, vol: 0.05, atk: 0.005}));
+  }}
+);
+
+/* ---------- 3. HUTANG: pelanggan berhutang uang ke toko ---------- */
+const HT = () => db.hutang || [];
+const sisaH = h => Math.max(0, Number(h.jumlah) - Number(h.dibayar || 0));
+
+function pHutang() {
+  const l = HT().slice().sort((a, b) => ((sisaH(b) > 0) - (sisaH(a) > 0)) || String(b.tanggal).localeCompare(String(a.tanggal)));
+  const aktif = l.filter(h => sisaH(h) > 0), who = {};
+  aktif.forEach(h => who[h.customerId] = 1);
+  return '<div class="tools"><button class="btn" onclick="hutangForm()">+ Hutang Pelanggan</button></div>' +
+    '<div class="stats"><div class="stat hero"><div class="l">Total yang belum dibayar</div><div class="v">' + rp(aktif.reduce((s, h) => s + sisaH(h), 0)) + '</div></div>' +
+    '<div class="stat"><div class="l">Pelanggan berhutang</div><div class="v">' + Object.keys(who).length + '</div></div>' +
+    '<div class="stat"><div class="l">Sudah dibayar</div><div class="v ok">' + rp(sum(l, 'dibayar')) + '</div></div></div>' +
+    (l.length ? '<div class="grid">' + l.map(h => {
+      const s = sisaH(h), telat = s > 0 && h.tempo && String(h.tempo) < ymd();
+      const pct = Math.min(100, Number(h.dibayar || 0) / (Number(h.jumlah) || 1) * 100);
+      const c = db.customers.filter(x => x.id === h.customerId)[0];
+      const msg = 'Halo ' + h.customer + ', mengingatkan hutang Anda' + (h.ket ? ' (' + h.ket + ')' : '') + ' sebesar ' + rp(h.jumlah) + ', sisa ' + rp(s) + '.' + (h.tempo ? ' Jatuh tempo ' + h.tempo + '.' : '') + '\nTerima kasih.' + (tokoName ? '\n— ' + tokoName : '');
+      return '<div class="item"><div class="row"><div><b>👤 ' + esc(h.customer) + '</b><div class="mut">' + esc(h.ket || '-') + '</div><div class="mut">📅 ' + esc(h.tanggal) + (h.tempo ? ' • Tempo ' + esc(h.tempo) : '') + '</div></div>' +
+        '<div class="r"><b>' + rp(h.jumlah) + '</b><div><span class="badge ' + (s ? 'o' : 'g') + '">' + (s ? (telat ? 'Lewat tempo' : 'Belum lunas') : 'Lunas') + '</span></div></div></div>' +
+        '<div class="bar"><span style="width:' + pct + '%"></span></div>' +
+        '<div class="row s"><span class="mut">Sudah bayar ' + rp(h.dibayar || 0) + '</span><b class="' + (s ? 'bad' : 'ok') + '">Sisa ' + rp(s) + '</b></div>' +
+        '<div class="acts">' + (s ? '<button class="btn sm green" onclick="bayarHutangForm(\'' + h.id + '\')">💵 Terima Bayar</button>' : '') +
+        (s && c && c.telepon ? '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waNum(c.telepon) + '?text=' + encodeURIComponent(msg) + '">WhatsApp</a>' : '') +
+        '<button class="btn sm ghost" onclick="hutangForm(\'' + h.id + '\')">Edit</button><button class="btn sm red" onclick="delItem(\'deleteHutang\',\'' + h.id + '\')">Hapus</button></div></div>';
+    }).join('') + '</div>' : '<div class="empty">Belum ada catatan hutang pelanggan</div>');
 }
 
-function modal(title, html, onSubmit, okText) {
-  $('#mTitle').textContent = title; $('#mBody').innerHTML = html;
-  $('#mOk').textContent = okText || 'Simpan';
-  modalSubmit = onSubmit; $('#modal').classList.add('show');
-}
-function closeModal() { $('#modal').classList.remove('show'); }
-async function submitModal() {
-  try {
-    setBusy(true);
-    const ok = await modalSubmit();
-    if (ok !== false) closeModal();
-  } catch (e) { toast(e.message, 'err'); }
-  finally { setBusy(false); }
-}
-const field = (l, h) => '<label class="f">' + l + '</label>' + h;
-
-function askConfirm(title, msg, okText, icon, danger) {
-  return new Promise(function (resolve) {
-    $('#cIc').textContent = icon || '❓'; $('#cTitle').textContent = title; $('#cMsg').textContent = msg || '';
-    const y = $('#cYes'), n = $('#cNo'), box = $('#confirm');
-    y.textContent = okText || 'Ya'; y.className = 'btn' + (danger ? ' dng' : '');
-    box.classList.add('show');
-    const done = function (v) { box.classList.remove('show'); y.onclick = n.onclick = box.onclick = null; resolve(v); };
-    y.onclick = function () { done(true); };
-    n.onclick = function () { done(false); };
-    box.onclick = function (e) { if (e.target === box) done(false); };
-  });
+function hutangForm(id) {
+  const h = HT().filter(x => x.id === id)[0] || {};
+  modal(id ? 'Edit Hutang' : 'Hutang Pelanggan Baru',
+    field('Customer (ketik untuk mencari)', '<div class="cs"><input id="fCustTxt" type="text" autocomplete="off" placeholder="Ketik nama / HP / alamat" value="' + esc(h.customer) + '" oninput="custInput()" onfocus="custRender()"><input type="hidden" id="fCust" value="' + esc(h.customerId) + '"><div id="csList" class="cs-list"></div></div>') +
+    field('Jumlah hutang', '<input id="hJml" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(h.jumlah) + '">') +
+    field('Keterangan (opsional)', '<input id="hKet" placeholder="mis. pinjam uang, kurang bayar" value="' + esc(h.ket) + '">') +
+    '<div class="two"><div>' + field('Tanggal', '<input id="hTgl" type="date" value="' + esc(h.tanggal || ymd()) + '">') + '</div><div>' + field('Jatuh tempo (opsional)', '<input id="hTempo" type="date" value="' + esc(h.tempo || '') + '">') + '</div></div>',
+    async function () {
+      stepCustomer();
+      const jml = numVal('#hJml');
+      if (!(jml > 0)) throw new Error('Jumlah hutang wajib diisi');
+      setDb(await api('saveHutang', {id: id || '', customerId: $('#fCust').value, ket: $('#hKet').value, jumlah: jml, tanggal: $('#hTgl').value, tempo: $('#hTempo').value}));
+      render(); toast('Hutang tersimpan', 'good');
+    });
+  tfReqCust = true;   // customer wajib dipilih
 }
 
-function fmtNum(v) { const d = String(v == null ? '' : v).replace(/\D/g, ''); return d ? Number(d).toLocaleString('id-ID') : ''; }
-function numVal(sel) { return Number(String($(sel).value).replace(/\D/g, '')) || 0; }
-function fmtInput(el) {
-  const pos = el.selectionStart, before = el.value;
-  const digitsBefore = before.slice(0, pos).replace(/\D/g, '').length;
-  el.value = fmtNum(before);
-  let i = 0, c = 0;
-  while (i < el.value.length && c < digitsBefore) { if (/\d/.test(el.value[i])) c++; i++; }
-  try { el.setSelectionRange(i, i); } catch (e) {}
+function bayarHutangForm(id) {
+  const h = HT().filter(x => x.id === id)[0]; if (!h) return;
+  const s = sisaH(h);
+  modal('Terima Pembayaran — ' + h.customer,
+    '<div class="mut">Sisa hutang: <b>' + rp(s) + '</b></div>' +
+    field('Jumlah dibayar (boleh dicicil)', '<input id="bJml" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(s) + '">'),
+    async function () {
+      const j = numVal('#bJml');
+      if (!(j > 0)) throw new Error('Jumlah bayar wajib diisi');
+      if (j > s) throw new Error('Jumlah melebihi sisa hutang (' + rp(s) + ')');
+      setDb(await api('bayarHutang', {id: id, jumlah: j}));
+      render(); toast(j >= s ? '✅ Hutang lunas' : 'Pembayaran dicatat', 'good');
+    }, 'Simpan');
 }
 
-async function doLogin() {
-  pin = $('#pinIn').value.trim();
-  if (!pin) return;
-  unlockAudio();
-  page = 'home';
-  try {
-    await load();
-    sess.set('ppob_pin', pin);
-    $('#login').classList.remove('show');
-  } catch (e) { toast(e.message, 'err'); if (/PIN/.test(e.message)) $('#pinIn').value = ''; }
+/* ---------- 4. PENGELUARAN dari laba ---------- */
+const PG = () => db.pengeluaran || [];
+function keluarInfo() {
+  const laba = sum(db.trx, 'laba'), k = sum(PG(), 'jumlah');
+  return {laba: laba, k: k, sisa: laba - k, over: k > laba};
 }
-async function logout() {
-  if (!(await askConfirm('Keluar dari aplikasi?', 'Anda perlu memasukkan PIN lagi untuk masuk.', 'Keluar', '🚪', true))) return;
-  sess.del('ppob_pin'); pin = ''; page = 'home'; db = {customers:[], apps:[], products:[], trx:[], hutang:[]}; closeModal(); $('#pinIn').value = ''; showLogin();
+function keluarBanner() {
+  const i = keluarInfo();
+  return i.over ? '<div class="card" style="border-color:var(--bad);background:var(--badbg);margin-bottom:14px"><b class="bad">⚠️ Pengeluaran melebihi total laba!</b>' +
+    '<div class="mut">Total pengeluaran ' + rp(i.k) + ' lebih besar dari total laba ' + rp(i.laba) + ' (kurang ' + rp(-i.sisa) + ').</div></div>' : '';
 }
-function showLogin() { $('#login').classList.add('show'); setTimeout(() => $('#pinIn').focus(), 50); }
+function pKeluar() {
+  const i = keluarInfo(), l = PG().slice().sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)));
+  return keluarBanner() + '<div class="tools"><button class="btn" onclick="keluarForm()">+ Pengeluaran</button></div>' +
+    '<div class="stats"><div class="stat"><div class="l">Total laba</div><div class="v ok">' + rp(i.laba) + '</div></div>' +
+    '<div class="stat"><div class="l">Total pengeluaran</div><div class="v bad">' + rp(i.k) + '</div></div>' +
+    '<div class="stat hero"><div class="l">Sisa laba</div><div class="v">' + rp(i.sisa) + '</div></div></div>' +
+    (l.length ? '<div class="grid">' + l.map(x => '<div class="item"><div class="row"><div><b>' + esc(x.ket) + '</b><div class="mut">📅 ' + esc(x.tanggal) + '</div></div><b class="bad">- ' + rp(x.jumlah) + '</b></div>' +
+      '<div class="acts"><button class="btn sm ghost" onclick="keluarForm(\'' + x.id + '\')">Edit</button><button class="btn sm red" onclick="delItem(\'deleteKeluar\',\'' + x.id + '\')">Hapus</button></div></div>').join('') + '</div>' : '<div class="empty">Belum ada pengeluaran</div>');
+}
+function keluarForm(id) {
+  const x = PG().filter(p => p.id === id)[0] || {}, i = keluarInfo();
+  modal(id ? 'Edit Pengeluaran' : 'Pengeluaran Baru',
+    '<div class="mut">Sisa laba saat ini: <b>' + rp(i.sisa) + '</b></div>' +
+    field('Keperluan (mis. Beli makanan)', '<input id="kKet" value="' + esc(x.ket) + '">') +
+    field('Jumlah diambil dari laba', '<input id="kJml" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(x.jumlah) + '">') +
+    field('Tanggal', '<input id="kTgl" type="date" value="' + esc(x.tanggal || ymd()) + '">'),
+    async function () {
+      const ket = $('#kKet').value.trim(), jml = numVal('#kJml');
+      if (!ket) throw new Error('Keperluan wajib diisi');
+      if (!(jml > 0)) throw new Error('Jumlah wajib diisi');
+      const sisaNanti = i.laba - (i.k - Number(x.jumlah || 0) + jml);
+      if (sisaNanti < 0 && !(await askConfirm('Melebihi total laba!', 'Pengeluaran ini membuat sisa laba kurang ' + rp(-sisaNanti) + '. Tetap simpan?', 'Tetap simpan', '⚠️', true))) return false;
+      setDb(await api('saveKeluar', {id: id || '', ket: ket, jumlah: jml, tanggal: $('#kTgl').value}));
+      render();
+      if (keluarInfo().over) { toast('⚠️ Pengeluaran melebihi total laba!', 'err'); sayBerhasil('Peringatan. Pengeluaran melebihi laba'); }
+      else toast('Tersimpan. Sisa laba ' + rp(keluarInfo().sisa), 'good');
+    });
+}
 
-let appName = store.get('ppob_appname') || 'PPOB Kasir', tokoName = store.get('ppob_toko') || '', tokoWa = store.get('ppob_wa') || '';
-function applySettings() {
-  if (!db.settings) return;
-  const st = db.settings;
-  appName = st.namaApp || 'PPOB Kasir'; tokoName = st.namaToko || ''; tokoWa = st.wa || '';
-  store.set('ppob_appname', appName); store.set('ppob_toko', tokoName); store.set('ppob_wa', tokoWa);
-  paintName(); buildNav();
-}
-function paintName() {
-  document.title = appName;
-  const h = $('#hdrApp'); if (h) h.textContent = appName;
-  const l = $('#loginName'); if (l) l.textContent = appName;
-  const t = $('#loginToko'); if (t) t.textContent = [tokoName, tokoWa ? '📞 ' + tokoWa : ''].filter(Boolean).join(' • ');
-}
-async function act(action, data, ok) {
-  try { setBusy(true); setDb(await api(action, data)); render(); if (ok) toast(ok, 'good'); return true; }
-  catch (e) { toast(e.message, 'err'); return false; } finally { setBusy(false); }
-}
-
-function buildNav() {
-  const mk = n => '<button class="nav" data-nav="' + n[0] + '" onclick="go(\'' + n[0] + '\')"><span class="ic">' + n[1] + '</span><span>' + n[2] + '</span>' + (n[0] === 'unpaid' ? '<span class="cnt" data-cnt style="display:none"></span>' : (n[0] === 'hutang' ? '<span class="cnt" data-cnt-hutang style="display:none"></span>' : '')) + '</button>';
-  $('#side').innerHTML = '<div class="brand"><i>💳</i>' + esc(appName) + '</div>' + NAV.map(mk).join('') +
-    '<div class="sp"></div><button class="btn" onclick="trxForm()">+ Transaksi Baru</button>' +
-    '<button class="nav" onclick="logout()"><span class="ic">🚪</span><span>Keluar</span></button>';
-  $('#bottom').innerHTML = NAV.map(mk).join('');
-}
-function go(p) { page = p; render(); window.scrollTo(0, 0); }
+/* ---------- 5. Pasang ke aplikasi ---------- */
+const _pHomeAsli = pHome;
+pHome = function () { return keluarBanner() + _pHomeAsli(); };
 
 function render() {
   document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === page));
   $('#title').textContent = NAV.filter(n => n[0] === page)[0][2];
-  const pages = {home: pHome, trx: pTrx, unpaid: pUnpaid, hutang: pHutang, cust: pCust, apps: pApps, prod: pProd, rekap: pRekap, laba: pLaba, set: pSet};
+  const pages = {home: pHome, trx: pTrx, unpaid: pUnpaid, cust: pCust, apps: pApps, prod: pProd, rekap: pRekap, laba: pLaba, hutang: pHutang, keluar: pKeluar, set: pSet};
   try { $('#view').innerHTML = pages[page](); }
   catch (e) { $('#view').innerHTML = '<div class="empty">Gagal menampilkan halaman: ' + esc(e.message) + '</div>'; }
   if (page === 'set') drawThemes();
-  
   const nb = db.trx.filter(t => t.status === 'Belum Bayar').length;
   document.querySelectorAll('[data-cnt]').forEach(e => { e.textContent = nb; e.style.display = nb ? '' : 'none'; });
-
-  const nh = (db.hutang || []).filter(h => h.status === 'Belum Lunas').length;
-  document.querySelectorAll('[data-cnt-hutang]').forEach(e => { e.textContent = nh; e.style.display = nh ? '' : 'none'; });
 }
-
-function waNum(t) { t = String(t || '').replace(/\D/g, ''); if (t.indexOf('0') === 0) t = '62' + t.slice(1); return t; }
-
-/* ====== HALAMAN HUTANG CUSTOMER ====== */
-function pHutang() {
-  const hutangList = db.hutang || [];
-  const aktif = hutangList.filter(h => h.status === 'Belum Lunas');
-  const g = {};
-  aktif.forEach(h => { (g[h.customerId] = g[h.customerId] || []).push(h); });
-  const keys = Object.keys(g).sort((a, b) => sum(g[b], 'jumlah') - sum(g[a], 'jumlah'));
-
-  return '<div class="stats"><div class="stat hero"><div class="l">Total Kasbon Aktif</div><div class="v">' + rp(sum(aktif, 'jumlah')) + '</div></div>' +
-    '<div class="stat"><div class="l">Customer Pinjam</div><div class="v">' + keys.length + '</div></div>' +
-    '<div class="stat"><div class="l">Total Riwayat Kasbon</div><div class="v">' + hutangList.length + '</div></div></div>' +
-    '<div class="tools"><button class="btn" onclick="hutangForm()">+ Catat Kasbon Baru</button></div>' +
-    (!aktif.length ? '<div class="empty">🎉 Tidak ada customer yang memiliki hutang uang / kasbon saat ini.</div>' :
-    '<div class="grid">' + keys.map(function (cid) {
-      const l = g[cid].slice().sort((a, b) => (b.tanggal + b.jam).localeCompare(a.tanggal + a.jam));
-      const c = db.customers.filter(x => x.id === cid)[0], tot = sum(l, 'jumlah');
-      const msg = 'Halo ' + l[0].customer + ', mengingatkan sisa pinjaman/kasbon Anda di toko:\n' + l.map(h => '- ' + h.tanggal + ': ' + rp(h.jumlah) + (h.catatan ? ' (' + h.catatan + ')' : '')).join('\n') + '\nTotal Kasbon: ' + rp(tot) + '\nTerima kasih.' + (tokoName ? '\n— ' + tokoName : '');
-      return '<div class="card"><div class="row"><div><b>👤 ' + esc(l[0].customer) + '</b><div class="mut">' + esc(c ? (c.alamat || '') : '') + '</div></div><div class="r"><b class="bad">' + rp(tot) + '</b><div class="mut">' + l.length + ' catatan</div></div></div>' +
-        '<div style="margin-top:10px">' + l.map(h => '<div class="row s" style="border-top:1px solid var(--bd);padding-top:8px"><div><div><b>' + rp(h.jumlah) + '</b> <span class="badge o">' + esc(h.status) + '</span></div><div class="mut">' + esc(h.tanggal) + (h.catatan ? ' • ' + esc(h.catatan) : '') + '</div></div>' +
-        '<div class="r"><div class="acts" style="margin-top:0"><button class="btn sm green" onclick="payHutangIds([\'' + h.id + '\'])">Lunasi</button><button class="btn sm ghost" onclick="hutangForm(\'' + h.id + '\')">Edit</button><button class="btn sm red" onclick="delHutang(\'' + h.id + '\')">Hapus</button></div></div></div>').join('') + '</div>' +
-        '<div class="acts" style="margin-top:14px"><button class="btn sm" onclick="payHutangIds(' + "['" + l.map(h => h.id).join("','") + "']" + ')">✔ Lunasi Semua (' + rp(tot) + ')</button>' +
-        (c && c.telepon ? '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waNum(c.telepon) + '?text=' + encodeURIComponent(msg) + '">WhatsApp</a>' : '') + '</div></div>';
-    }).join('') + '</div>');
-}
-
-function hutangForm(id) {
-  const h = (db.hutang || []).filter(x => x.id === id)[0] || {};
-  const isEdit = !!id;
-  const ao = db.customers.map(c => '<option value="' + c.id + '"' + (c.id === h.customerId ? ' selected' : '') + '>' + esc(c.nama) + '</option>').join('');
-  
-  modal(isEdit ? 'Edit Kasbon Uang' : 'Catat Hutang / Kasbon Uang',
-    field('Customer', '<select id="hCust">' + ao + '</select>') +
-    field('Jumlah Uang (Rp)', '<input id="hJumlah" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(h.jumlah) + '">') +
-    field('Catatan / Keperluan (opsional)', '<input id="hCatatan" value="' + esc(h.catatan) + '">'),
-    async function () {
-      const customerId = $('#hCust').value;
-      if (!customerId) throw new Error('Pilih customer terlebih dahulu');
-      const jumlah = numVal('#hJumlah');
-      if (jumlah <= 0) throw new Error('Masukkan jumlah pinjaman yang valid');
-      
-      setDb(await api(isEdit ? 'editHutang' : 'addHutang', {id: id || '', customerId: customerId, jumlah: jumlah, catatan: $('#hCatatan').value.trim()}));
-      render(); toast(isEdit ? 'Kasbon diperbarui' : 'Kasbon berhasil dicatat', 'good');
-    }, isEdit ? 'Simpan Perubahan' : 'Simpan Kasbon');
-}
-
-async function payHutangIds(ids) {
-  if (!(await askConfirm('Lunasi kasbon?', ids.length + ' catatan kasbon akan ditandai LUNAS.', 'Ya, Lunas', '✅'))) return;
-  try { setBusy(true); setDb(await api('payHutang', {ids: ids})); render(); sayBerhasil('Kasbon Lunas'); toast('✅ Kasbon berhasil dilunasi', 'good'); }
-  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
-}
-
-async function delHutang(id) {
-  if (!(await askConfirm('Hapus catatan kasbon?', 'Catatan kasbon ini akan dihapus permanen.', 'Hapus', '🗑️', true))) return;
-  try { setBusy(true); setDb(await api('deleteHutang', {id: id})); render(); toast('Catatan dihapus'); }
-  catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
-}
-
-/* Fungsionalitas halaman standar lainnya */
-function pHome() {
-  const tr = db.trx || [], hut = db.hutang || [];
-  const today = ymd();
-  const tTr = tr.filter(t => t.tanggal === today);
-  const omz = sum(tTr, 'jual'), laba = sum(tTr, 'laba');
-  const un = tr.filter(t => t.status === 'Belum Bayar');
-  const unHut = hut.filter(h => h.status === 'Belum Lunas');
-  return '<div class="stats"><div class="stat hero"><div class="l">Omset Hari Ini</div><div class="v">' + rp(omz) + '</div></div>' +
-    '<div class="stat"><div class="l">Laba Hari Ini</div><div class="v">' + rp(laba) + '</div></div>' +
-    '<div class="stat"><div class="l">Transaksi Hari Ini</div><div class="v">' + tTr.length + '</div></div>' +
-    '<div class="stat"><div class="l">Piutang Produk</div><div class="v">' + rp(sum(un, 'jual')) + '</div></div>' +
-    '<div class="stat"><div class="l">Total Kasbon Aktif</div><div class="v">' + rp(sum(unHut, 'jumlah')) + '</div></div></div>' +
-    '<div class="sec"><h2>Akses Cepat</h2></div><div class="grid"><div class="card" onclick="trxForm()" style="cursor:pointer"><h3>+ Transaksi Baru</h3><p class="mut">Catat penjualan pulsa, token, atau PPOB.</p></div>' +
-    '<div class="card" onclick="go(\'hutang\')" style="cursor:pointer"><h3>💸 Hutang Customer</h3><p class="mut">Kelola kasbon uang tunai customer.</p></div></div>';
-}
-
-function pTrx() {
-  const list = db.trx || [];
-  return '<div class="sec"><h2>Daftar Transaksi</h2><div class="tools"><input id="trxSearch" placeholder="Cari nota/tujuan..." oninput="render()"></div></div>' +
-    (!list.length ? '<div class="empty">Belum ada transaksi.</div>' :
-    '<div class="grid">' + list.slice(-50).reverse().map(t => '<div class="card"><div class="row"><div><b>' + esc(t.id) + '</b><div class="mut">' + esc(t.tanggal) + ' ' + esc(t.jam) + ' • ' + esc(t.customer) + '</div></div><div class="r"><b>' + rp(t.jual) + '</b><div class="mut">Laba: ' + rp(t.laba) + '</div></div></div><div style="margin-top:8px"><div><b>' + esc(t.aplikasi) + '</b> - ' + esc(t.produk) + '</div><div class="mut">Tujuan: ' + esc(t.tujuan) + '</div></div></div>').join('') + '</div>');
-}
-
-function pUnpaid() {
-  const un = (db.trx || []).filter(t => t.status === 'Belum Bayar');
-  return '<div class="sec"><h2>Transaksi Belum Bayar</h2></div>' + (!un.length ? '<div class="empty">Semua lunas!</div>' : '<div class="grid">' + un.map(t => '<div class="card"><b>' + esc(t.customer) + '</b> - ' + rp(t.jual) + '<div class="mut">' + esc(t.produk) + ' (' + esc(t.tanggal) + ')</div><div class="acts"><button class="btn sm green" onclick="payTrx(\'' + t.id + '\')">Lunasi</button></div></div>').join('') + '</div>');
-}
-
-async function payTrx(id) {
-  setDb(await api('pay', {ids: [id]})); render(); toast('Transaksi dilunasi', 'good');
-}
-
-function pCust() {
-  const list = db.customers || [];
-  return '<div class="sec"><h2>Daftar Customer</h2><button class="btn sm" onclick="custForm()">+ Customer</button></div>' +
-    '<div class="grid">' + list.map(c => '<div class="card"><b>' + esc(c.nama) + '</b><div class="mut">' + esc(c.telepon || '-') + ' • ' + esc(c.alamat || '-') + '</div><div class="acts"><button class="btn sm red" onclick="delCust(\'' + c.id + '\')">Hapus</button></div></div>').join('') + '</div>';
-}
-
-function custForm() {
-  modal('Tambah Customer', field('Nama', '<input id="cNama">') + field('Telepon', '<input id="cTel" type="tel">') + field('Alamat', '<input id="cAlamat">'), async function(){
-    await api('saveCustomer', {nama: $('#cNama').value, telepon: $('#cTel').value, alamat: $('#cAlamat').value});
-    await load(); toast('Customer ditambahkan', 'good');
-  });
-}
-
-async function delCust(id) {
-  if (!(await askConfirm('Hapus customer?', '', 'Hapus', '🗑️', true))) return;
-  setDb(await api('deleteCustomer', {id: id})); render(); toast('Dihapus');
-}
-
-function pApps() {
-  const list = db.apps || [];
-  return '<div class="sec"><h2>Daftar Aplikasi</h2><button class="btn sm" onclick="appForm()">+ Aplikasi</button></div>' +
-    '<div class="grid">' + list.map(a => '<div class="card"><b>' + esc(a.nama) + '</b><div class="acts"><button class="btn sm red" onclick="delApp(\'' + a.id + '\')">Hapus</button></div></div>').join('') + '</div>';
-}
-
-function appForm() {
-  modal('Tambah Aplikasi', field('Nama Aplikasi', '<input id="aNama">'), async function(){
-    await api('saveAplikasi', {nama: $('#aNama').value}); await load(); toast('Aplikasi ditambahkan', 'good');
-  });
-}
-
-async function delApp(id) {
-  if (!(await askConfirm('Hapus aplikasi?', '', 'Hapus', '🗑️', true))) return;
-  setDb(await api('deleteAplikasi', {id: id})); render(); toast('Dihapus');
-}
-
-function pProd() {
-  const list = db.products || [];
-  return '<div class="sec"><h2>Daftar Produk</h2><button class="btn sm" onclick="prodForm()">+ Produk</button></div>' +
-    '<div class="grid">' + list.map(p => '<div class="card"><b>' + esc(p.nama) + '</b> <span class="mut">(' + esc(p.aplikasi) + ')</span><div>Modal: ' + rp(p.modal) + ' | Jual: <b>' + rp(p.jual) + '</b></div><div class="acts"><button class="btn sm red" onclick="delProd(\'' + p.id + '\')">Hapus</button></div></div>').join('') + '</div>';
-}
-
-function prodForm() {
-  const ao = db.apps.map(a => '<option value="' + a.id + '">' + esc(a.nama) + '</option>').join('');
-  modal('Tambah Produk', field('Aplikasi', '<select id="pApp">' + ao + '</select>') + field('Nama Produk', '<input id="pNama">') + field('Modal', '<input id="pMod" type="text" oninput="fmtInput(this)">') + field('Jual', '<input id="pJual" type="text" oninput="fmtInput(this)">'), async function(){
-    await api('saveProduk', {aplikasiId: $('#pApp').value, nama: $('#pNama').value, modal: numVal('#pMod'), jual: numVal('#pJual')});
-    await load(); toast('Produk ditambahkan', 'good');
-  });
-}
-
-async function delProd(id) {
-  if (!(await askConfirm('Hapus produk?', '', 'Hapus', '🗑️', true))) return;
-  setDb(await api('deleteProduk', {id: id})); render(); toast('Dihapus');
-}
-
-function pRekap() {
-  return '<div class="sec"><h2>Rekapitulasi</h2></div><div class="empty">Silakan cek lembar <b>Rekapitulasi</b> di file Google Spreadsheet Anda untuk laporan lengkap.</div>';
-}
-
-function pLaba() {
-  return '<div class="sec"><h2>Laporan Laba</h2></div><div class="empty">Silakan cek lembar <b>Laba</b> di file Google Spreadsheet Anda.</div>';
-}
-
-function pSet() {
-  return '<div class="sec"><h2>Pengaturan</h2></div><div class="card">' +
-    field('Nama Aplikasi', '<input id="sApp" value="' + esc(appName) + '">') +
-    field('Nama Toko', '<input id="sToko" value="' + esc(tokoName) + '">') +
-    field('No. WhatsApp Toko', '<input id="sWa" value="' + esc(tokoWa) + '">') +
-    '<button class="btn" style="margin-top:14px" onclick="saveSet()">Simpan Pengaturan</button></div>' +
-    '<div class="card" style="margin-top:14px">' +
-    field('PIN Lama', '<input id="pOld" type="password">') +
-    field('PIN Baru', '<input id="pNew" type="password">') +
-    '<button class="btn" style="margin-top:14px" onclick="changePin()">Ganti PIN</button></div>';
-}
-
-async function saveSet() {
-  await api('saveSettings', {namaApp: $('#sApp').value, namaToko: $('#sToko').value, wa: $('#sWa').value});
-  await load(); toast('Pengaturan disimpan', 'good');
-}
-
-async function changePin() {
-  await api('changePin', {oldPin: $('#pOld').value, newPin: $('#pNew').value});
-  toast('PIN berhasil diubah', 'good');
-}
-
-function trxForm() {
-  const ao = db.apps.map(a => '<option value="' + esc(a.nama) + '">' + esc(a.nama) + '</option>').join('');
-  const po = db.products.map(p => '<option value="' + esc(p.nama) + '" data-app="' + esc(p.aplikasi) + '" data-mod="' + p.modal + '" data-jual="' + p.jual + '">' + esc(p.nama) + ' (' + rp(p.jual) + ')</option>').join('');
-  const co = db.customers.map(c => '<option value="' + c.id + '">' + esc(c.nama) + '</option>').join('');
-  modal('Transaksi Baru', field('Customer', '<select id="tCust"><option value="">Umum (Tunai)</option>' + co + '</select>') +
-    field('Produk', '<select id="tProd" onchange="onProdChange()"><option value="">Pilih Produk</option>' + po + '</select>') +
-    field('Tujuan / No HP / ID Pelanggan', '<input id="tTujuan">') +
-    field('Harga Jual', '<input id="tJual" type="text" oninput="fmtInput(this)">') +
-    field('Status', '<select id="tStatus"><option value="Lunas">Lunas</option><option value="Belum Bayar">Belum Bayar (Kasbon Produk)</option></select>'), async function(){
-    const pSel = $('#tProd'); const opt = pSel.options[pSel.selectedIndex];
-    if (!opt.value) throw new Error('Pilih produk');
-    await api('addTrx', {
-      customerId: $('#tCust').value,
-      aplikasi: opt.dataset.app,
-      produk: opt.value,
-      tujuan: $('#tTujuan').value,
-      modal: Number(opt.dataset.mod),
-      jual: numVal('#tJual'),
-      status: $('#tStatus').value
-    });
-    await load(); sayBerhasil('Transaksi Berhasil'); toast('Transaksi berhasil disimpan', 'good');
-  });
-}
-
-function onProdChange() {
-  const pSel = $('#tProd'); const opt = pSel.options[pSel.selectedIndex];
-  if (opt && opt.dataset.jual) $('#tJual').value = fmtNum(opt.dataset.jual);
-}
-
-function openThemes(){} function closeThemes(){} drawThemes = function(){};
 
 buildNav();
-applySettings();
-$('#btnSound').textContent = soundOn ? '🔊' : '🔇';
-(async function () {
-  if (!pin) { showLogin(); return; }
-  try { await load(); } catch (e) { showLogin(); }
-})();
+render();
 </script>
-</body>
-</html>
