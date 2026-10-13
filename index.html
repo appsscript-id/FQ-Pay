@@ -1482,20 +1482,46 @@ function pKas() {
       '<div class="mut" style="margin-top:6px">📅 ' + esc(k.tanggal) + ' ' + esc(/^\d{1,2}:\d{2}/.test(k.jam) ? k.jam : '') + '</div>' +
       '<div class="acts"><button class="btn sm ghost" onclick="kasForm(\'' + k.id + '\')">✏️ Edit</button><button class="btn sm red" onclick="delItem(\'deleteKeluar\',\'' + k.id + '\')">Hapus</button></div></div>').join('') + '</div>' : '<div class="empty">Belum ada pengeluaran di bulan ini</div>');
 }
-function kasForm(id) {
-  const k = KL().filter(x => x.id === id)[0] || {};
+/* --- Kategori pengeluaran: pencarian seperti customer, dengan tombol + Kategori --- */
+let kasShown = [];
+function kasCats() {
   const base = ['Sewa tempat', 'Listrik', 'Internet', 'Gaji', 'Beli saldo', 'Transport', 'Lainnya'];
   KL().forEach(x => { if (x.kategori && base.indexOf(x.kategori) < 0) base.push(x.kategori); });
-  const dl = base.map(c => '<option value="' + esc(c) + '"></option>').join('');
+  return base;
+}
+function kasCatInput() { $('#kKat').dataset.ok = ''; kasCatRender(); }
+function kasCatRender() {
+  const inp = $('#kKat'), q = inp.value.trim().toLowerCase(), box = $('#csList'), all = kasCats();
+  kasShown = all.filter(c => !q || c.toLowerCase().indexOf(q) >= 0);
+  let h = kasShown.map((c, i) => '<div class="cs-item" onclick="kasCatPick(' + i + ')"><b>' + esc(c) + '</b></div>').join('');
+  if (q && !all.some(c => c.toLowerCase() === q)) {
+    h += (kasShown.length ? '' : '<div class="cs-item" style="cursor:default;color:var(--mut)">Kategori tidak ditemukan</div>') +
+      '<div style="padding:10px 12px"><button type="button" class="btn sm" onclick="kasCatAdd()">+ Kategori “' + esc(inp.value.trim()) + '”</button></div>';
+  }
+  box.innerHTML = h; box.classList.add('show');
+}
+function kasCatPick(i) {
+  const inp = $('#kKat'); inp.value = kasShown[i] || ''; inp.dataset.ok = '1'; $('#csList').classList.remove('show');
+}
+function kasCatAdd() {
+  const inp = $('#kKat'); let v = inp.value.trim(); if (!v) return;
+  v = v.charAt(0).toUpperCase() + v.slice(1);
+  inp.value = v; inp.dataset.ok = '1'; $('#csList').classList.remove('show');
+  toast('Kategori “' + v + '” dipakai', 'good');
+}
+function kasForm(id) {
+  const k = KL().filter(x => x.id === id)[0] || {};
   modal(id ? 'Edit Pengeluaran' : 'Pengeluaran Baru',
-    field('Kategori (ketik, atau pilih dari daftar)', '<input id="kKat" list="dlKat" autocomplete="off" value="' + esc(k.kategori) + '"><datalist id="dlKat">' + dl + '</datalist>') +
+    field('Kategori (ketik untuk mencari)', '<div class="cs"><input id="kKat" type="text" autocomplete="off" placeholder="Wajib diisi — ketik kategori" data-ok="' + (id && k.kategori ? '1' : '') + '" oninput="kasCatInput()" onfocus="kasCatRender()" value="' + esc(k.kategori) + '"><div id="csList" class="cs-list"></div></div>') +
     field('Keterangan (opsional)', '<input id="kKet" value="' + esc(k.keterangan) + '">') +
     '<div class="two"><div>' + field('Jumlah', '<input id="kJml" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(k.jumlah) + '">') + '</div>' +
     '<div>' + field('Tanggal', '<input id="kTgl" type="date" value="' + esc(k.tanggal || ymd()) + '">') + '</div></div>',
     async function () {
-      const jml = numVal('#kJml');
+      const kat = $('#kKat').value.trim(), jml = numVal('#kJml');
+      if (!kat) throw new Error('Kategori wajib diisi');
+      if ($('#kKat').dataset.ok !== '1') throw new Error('Pilih kategori dari daftar, atau tekan tombol + Kategori');
       if (jml <= 0) throw new Error('Jumlah pengeluaran wajib diisi');
-      setDb(await api('saveKeluar', {id: id || '', kategori: $('#kKat').value.trim(), keterangan: $('#kKet').value.trim(), jumlah: jml, tanggal: $('#kTgl').value}));
+      setDb(await api('saveKeluar', {id: id || '', kategori: kat, keterangan: $('#kKet').value.trim(), jumlah: jml, tanggal: $('#kTgl').value}));
       render(); toast('Tersimpan', 'good');
     });
 }
