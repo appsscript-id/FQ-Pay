@@ -1485,7 +1485,7 @@ function pKas() {
 /* --- Kategori pengeluaran: pencarian seperti customer, dengan tombol + Kategori --- */
 let kasShown = [];
 function kasCats() {
-  const base = ['Sewa tempat', 'Listrik', 'Internet', 'Gaji', 'Beli saldo', 'Transport', 'Lainnya'];
+  const base = ['Tarik Dana', 'Listrik', 'Internet', 'Pulsa', 'Transport', 'Lainnya'];
   KL().forEach(x => { if (x.kategori && base.indexOf(x.kategori) < 0) base.push(x.kategori); });
   return base;
 }
