@@ -1485,7 +1485,7 @@ function pKas() {
 /* --- Kategori pengeluaran: pencarian seperti customer, dengan tombol + Kategori --- */
 let kasShown = [];
 function kasCats() {
-  const base = ['Tarik Dana', 'Listrik', 'Internet', 'Pulsa', 'Transport', 'Lainnya'];
+  const base = ['Sewa tempat', 'Listrik', 'Internet', 'Gaji', 'Beli saldo', 'Transport', 'Lainnya'];
   KL().forEach(x => { if (x.kategori && base.indexOf(x.kategori) < 0) base.push(x.kategori); });
   return base;
 }
@@ -1510,6 +1510,20 @@ function kasCatAdd() {
   toast('Kategori “' + v + '” dipakai', 'good');
 }
 let kasEditId = '';
+/* Peringatan suara (tanpa bunyi lonceng). Jika suara dimatikan, tampil sebagai pesan biasa */
+function sayPeringatan(teks) {
+  if (!soundOn) { toast(teks, 'err'); return; }
+  try {
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(teks);
+      u.lang = 'id-ID'; u.rate = 1; u.volume = 1;
+      const v = speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().indexOf('id') === 0)[0];
+      if (v) u.voice = v;
+      setTimeout(() => speechSynthesis.speak(u), 250);
+    } else toast(teks, 'err');
+  } catch (e) { toast(teks, 'err'); }
+}
 function kasSisa(tgl, exceptId) {
   const m = String(tgl || ymd()).slice(0, 7);
   return sum(db.trx.filter(t => inMonth(t, m)), 'laba') - sum(KL().filter(x => inMonth(x, m) && x.id !== exceptId), 'jumlah');
@@ -1534,7 +1548,7 @@ function kasForm(id) {
       if ($('#kKat').dataset.ok !== '1') throw new Error('Pilih kategori dari daftar, atau tekan tombol + Kategori');
       if (jml <= 0) throw new Error('Jumlah pengeluaran wajib diisi');
       const tg = $('#kTgl').value || ymd(), sisa = kasSisa(tg, id || '');
-      if (jml > sisa) throw new Error('Saldo tidak cukup. Sisa kas bulan ' + tg.slice(0, 7) + ': ' + rp(Math.max(sisa, 0)) + ', pengeluaran: ' + rp(jml));
+      if (jml > sisa) { sayPeringatan('Saldo tidak cukup'); return false; }
       setDb(await api('saveKeluar', {id: id || '', kategori: kat, keterangan: $('#kKet').value.trim(), jumlah: jml, tanggal: $('#kTgl').value}));
       render(); toast('Tersimpan', 'good');
     });
