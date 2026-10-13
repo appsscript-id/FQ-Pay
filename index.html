@@ -1423,9 +1423,8 @@ function pHutang() {
 }
 function hutangForm(id) {
   const h = HT().filter(x => x.id === id)[0] || {};
-  const dl = db.customers.map(c => '<option value="' + esc(c.nama) + '"></option>').join('');
   modal(id ? 'Edit Hutang' : 'Hutang Baru',
-    field('Nama customer (ketik, atau pilih dari daftar)', '<input id="hNama" list="dlCust" autocomplete="off" value="' + esc(h.nama) + '"><datalist id="dlCust">' + dl + '</datalist>') +
+    field('Nama customer (ketik untuk mencari)', '<div class="cs"><input id="hNama" type="text" autocomplete="off" placeholder="Ketik nama / HP / alamat" oninput="hutangCustRender()" onfocus="hutangCustRender()" value="' + esc(h.nama) + '"><div id="csList" class="cs-list"></div></div>') +
     field('Keterangan (mis. pinjam uang, kasbon)', '<input id="hKet" value="' + esc(h.keterangan) + '">') +
     '<div class="two"><div>' + field('Jumlah hutang', '<input id="hJml" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(h.jumlah) + '">') + '</div>' +
     '<div>' + field('Tanggal', '<input id="hTgl" type="date" value="' + esc(h.tanggal || ymd()) + '">') + '</div></div>' +
@@ -1437,6 +1436,18 @@ function hutangForm(id) {
       setDb(await api('saveHutang', {id: id || '', nama: nama, keterangan: $('#hKet').value.trim(), jumlah: jml, tanggal: $('#hTgl').value, status: id ? $('#hSt').value : ''}));
       render(); toast('Tersimpan', 'good');
     });
+}
+function hutangCustRender() {
+  const q = $('#hNama').value.trim().toLowerCase(), box = $('#csList');
+  const l = db.customers.filter(c => !q || (c.nama + ' ' + (c.telepon || '') + ' ' + (c.alamat || '')).toLowerCase().indexOf(q) >= 0).slice(0, 30);
+  box.innerHTML = l.map(c => '<div class="cs-item" onclick="hutangPick(\'' + c.id + '\')"><b>' + esc(c.nama) + '</b><small>' + esc([c.telepon, c.alamat].filter(Boolean).join(' • ')) + '</small></div>').join('') ||
+    '<div class="cs-item" style="cursor:default;color:var(--mut)">Tidak ada di daftar — nama yang diketik akan dipakai</div>';
+  box.classList.add('show');
+}
+function hutangPick(id) {
+  const c = db.customers.filter(x => x.id === id)[0];
+  $('#hNama').value = c ? c.nama : '';
+  $('#csList').classList.remove('show');
 }
 async function payHutang(id) {
   const h = HT().filter(x => x.id === id)[0]; if (!h) return;
