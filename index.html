@@ -398,9 +398,9 @@ let soundOn = store.get('ppob_sound') !== '0';
 let modalSubmit = null;
 
 const NAV = [
-  ['home','🏠','Beranda'], ['trx','🧾','Transaksi'], ['unpaid','⏳','Belum Bayar'], ['hutang','📒','Hutang'],
-  ['cust','👥','Customer'], ['apps','📱','Aplikasi'], ['prod','📦','Produk'],
-  ['rekap','📊','Rekapitulasi'], ['kas','💵','Pengeluaran Kas'], ['laba','💰','Laba'], ['set','⚙️','Pengaturan']
+  ['home','🏠','Beranda'], ['trx','🧾','Transaksi'], ['kas','💵','Pengeluaran Kas'], ['hutang','📒','Hutang'],
+  ['unpaid','⏳','Belum Bayar'], ['cust','👥','Customer'], ['apps','📱','Aplikasi'], ['prod','📦','Produk'],
+  ['laba','💰','Laba'], ['rekap','📊','Rekapitulasi'], ['set','⚙️','Pengaturan']
 ];
 
 /* ====== API ====== */
@@ -1485,7 +1485,7 @@ function pKas() {
 /* --- Kategori pengeluaran: pencarian seperti customer, dengan tombol + Kategori --- */
 let kasShown = [];
 function kasCats() {
-  const base = ['Ambil Dana', 'Listrik', 'Internet', 'Pulsa', 'Transport', 'Lainnya'];
+  const base = ['Sewa tempat', 'Listrik', 'Internet', 'Gaji', 'Beli saldo', 'Transport', 'Lainnya'];
   KL().forEach(x => { if (x.kategori && base.indexOf(x.kategori) < 0) base.push(x.kategori); });
   return base;
 }
