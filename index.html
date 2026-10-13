@@ -1509,21 +1509,36 @@ function kasCatAdd() {
   inp.value = v; inp.dataset.ok = '1'; $('#csList').classList.remove('show');
   toast('Kategori “' + v + '” dipakai', 'good');
 }
+let kasEditId = '';
+function kasSisa(tgl, exceptId) {
+  const m = String(tgl || ymd()).slice(0, 7);
+  return sum(db.trx.filter(t => inMonth(t, m)), 'laba') - sum(KL().filter(x => inMonth(x, m) && x.id !== exceptId), 'jumlah');
+}
+function kasHint() {
+  const e = $('#kHint'); if (!e) return;
+  const tg = $('#kTgl').value || ymd(), s = kasSisa(tg, kasEditId);
+  e.innerHTML = 'Sisa kas bulan ' + esc(tg.slice(0, 7)) + ': <b class="' + (s < 0 ? 'bad' : 'ok') + '">' + rp(s) + '</b> (pengeluaran tidak boleh melebihi sisa)';
+}
 function kasForm(id) {
+  kasEditId = id || '';
   const k = KL().filter(x => x.id === id)[0] || {};
   modal(id ? 'Edit Pengeluaran' : 'Pengeluaran Baru',
     field('Kategori (ketik untuk mencari)', '<div class="cs"><input id="kKat" type="text" autocomplete="off" placeholder="Wajib diisi — ketik kategori" data-ok="' + (id && k.kategori ? '1' : '') + '" oninput="kasCatInput()" onfocus="kasCatRender()" value="' + esc(k.kategori) + '"><div id="csList" class="cs-list"></div></div>') +
     field('Keterangan (opsional)', '<input id="kKet" value="' + esc(k.keterangan) + '">') +
     '<div class="two"><div>' + field('Jumlah', '<input id="kJml" type="text" inputmode="numeric" autocomplete="off" oninput="fmtInput(this)" value="' + fmtNum(k.jumlah) + '">') + '</div>' +
-    '<div>' + field('Tanggal', '<input id="kTgl" type="date" value="' + esc(k.tanggal || ymd()) + '">') + '</div></div>',
+    '<div>' + field('Tanggal', '<input id="kTgl" type="date" oninput="kasHint()" onchange="kasHint()" value="' + esc(k.tanggal || ymd()) + '">') + '</div></div>' +
+    '<div class="mut" id="kHint" style="margin-top:10px"></div>',
     async function () {
       const kat = $('#kKat').value.trim(), jml = numVal('#kJml');
       if (!kat) throw new Error('Kategori wajib diisi');
       if ($('#kKat').dataset.ok !== '1') throw new Error('Pilih kategori dari daftar, atau tekan tombol + Kategori');
       if (jml <= 0) throw new Error('Jumlah pengeluaran wajib diisi');
+      const tg = $('#kTgl').value || ymd(), sisa = kasSisa(tg, id || '');
+      if (jml > sisa) throw new Error('Saldo tidak cukup. Sisa kas bulan ' + tg.slice(0, 7) + ': ' + rp(Math.max(sisa, 0)) + ', pengeluaran: ' + rp(jml));
       setDb(await api('saveKeluar', {id: id || '', kategori: kat, keterangan: $('#kKet').value.trim(), jumlah: jml, tanggal: $('#kTgl').value}));
       render(); toast('Tersimpan', 'good');
     });
+  kasHint();
 }
 
 const THEMES = [["klasik", "Kasir Klasik", "💳"], ["hijau", "Dompet Hijau", "👛"], ["listrik", "Token Listrik", "⚡"], ["pulsa", "Pulsa & Data", "📶"], ["qris", "QRIS Merah", "🔳"], ["air", "Tagihan Air", "💧"], ["emas", "Emas Premium", "🪙"], ["malam", "Malam Kasir", "🌙"]];
