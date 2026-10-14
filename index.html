@@ -41,16 +41,22 @@
     return 'url("data:image/svg+xml,' + encodeURIComponent(s) + '")';
   }
   var FRAME = '<rect x="110" y="30" width="110" height="200" rx="18"/><path d="M150 48h30"/><circle cx="165" cy="115" r="30"/><path d="m150 115 11 11 21-24"/><path d="M130 170h70M130 188h45"/>';
-  var css = '';
-  Object.keys(TH).forEach(function (k) {
-    var c = TH[k][0], main = TH[k][1], sl = TH[k][2];
-    var p = sl.map(function (n, i) { return g(n, PS[i], 1.6); }).join('');
-    var h = FRAME + g(main, 'translate(14 22) rotate(-10) scale(4.2)', 0.7) + g('card', 'translate(16 150) rotate(-14) scale(5)', 0.6) +
-      g('rp', 'translate(232 140) scale(3.2)', 0.9) + g('rp', 'translate(246 186) scale(2.4)', 1.1) + g('receipt', 'translate(236 40) rotate(12) scale(2.6)', 1.1);
-    css += '[data-theme="' + k + '"]{--pat:' + uri(200, 200, p, c, k === 'malam' ? 0.12 : 0.13) + ';--patw:' + uri(200, 200, p, '#ffffff', 0.16) +
-      ';--hero:' + uri(320, 260, h, c, 0.2, 3) + ';--herow:' + uri(320, 260, h, '#ffffff', 0.28, 3) + '}\n';
-  });
-  var st = document.createElement('style'); st.id = 'themeArt'; st.textContent = css; document.head.appendChild(st);
+    var st = document.createElement('style'); st.id = 'themeArt'; document.head.appendChild(st);
+  function build(keys) {
+    var css = '';
+    keys.forEach(function (k) {
+      var c = TH[k][0], main = TH[k][1], sl = TH[k][2];
+      var p = sl.map(function (n, i) { return g(n, PS[i], 1.6); }).join('');
+      var h = FRAME + g(main, 'translate(14 22) rotate(-10) scale(4.2)', 0.7) + g('card', 'translate(16 150) rotate(-14) scale(5)', 0.6) +
+        g('rp', 'translate(232 140) scale(3.2)', 0.9) + g('rp', 'translate(246 186) scale(2.4)', 1.1) + g('receipt', 'translate(236 40) rotate(12) scale(2.6)', 1.1);
+      css += '[data-theme="' + k + '"]{--pat:' + uri(200, 200, p, c, k === 'malam' ? 0.12 : 0.13) + ';--patw:' + uri(200, 200, p, '#ffffff', 0.16) +
+        ';--hero:' + uri(320, 260, h, c, 0.2, 3) + ';--herow:' + uri(320, 260, h, '#ffffff', 0.28, 3) + '}\n';
+    });
+    st.appendChild(document.createTextNode(css));
+  }
+  var cur = document.documentElement.dataset.theme; if (!TH[cur]) cur = 'klasik';
+  build([cur]);
+  setTimeout(function () { build(Object.keys(TH).filter(function (k) { return k !== cur; })); }, 1500);
 })();
 </script>
 <style>
@@ -203,7 +209,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3
 th,tfoot td{background:var(--soft2)}
 .bar{background:var(--soft)}
 .side,.bottom,.sheet,.cbox,#login .box,.empty,table,.cs-list,.seg label,input,select,textarea{background-color:var(--surf)}
-.item,.card,.stat{background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(2px)}
+.item,.card,.stat{background:color-mix(in srgb,var(--card) 94%,transparent)}
+.item,.card{content-visibility:auto;contain-intrinsic-size:auto 120px}
 .stat.hero{background:linear-gradient(135deg,var(--p),var(--p2))}
 [data-theme="malam"] #busy{background:rgba(11,18,32,.65)}
 [data-theme="malam"] .spin{border-color:#22304a;border-top-color:var(--p)}
@@ -441,7 +448,7 @@ function unlockAudio() {
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    if ('speechSynthesis' in window) { speechSynthesis.getVoices(); }
+        if (!unlockAudio.v && 'speechSynthesis' in window) { speechSynthesis.getVoices(); unlockAudio.v = 1; }
   } catch (e) {}
 }
 document.addEventListener('click', unlockAudio);
@@ -795,7 +802,11 @@ function printHtml(html, size, margin) {
 }
 const jamOf = t => /^\d{1,2}:\d{2}/.test(t.jam) ? t.jam : '';
 const nota = id => String(id).replace(/[a-z]$/, '');
-function grpOf(t) { return db.trx.filter(x => nota(x.id) === nota(t.id)); }
+let _gk = null, _gm = null;
+function grpOf(t) {
+  if (_gk !== db.trx) { _gk = db.trx; _gm = {}; db.trx.forEach(x => { const k = nota(x.id); (_gm[k] = _gm[k] || []).push(x); }); }
+  return _gm[nota(t.id)] || [t];
+}
 function grpLabel(t) { const n = grpOf(t).length; return n > 1 ? ' (' + n + ' item)' : ''; }
 function stLabel(l) { const b = l.filter(x => x.status === 'Belum Bayar').length; return !b ? 'Lunas' : b === l.length ? 'Belum Bayar' : 'Sebagian lunas'; }
 function strukHtml(l) {
@@ -974,8 +985,9 @@ function trxListHtml() {
     (l.length ? '<div class="grid">' + g.slice(0, 200).map(notaCard).join('') + '</div>' : '<div class="empty">Tidak ada transaksi</div>');
 }
 function updTrx() { $('#trxList').innerHTML = trxListHtml(); }
+  let _dt; function debTrx() { clearTimeout(_dt); _dt = setTimeout(updTrx, 200); }
 function pTrx() {
-  return '<div class="tools"><input placeholder="🔍 Cari produk / customer / nomor" value="' + esc(fq) + '" oninput="fq=this.value;updTrx()">' +
+  return '<div class="tools"><input placeholder="🔍 Cari produk / customer / nomor" value="' + esc(fq) + '" oninput="fq=this.value;debTrx()">' +
     '<select onchange="fs=this.value;updTrx()"><option value="">Semua status</option><option' + (fs === 'Lunas' ? ' selected' : '') + '>Lunas</option><option' + (fs === 'Belum Bayar' ? ' selected' : '') + '>Belum Bayar</option></select>' +
     '<input type="date" value="' + esc(fd) + '" onchange="fd=this.value;updTrx()"><button class="btn" onclick="trxForm()">+ Transaksi</button></div>' +
     '<div id="trxList">' + trxListHtml() + '</div>';
