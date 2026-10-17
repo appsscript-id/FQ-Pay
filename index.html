@@ -1969,7 +1969,6 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
   try { await load(); }
   catch (e) { if (/PIN/.test(e.message)) showLogin(); else { render(); toast(e.message, 'err'); } }
 })();
-<script>
 /* ====== KEYPAD PIN + BUNYI ====== */
 (function () {
   var st = document.createElement('style');
@@ -1984,7 +1983,7 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     '.pkp button:active{background:var(--soft);transform:scale(.94)}' +
     '.pkp button.fn{font-size:20px;color:var(--mut)}';
   document.head.appendChild(st);
-
+ 
   var b = function (k, l, c) { return '<button type="button"' + (c ? ' class="' + c + '"' : '') + ' onclick="pinKey(\'' + k + '\')">' + (l || k) + '</button>'; };
   document.querySelector('#login .box').innerHTML =
     '<div class="big">🔐</div><h2 id="loginName" style="margin:6px 0">PPOB Kasir</h2><div class="mut" id="loginToko"></div>' +
@@ -1992,7 +1991,7 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     '<div class="pkp">' + '123456789'.split('').map(function (d) { return b(d); }).join('') + b('C', 'C', 'fn') + b('0') + b('<', '⌫', 'fn') + '</div>' +
     '<button class="btn" style="width:100%;margin-top:14px" onclick="doLogin()">Masuk</button>';
   paintName();
-
+ 
   window.keyTick = function (k) {
     if (!soundOn) return;
     try {
