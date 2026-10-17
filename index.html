@@ -1970,9 +1970,8 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
   catch (e) { if (/PIN/.test(e.message)) showLogin(); else { render(); toast(e.message, 'err'); } }
 })();
 <script>
-/* ====== KEYPAD PIN + BUNYI (tempel sekali, sebelum </body>) ====== */
+/* ====== KEYPAD PIN + BUNYI ====== */
 (function () {
-  /* CSS */
   var st = document.createElement('style');
   st.textContent =
     '.pdots{display:flex;justify-content:center;gap:12px;margin:14px 0 6px;min-height:20px}' +
@@ -1986,7 +1985,6 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     '.pkp button.fn{font-size:20px;color:var(--mut)}';
   document.head.appendChild(st);
 
-  /* HTML login */
   var b = function (k, l, c) { return '<button type="button"' + (c ? ' class="' + c + '"' : '') + ' onclick="pinKey(\'' + k + '\')">' + (l || k) + '</button>'; };
   document.querySelector('#login .box').innerHTML =
     '<div class="big">🔐</div><h2 id="loginName" style="margin:6px 0">PPOB Kasir</h2><div class="mut" id="loginToko"></div>' +
@@ -1995,7 +1993,6 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     '<button class="btn" style="width:100%;margin-top:14px" onclick="doLogin()">Masuk</button>';
   paintName();
 
-  /* Bunyi */
   window.keyTick = function (k) {
     if (!soundOn) return;
     try {
@@ -2027,8 +2024,6 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     } catch (e) {}
     try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch (e) {}
   };
-
-  /* Keypad */
   window.pinDraw = function () {
     var n = $('#pinIn').value.length, c = Math.max(4, n);
     $('#pinDots').innerHTML = Array.from({length: c}, function (_, i) { return '<i class="' + (i < n ? 'on' : '') + '"></i>'; }).join('');
@@ -2043,14 +2038,12 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
   window.pinShake = function () {
     var d = $('#pinDots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
   };
-  document.addEventListener('keydown', function (e) {   // keyboard laptop tetap bisa
+  document.addEventListener('keydown', function (e) {
     if (!$('#login').classList.contains('show')) return;
     if (/^\d$/.test(e.key)) pinKey(e.key);
     else if (e.key === 'Backspace') pinKey('<');
     else if (e.key === 'Enter') doLogin();
   });
-
-  /* Gantikan showLogin & doLogin lama */
   window.showLogin = function () { $('#login').classList.add('show'); $('#pinIn').value = ''; pinDraw(); };
   window.doLogin = async function () {
     pin = $('#pinIn').value.trim();
@@ -2067,7 +2060,6 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
       if (/PIN/.test(e.message)) { $('#pinIn').value = ''; pinDraw(); pinShake(); pinBuzz(); }
     }
   };
-
   pinDraw();
 })();
 </script>
