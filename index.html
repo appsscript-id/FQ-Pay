@@ -1982,6 +1982,7 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     '.pkp button{border:1px solid var(--bd);background:var(--surf);color:var(--tx);width:100%;aspect-ratio:1/0.82;border-radius:18px;font-size:24px;font-weight:700;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}' +
     '.pkp button:active{background:var(--soft);transform:scale(.94)}' +
     '.pkp button.fn{font-size:20px;color:var(--mut)}' +
+    'body:has(#login.show){overflow:hidden}#login{overscroll-behavior:contain}' +
     '@media(max-width:599px){.pkp{max-width:240px;gap:8px}.pkp button{font-size:20px;border-radius:15px}.pkp button.fn{font-size:16px}.pdots{margin:10px 0 4px}.pdots i{width:13px;height:13px}}';
   document.head.appendChild(st);
 
@@ -2064,6 +2065,7 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
       sess.set('ppob_pin', pin);
       store.set('ppob_pinlen', String(pin.length));
       $('#login').classList.remove('show');
+      window.scrollTo(0, 0); requestAnimationFrame(function () { window.scrollTo(0, 0); });
       playIntro();
     } catch (e) {
       toast(e.message, 'err');
@@ -2170,6 +2172,10 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     return _pSet().replace(/<\/div>$/, card + '</div>');
   };
 })();
+
+/* ====== SELALU MULAI DARI ATAS ====== */
+try { history.scrollRestoration = 'manual'; } catch (e) {}
+window.addEventListener('load', function () { window.scrollTo(0, 0); });
 </script>
 </body>
 </html>
