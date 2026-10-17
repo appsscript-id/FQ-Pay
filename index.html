@@ -1983,15 +1983,14 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     '.pkp button:active{background:var(--soft);transform:scale(.94)}' +
     '.pkp button.fn{font-size:20px;color:var(--mut)}';
   document.head.appendChild(st);
- 
+
   var b = function (k, l, c) { return '<button type="button"' + (c ? ' class="' + c + '"' : '') + ' onclick="pinKey(\'' + k + '\')">' + (l || k) + '</button>'; };
   document.querySelector('#login .box').innerHTML =
     '<div class="big">🔐</div><h2 id="loginName" style="margin:6px 0">PPOB Kasir</h2><div class="mut" id="loginToko"></div>' +
     '<p class="mut">Masukkan PIN untuk masuk</p><input id="pinIn" type="hidden"><div class="pdots" id="pinDots"></div>' +
-    '<div class="pkp">' + '123456789'.split('').map(function (d) { return b(d); }).join('') + b('C', 'C', 'fn') + b('0') + b('<', '⌫', 'fn') + '</div>' +
-    '<button class="btn" style="width:100%;margin-top:14px" onclick="doLogin()">Masuk</button>';
+    '<div class="pkp">' + '123456789'.split('').map(function (d) { return b(d); }).join('') + b('C', 'C', 'fn') + b('0') + b('<', '⌫', 'fn') + '</div>';
   paintName();
- 
+
   window.keyTick = function (k) {
     if (!soundOn) return;
     try {
@@ -2032,7 +2031,14 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     if (k === 'C') el.value = '';
     else if (k === '<') el.value = el.value.slice(0, -1);
     else if (el.value.length < 12) el.value += k;
-    keyTick(k); pinDraw();
+    keyTick(k); pinDraw(); pinAuto();
+  };
+  window.pinAuto = function () {
+    clearTimeout(window._pinT);
+    var n = $('#pinIn').value.length;
+    if (n < 4) return;
+    var sl = Number(store.get('ppob_pinlen')) || 0;
+    window._pinT = setTimeout(doLogin, n === sl ? 50 : 1200);   // panjang PIN sudah dikenal: langsung masuk
   };
   window.pinShake = function () {
     var d = $('#pinDots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
@@ -2045,19 +2051,23 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
   });
   window.showLogin = function () { $('#login').classList.add('show'); $('#pinIn').value = ''; pinDraw(); };
   window.doLogin = async function () {
+    clearTimeout(window._pinT);
+    if (window._pinBusy) return;
     pin = $('#pinIn').value.trim();
     if (!pin) return;
+    window._pinBusy = true;
     unlockAudio();
     page = 'home'; fq = ''; fs = ''; fd = ''; cq = '';
     try {
       await load();
       sess.set('ppob_pin', pin);
+      store.set('ppob_pinlen', String(pin.length));
       $('#login').classList.remove('show');
       playIntro();
     } catch (e) {
       toast(e.message, 'err');
       if (/PIN/.test(e.message)) { $('#pinIn').value = ''; pinDraw(); pinShake(); pinBuzz(); }
-    }
+    } finally { window._pinBusy = false; }
   };
   pinDraw();
 })();
