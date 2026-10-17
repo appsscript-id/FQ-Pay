@@ -2125,6 +2125,51 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     }, 350);
   };
 })();
+
+/* ====== MODE CEPAT: hanya muat data terbaru ====== */
+(function () {
+  var sv = store.get('ppob_months');
+  window.histMonths = sv === null ? 3 : Number(sv);
+
+  window.api = async function (action, data) {
+    const r = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({action: action, pin: pin, months: window.histMonths, data: data || {}})
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan');
+    return j.data;
+  };
+  window.setMonths = async function (n) {
+    window.histMonths = n; store.set('ppob_months', String(n));
+    try { await load(); toast(n ? 'Memuat ' + n + ' bulan terakhir' : 'Semua data dimuat', 'good'); }
+    catch (e) { toast(e.message, 'err'); }
+  };
+  function banner() {
+    var i = db.info;
+    if (!i || !i.cutoff || i.shownTrx >= i.totalTrx) return '';
+    return '<div class="card" style="margin-bottom:12px;border-color:var(--p)"><div class="mut">⚡ Mode cepat: tampil sejak <b>' + esc(i.cutoff) + '</b> (' + i.shownTrx + ' dari ' + i.totalTrx +
+      ' transaksi). Total laba, rekap, dan kas hanya mencakup periode ini. Transaksi belum bayar tetap tampil semua.</div>' +
+      '<div class="acts"><button class="btn sm ghost" onclick="setMonths(12)">Muat 12 bulan</button><button class="btn sm ghost" onclick="setMonths(0)">Muat semua</button></div></div>';
+  }
+  ['pTrx', 'pLaba', 'pRekap', 'pKas'].forEach(function (n) {
+    var f = window[n];
+    window[n] = function () { return banner() + f(); };
+  });
+  var _pSet = window.pSet;
+  window.pSet = function () {
+    var i = db.info, cur = window.histMonths;
+    var opt = [[3, '3 bulan terakhir (paling cepat)'], [6, '6 bulan terakhir'], [12, '12 bulan terakhir'], [0, 'Semua data (bisa lambat)']]
+      .map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('');
+    var card = scard('⚡ Kecepatan data',
+      '<div class="mut">Aplikasi hanya memuat data terbaru agar tetap cepat saat transaksi sudah banyak. Transaksi belum bayar selalu ikut dimuat.</div>' +
+      '<label class="f">Data yang dimuat</label><select onchange="setMonths(Number(this.value))">' + opt + '</select>' +
+      '<div class="mut" style="margin-top:8px">' + (i ? '✅ Server mode cepat aktif. Dimuat ' + i.shownTrx + ' dari ' + i.totalTrx + ' transaksi' + (i.cutoff ? ' (sejak ' + esc(i.cutoff) + ')' : '') + '.'
+        : '⚠️ Server belum diperbarui. Pasang file Cepat.gs di Apps Script.') + '</div>');
+    return _pSet().replace(/<\/div>$/, card + '</div>');
+  };
+})();
 </script>
 </body>
 </html>
