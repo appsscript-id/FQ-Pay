@@ -2071,6 +2071,38 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
   };
   pinDraw();
 })();
+
+/* ====== PASANG DI HP (PWA) ====== */
+(function () {
+  function add(tag, attrs) {
+    var e = document.createElement(tag);
+    Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    document.head.appendChild(e);
+  }
+  add('link', {rel: 'manifest', href: 'manifest.json'});
+  add('link', {rel: 'apple-touch-icon', href: 'apple-touch-icon.png'});
+  add('meta', {name: 'apple-mobile-web-app-capable', content: 'yes'});
+  add('meta', {name: 'mobile-web-app-capable', content: 'yes'});
+  add('meta', {name: 'apple-mobile-web-app-title', content: 'FQ Pay'});
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+  var ev = null, btn = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); ev = e;
+    if (btn) return;
+    btn = document.createElement('button');
+    btn.textContent = '📲'; btn.title = 'Pasang aplikasi di perangkat ini';
+    var snd = document.getElementById('btnSound');
+    snd.parentNode.insertBefore(btn, snd);
+    btn.onclick = function () {
+      if (!ev) return;
+      ev.prompt();
+      ev.userChoice.then(function () { ev = null; if (btn) { btn.remove(); btn = null; } });
+    };
+  });
+  window.addEventListener('appinstalled', function () { if (btn) { btn.remove(); btn = null; } });
+})();
 </script>
 </body>
 </html>
