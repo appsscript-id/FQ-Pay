@@ -1981,7 +1981,8 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     '.pkp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px auto 0;max-width:300px}' +
     '.pkp button{border:1px solid var(--bd);background:var(--surf);color:var(--tx);width:100%;aspect-ratio:1/0.82;border-radius:18px;font-size:24px;font-weight:700;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}' +
     '.pkp button:active{background:var(--soft);transform:scale(.94)}' +
-    '.pkp button.fn{font-size:20px;color:var(--mut)}';
+    '.pkp button.fn{font-size:20px;color:var(--mut)}' +
+    '@media(max-width:599px){.pkp{max-width:240px;gap:8px}.pkp button{font-size:20px;border-radius:15px}.pkp button.fn{font-size:16px}.pdots{margin:10px 0 4px}.pdots i{width:13px;height:13px}}';
   document.head.appendChild(st);
 
   var b = function (k, l, c) { return '<button type="button"' + (c ? ' class="' + c + '"' : '') + ' onclick="pinKey(\'' + k + '\')">' + (l || k) + '</button>'; };
@@ -2102,6 +2103,27 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
     };
   });
   window.addEventListener('appinstalled', function () { if (btn) { btn.remove(); btn = null; } });
+})();
+
+/* ====== KELUAR = TUTUP APLIKASI ====== */
+(function () {
+  window.logout = async function () {
+    if (!(await askConfirm('Keluar dari aplikasi?', 'Aplikasi akan ditutup. Anda perlu memasukkan PIN lagi saat membuka.', 'Keluar', '🚪'))) return;
+    stopIntro(); sess.del('ppob_pin'); pin = '';
+    db = {customers: [], apps: [], products: [], trx: []};
+    closeModal();
+    var v = document.getElementById('view'); if (v) v.innerHTML = '';
+    try { window.close(); } catch (e) {}
+    setTimeout(function () {   // jika browser tidak mengizinkan menutup sendiri
+      if (document.getElementById('byeBox')) return;
+      var d = document.createElement('div'); d.id = 'byeBox';
+      d.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:#fff;background:linear-gradient(135deg,var(--p),var(--p2))';
+      d.innerHTML = '<div><div style="font-size:54px">👋</div><h2 style="margin:8px 0">Anda sudah keluar</h2>' +
+        '<p style="opacity:.9;margin:0 0 18px">Data sudah dikunci. Tutup aplikasi lewat tombol Home atau Beranda di HP Anda.</p>' +
+        '<button class="btn" style="background:#fff;color:var(--p)" onclick="location.reload()">Masuk lagi</button></div>';
+      document.body.appendChild(d);
+    }, 350);
+  };
 })();
 </script>
 </body>
