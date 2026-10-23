@@ -2177,119 +2177,152 @@ store.del('ppob_pin'); store.del('ppob_cache');   // bersihkan sisa versi lama
 try { history.scrollRestoration = 'manual'; } catch (e) {}
 window.addEventListener('load', function () { window.scrollTo(0, 0); });
 </script>
-<!-- ===== PATCH: Tema Boltz + tanggal dd/mm/yyyy =====
-     Tempel SELURUH isi file ini di index.html, tepat sebelum </body> (setelah </script> terakhir). -->
+<!-- ===== PATCH TAMPILAN (menggantikan patch-boltz) =====
+     HAPUS patch lama, lalu tempel seluruh isi file ini di index.html tepat sebelum </body>. -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-<style>
-:root{--fam:'Poppins',Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-html[data-theme="klasik"]{--p:#2447b8;--p2:#3f78e8;--ptx:#2447b8;--bg:#f5f6fa;--soft:#e3ebff;--soft2:#f6f8fe;--ring:#2447b833}
-body{font-family:var(--fam)}
-body::before{display:none}
-
-/* sidebar */
-.side{width:248px;padding:22px 16px;border-right:0;box-shadow:2px 0 24px rgba(30,40,90,.05)}
-.brand{font-size:22px;font-weight:700;color:var(--p)}
-.brand i{background:var(--p);border-radius:12px}
-.prof{text-align:center;padding:2px 0 16px}
-.prof .av{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;font-size:32px;background:var(--soft)}
-.prof b{display:block;font-size:14px}
-.prof small{display:block;color:var(--mut);font-size:11px}
-.nav{border-radius:99px;font-weight:500;font-size:14px;padding:11px 16px}
-.nav.on{background:var(--soft);color:var(--ptx);box-shadow:none;font-weight:600}
-.side .btn{border-radius:99px}
-
-/* header */
-.top{background:var(--surf);color:var(--tx);box-shadow:0 1px 0 var(--bd)}
-.top h1{font-size:24px;font-weight:700}
-.top h1 small{color:var(--mut)}
-.top button{background:var(--soft2);color:var(--tx);border:1px solid var(--bd);border-radius:50%}
-@media(min-width:900px){.top{padding:20px 28px}#view{padding:26px 28px}}
-
-/* kartu */
-.item,.card,.stat,.tw{border:0;border-radius:20px;box-shadow:0 6px 24px rgba(30,40,90,.06)}
-.tw{overflow-x:auto}
-.sheet,.cbox{border-radius:24px}
-.sec h2,.card h2{font-weight:700}
-
-/* kartu statistik berikon */
-.stats .stat{display:grid;grid-template-columns:46px 1fr;column-gap:12px;align-items:center;padding:16px 18px}
-.stats .stat::before{content:"💰";grid-row:1/3;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:21px;background:#fff1de}
-.stats .stat:nth-child(6n+2)::before{content:"🧾";background:#e4eaff}
-.stats .stat:nth-child(6n+3)::before{content:"📈";background:#e0f6ea}
-.stats .stat:nth-child(6n+4)::before{content:"📊";background:#f0e6ff}
-.stats .stat:nth-child(6n+5)::before{content:"⏳";background:#ffe4e4}
-.stats .stat:nth-child(6n+6)::before{content:"📒";background:#e0f2fe}
-.stats .stat.hero{box-shadow:0 10px 26px var(--ring)}
-.stats .stat.hero::before{background:rgba(255,255,255,.24)}
-.stat .v{margin-top:2px}
-
-/* tombol, lencana, input */
-.btn{border-radius:99px;background:var(--p);font-weight:600;padding:10px 20px}
-.fab{background:var(--p)}
-.badge{background:transparent}
-.badge.g{border:1.5px solid var(--ok)}
-.badge.o{border:1.5px solid var(--warn)}
-.tools input,.tools select{background:#eef0f6;border:0;border-radius:99px;padding:12px 18px}
-th{background:transparent}
-tfoot td{background:var(--soft2)}
-.bar span{background:linear-gradient(90deg,var(--p),var(--p2))}
-</style>
+<style id="uiCss"></style>
 <script>
 (function () {
-  /* ---------- FORMAT TANGGAL dd/mm/yyyy (data di Sheet tetap yyyy-mm-dd agar filter & urutan aman) ---------- */
+  /* ---------- TANGGAL dd/mm/yyyy (data di Sheet tetap yyyy-mm-dd) ---------- */
   var DT = /(\d{4})-(\d{2})-(\d{2})(?!\d)/g, MO = /\b(20\d{2})-(0[1-9]|1[0-2])\b(?![-\d])/g;
   function conv(s) { return String(s).replace(DT, '$3/$2/$1').replace(MO, '$2/$1'); }
-  function fixText(n) {
-    var v = n.nodeValue, c = conv(v);
-    if (c !== v) n.nodeValue = c;
-  }
   function fixWa(a) {
-    var h = a.getAttribute('href') || '';
-    if (h.indexOf('wa.me') < 0) return;
+    var h = a.getAttribute('href') || ''; if (h.indexOf('wa.me') < 0) return;
     a.setAttribute('href', h.replace(/text=([^&]*)/, function (m, t) {
       try { return 'text=' + encodeURIComponent(conv(decodeURIComponent(t))); } catch (e) { return m; }
     }));
   }
-  function fix(root) {
-    if (root.nodeType === 3) { fixText(root); return; }
-    if (root.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(root.tagName)) return;
-    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), a = [];
+  function fix(r) {
+    if (r.nodeType === 3) { var c = conv(r.nodeValue); if (c !== r.nodeValue) r.nodeValue = c; return; }
+    if (r.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(r.tagName)) return;
+    var w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT), a = [];
     while (w.nextNode()) a.push(w.currentNode);
-    a.forEach(fixText);
-    if (root.tagName === 'A') fixWa(root);
-    root.querySelectorAll('a[href*="wa.me"]').forEach(fixWa);
+    a.forEach(function (n) { var c = conv(n.nodeValue); if (c !== n.nodeValue) n.nodeValue = c; });
+    if (r.tagName === 'A') fixWa(r);
+    r.querySelectorAll('a[href*="wa.me"]').forEach(fixWa);
   }
-  new MutationObserver(function (ms) {
-    ms.forEach(function (m) { m.addedNodes.forEach(fix); });
-  }).observe(document.body, {childList: true, subtree: true});
-  fix(document.body);
-
-  // pesan WhatsApp struk
-  var oST = window.strukText;
-  if (oST) window.strukText = function (l) { return conv(oST(l)); };
-  // file CSV
+  new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(fix); }); })
+    .observe(document.body, {childList: true, subtree: true});
+  var oST = window.strukText; if (oST) window.strukText = function (l) { return conv(oST(l)); };
   var oCsv = window.csvDl;
-  if (oCsv) window.csvDl = function (n, h, r) {
-    oCsv(n, h, r.map(function (x) { return x.map(function (v) { return typeof v === 'string' ? conv(v) : v; }); }));
-  };
-  // pratinjau nota langsung (memakai tanggal sistem)
+  if (oCsv) window.csvDl = function (n, h, r) { oCsv(n, h, r.map(function (x) { return x.map(function (v) { return typeof v === 'string' ? conv(v) : v; }); })); };
   var oND = window.tfNotaDraw;
   if (oND) window.tfNotaDraw = function () {
-    oND();
-    var box = document.getElementById('liveStrk'); if (!box) return;
-    var sc = box.querySelectorAll('.sc')[1]; if (!sc) return;
-    sc.textContent = new Date().toLocaleString('en-GB', {timeZone: 'Asia/Jakarta', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false}).replace(',', '');
+    oND(); var b = document.getElementById('liveStrk'), s = b && b.querySelectorAll('.sc')[1]; if (!s) return;
+    s.textContent = new Date().toLocaleString('en-GB', {timeZone: 'Asia/Jakarta', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false}).replace(',', '');
   };
 
-  /* ---------- PROFIL DI SIDEBAR (gaya Boltz) ---------- */
+  /* ---------- PEMBANGUN CSS (tiap desain diberi awalan html[data-ui=...]) ---------- */
+  var ALL = ['boltz', 'quix', 'mint', 'kristal'];
+  function css(uis, o) {
+    var s = '';
+    Object.keys(o).forEach(function (sel) {
+      s += sel.split('|').map(function (x) { return uis.map(function (u) { return 'html[data-ui="' + u + '"] ' + x; }).join(','); }).join(',') + '{' + o[sel] + '}\n';
+    });
+    return s;
+  }
+  var ic = ['💰', '🧾', '📈', '📊', '⏳', '📒'], icBg = ['#fff1de', '#e4eaff', '#e0f6ea', '#f0e6ff', '#ffe4e4', '#e0f2fe'];
+  var base = {
+    'body': 'font-family:var(--fam,Poppins,Inter,system-ui,sans-serif)', 'body::before': 'display:none',
+    '.item|.card|.stat|.tw': 'border:0;border-radius:20px;box-shadow:0 6px 24px rgba(30,40,90,.06)',
+    '.sheet|.cbox': 'border-radius:24px', '.sec h2|.card h2': 'font-weight:700',
+    '.stats .stat': 'display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;align-items:center;padding:16px 18px;overflow:hidden',
+    '.stats .stat::before': 'content:"' + ic[0] + '";grid-row:1/3;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:' + icBg[0],
+    '.stats .stat.hero::before': 'background:rgba(255,255,255,.24)',
+    '.btn': 'border-radius:99px;font-weight:600', '.badge': 'background:transparent',
+    '.badge.g': 'border:1.5px solid var(--ok)', '.badge.o': 'border:1.5px solid var(--warn)',
+    '.tools input|.tools select': 'background:var(--soft);border:0;border-radius:99px;padding:12px 18px',
+    'th': 'background:transparent', '.nav': 'border-radius:99px;font-weight:500;font-size:14px',
+    '.nav.on': 'background:var(--soft);color:var(--ptx);box-shadow:none;font-weight:600',
+    '.top': 'background:var(--surf);color:var(--tx);box-shadow:0 1px 0 var(--bd)',
+    '.top h1': 'font-size:24px;font-weight:700', '.top h1 small': 'color:var(--mut)',
+    '.top button': 'background:var(--soft2);color:var(--tx);border:1px solid var(--bd);border-radius:50%',
+    '.side': 'box-shadow:2px 0 24px rgba(30,40,90,.05);border-right:0', '.brand': 'font-weight:700;color:var(--p)',
+    '.brand i': 'background:var(--p)', '.prof': 'display:block;text-align:center;padding:2px 0 16px',
+    '.prof .av': 'width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;font-size:32px;background:var(--soft)',
+    '.prof b': 'display:block;font-size:14px', '.prof small': 'display:block;color:var(--mut);font-size:11px'
+  };
+  for (var i = 1; i < 6; i++) { base['.stats .stat:nth-child(6n+' + (i + 1) + ')::before'] = 'content:"' + ic[i] + '";background:' + icBg[i]; }
+  var s = '.prof{display:none}\n' + css(ALL, base);
+  s += 'html[data-ui="boltz"][data-theme="klasik"]{--p:#2447b8;--p2:#3f78e8;--ptx:#2447b8;--bg:#f5f6fa;--soft:#e3ebff;--soft2:#f6f8fe;--ring:#2447b833}\n' +
+    'html[data-ui="quix"]:not([data-theme="malam"]){--p:#0f7b4f;--p2:#22a86c;--ptx:#0f7b4f;--bg:#eceff0;--soft:#dcf1e6;--soft2:#f3f9f6;--ring:#0f7b4f33}\n' +
+    'html[data-ui="mint"]:not([data-theme="malam"]){--p:#3a9a86;--p2:#5bb8a3;--ptx:#2f8572;--bg:#eaf4f1;--soft:#d6efe8;--soft2:#f1f9f7;--ring:#3a9a8633}\n' +
+    'html[data-ui="kristal"]:not([data-theme="malam"]){--p:#3b82f6;--p2:#8b5cf6;--ptx:#3b82f6;--bg:#dfe9fb;--soft:rgba(59,130,246,.14);--soft2:rgba(255,255,255,.5);--ring:#3b82f633}\n';
+  // Mint & Quixotic: menu ikon di kiri
+  var rail = {
+    '.side': 'width:84px;padding:16px 0;align-items:center;gap:4px;overflow-y:auto;scrollbar-width:none',
+    '.brand': 'font-size:0;padding:0 0 10px', '.nav': 'width:48px;height:48px;padding:0;justify-content:center;position:relative',
+    '.nav>span:not(.ic):not(.cnt)': 'display:none', '.nav .ic': 'font-size:22px',
+    '.nav .cnt': 'position:absolute;top:2px;right:2px;margin:0', '.side .btn': 'width:48px;height:48px;padding:0;font-size:0',
+    '.side .btn::before': 'content:"+";font-size:26px', '.prof': 'display:none'
+  };
+  s += '@media(min-width:900px){\n' + css(['quix', 'mint'], rail) +
+    css(['quix'], {'.side': 'inset:14px auto 14px 14px;border-radius:28px;background:#fff', 'main': 'margin-left:112px', '.nav.on': 'background:var(--p);color:#fff'}) +
+    css(['mint'], {'main': 'margin-left:84px', '.side': 'background:linear-gradient(180deg,#3a9a86,#2f8572);box-shadow:none', '.nav': 'color:#fff', '.nav:hover': 'background:rgba(255,255,255,.18)', '.nav.on': 'background:#fff;color:var(--ptx)'}) +
+    css(ALL, {'.top': 'padding:20px 28px', '#view': 'padding:26px 28px'}) + '}\n';
+  s += css(['mint'], {'.bar span': 'background:linear-gradient(90deg,#f5c542,#fbbf24)', '.top h1': 'color:var(--ptx)'});
+  s += css(['quix'], {'.top h1': 'font-weight:500'});
+  s += css(['kristal'], {
+    'body': 'background:linear-gradient(135deg,#dbeafe,#e9e1ff 50%,#cffafe) fixed',
+    '.item|.card|.stat|.side|.top|.bottom|.tw': 'background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.75)',
+    '.stat.hero': 'background:linear-gradient(135deg,var(--p),var(--p2));border:0'
+  });
+  // Rapi di HP (semua desain)
+  var P = 'html[data-ui] body ';
+  s += '@media(max-width:599px){\n' + [
+    'html,body{overflow-x:hidden}', 'main,#view{min-width:0}',
+    P + '#view{padding:12px}', P + '.top{padding:10px 12px;gap:6px}',
+    P + '.top h1{font-size:19px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    P + '.top button{width:36px;height:36px;font-size:16px}',
+    P + '.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}',
+    P + '.stats .stat{grid-template-columns:minmax(0,1fr);padding:12px;row-gap:2px}',
+    P + '.stats .stat::before{grid-row:auto;width:34px;height:34px;font-size:16px;margin-bottom:6px}',
+    P + '.stat .l{font-size:12px;overflow-wrap:anywhere}',
+    P + '.stat .v{font-size:clamp(14px,4.4vw,18px);overflow-wrap:anywhere;line-height:1.25}',
+    P + '.grid{grid-template-columns:minmax(0,1fr)}', P + '.item,' + P + '.card{padding:12px;overflow:hidden;min-width:0}',
+    P + '.row{gap:8px}', P + '.row>div{min-width:0;overflow-wrap:anywhere}', P + '.row>div:first-child{flex:1 1 0}',
+    P + '.row>.r{flex:0 1 auto;max-width:50%}', P + '.r b,' + P + '.r div{overflow-wrap:anywhere}',
+    P + '.tools input,' + P + '.tools select,' + P + '.tools .btn{flex:1 1 100%;min-width:0}',
+    '.two>*{min-width:0}', 'input,select,textarea{min-width:0;max-width:100%}',
+    '.tfgrid{grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr))}',
+    'th,td{padding:8px 10px;font-size:12.5px}', '.tw{max-width:100%}', '.acts .btn{flex:0 1 auto}'
+  ].map(function (x) { return /\{/.test(x) ? x : ''; }).join('\n') + '\n}\n';
+  document.getElementById('uiCss').textContent = s;
+
+  /* ---------- PILIHAN DESAIN DI PENGATURAN ---------- */
+  var UIS = [
+    ['asli', 'Klasik (Asli)', 'Tampilan awal aplikasi.', ['#fff', '#4f46e5', '#f3f5fb', 0]],
+    ['boltz', 'Boltz', 'Biru bersih, menu bentuk pil, profil di sidebar.', ['#fff', '#2447b8', '#f5f6fa', 0]],
+    ['quix', 'Quixotic', 'Hijau hutan, menu ikon melayang di kiri.', ['#fff', '#0f7b4f', '#eceff0', 1]],
+    ['mint', 'Mint', 'Menu hijau mint penuh, aksen kuning pada grafik.', ['#3a9a86', '#f5c542', '#eaf4f1', 1]],
+    ['kristal', 'Kristal', 'Kartu kaca transparan di latar biru-ungu.', ['rgba(255,255,255,.7)', '#3b82f6', '#dbeafe', 0]]
+  ];
+  var cur = store.get('ppob_ui'); if (!UIS.some(function (u) { return u[0] === cur; })) cur = 'boltz';
+  document.documentElement.dataset.ui = cur;
+  window.setUi = function (k) { document.documentElement.dataset.ui = k; store.set('ppob_ui', k); render(); toast('Desain: ' + UIS.filter(function (u) { return u[0] === k; })[0][1], 'good'); };
+  function thumb(t) {
+    var W = t[3] ? 8 : 18, r = function (x, y, w, h, f) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="3" fill="' + f + '"/>'; };
+    return '<svg viewBox="0 0 80 56" style="width:100%;height:auto;border-radius:10px;display:block"><rect width="80" height="56" fill="' + t[2] + '"/><rect width="' + W + '" height="56" fill="' + t[0] + '"/>' +
+      r(W + 5, 6, 70 - W, 8, 'rgba(0,0,0,.1)') + r(W + 5, 18, 15, 14, t[1]) + r(W + 23, 18, 15, 14, '#fff') + r(W + 41, 18, 15, 14, '#fff') + r(W + 5, 36, 70 - W, 14, '#fff') + '</svg>';
+  }
+  function uiCard() {
+    var c = document.documentElement.dataset.ui;
+    return '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 4px">🖥️ Desain Aplikasi</h2><div class="mut">Pilih gaya tampilan seluruh aplikasi. Langsung berlaku dan tersimpan di perangkat ini.</div><div class="tfgrid">' +
+      UIS.map(function (u) {
+        return '<div class="tfc' + (u[0] === c ? ' on' : '') + '">' + thumb(u[3]) + '<b>' + esc(u[1]) + (u[0] === c ? ' ✓' : '') + '</b><div class="mut">' + esc(u[2]) + '</div>' +
+          '<div class="acts"><button class="btn sm' + (u[0] === c ? '' : ' ghost') + '" onclick="setUi(\'' + u[0] + '\')">' + (u[0] === c ? 'Dipakai' : 'Pakai') + '</button></div></div>';
+      }).join('') + '</div></div>';
+  }
+  var oSet = window.pSet;
+  window.pSet = function () { return oSet().replace('<div class="grid">', '<div class="grid">' + uiCard()); };
+
+  /* ---------- PROFIL SIDEBAR ---------- */
   var oNav = window.buildNav;
   window.buildNav = function () {
-    oNav();
-    var b = document.querySelector('#side .brand'); if (!b) return;
-    b.insertAdjacentHTML('afterend', '<div class="prof"><div class="av">🏪</div><small>Halo,</small><b>' +
-      esc(tokoName || appName) + '</b>' + (tokoWa ? '<small>📞 ' + esc(tokoWa) + '</small>' : '') + '</div>');
+    oNav(); var b = document.querySelector('#side .brand'); if (!b) return;
+    b.insertAdjacentHTML('afterend', '<div class="prof"><div class="av">🏪</div><small>Halo,</small><b>' + esc(tokoName || appName) + '</b>' + (tokoWa ? '<small>📞 ' + esc(tokoWa) + '</small>' : '') + '</div>');
   };
-  window.buildNav();
+  window.buildNav(); fix(document.body);
   try { render(); } catch (e) {}
 })();
 </script>
