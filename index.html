@@ -2583,5 +2583,68 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
   applyAvatar();
 })();
 </script>
+<!-- ===== PATCH KOLOM TANGGAL: selalu dd/mm/yyyy di semua formulir =====
+     Tempel di index.html tepat sebelum </body> (urutan terhadap patch lain bebas). -->
+<style>
+.ddw{position:relative;display:block;flex:1 1 140px;min-width:0}
+.ddw>input[type=text]{width:100%;padding-right:44px}
+.ddw>input[data-dd]{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none}
+.ddb{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:18px;cursor:pointer;padding:6px;line-height:1}
+</style>
+<script>
+(function () {
+  function toTxt(v, month) {
+    var p = String(v || '').split('-');
+    if (month) return p.length === 2 ? p[1] + '/' + p[0] : '';
+    return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : '';
+  }
+  function toIso(d, month) {                      // d = hanya angka
+    if (month) {
+      if (d.length !== 6) return null;
+      var mm = +d.slice(0, 2), yy = +d.slice(2);
+      return (mm >= 1 && mm <= 12 && yy >= 1900) ? d.slice(2) + '-' + d.slice(0, 2) : null;
+    }
+    if (d.length !== 8) return null;
+    var dd = +d.slice(0, 2), m = +d.slice(2, 4), y = +d.slice(4), t = new Date(y, m - 1, dd);
+    return (y >= 1900 && t.getFullYear() === y && t.getMonth() === m - 1 && t.getDate() === dd) ? d.slice(4) + '-' + d.slice(2, 4) + '-' + d.slice(0, 2) : null;
+  }
+  function mask(d, month) {
+    d = d.slice(0, month ? 6 : 8);
+    return month ? (d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d)
+                 : d.slice(0, 2) + (d.length > 2 ? '/' + d.slice(2, 4) : '') + (d.length > 4 ? '/' + d.slice(4) : '');
+  }
+  function fire(el) {
+    el.dispatchEvent(new Event('input', {bubbles: true}));
+    el.dispatchEvent(new Event('change', {bubbles: true}));
+  }
+  function wrap(n) {
+    var month = n.type === 'month';
+    n.dataset.dd = '1';
+    var w = document.createElement('span'); w.className = 'ddw';
+    var t = document.createElement('input'); t.type = 'text'; t.inputMode = 'numeric'; t.autocomplete = 'off';
+    t.placeholder = month ? 'mm/yyyy' : 'dd/mm/yyyy'; t.value = toTxt(n.value, month);
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'ddb'; b.textContent = '📅'; b.tabIndex = -1;
+    n.parentNode.insertBefore(w, n); w.appendChild(t); w.appendChild(b); w.appendChild(n);
+    t.oninput = function () {
+      var d = t.value.replace(/\D/g, '');
+      t.value = mask(d, month);
+      if (!d) { n.value = ''; fire(n); return; }
+      var iso = toIso(d, month);
+      if (iso) { n.value = iso; fire(n); }
+    };
+    t.onblur = function () { t.value = toTxt(n.value, month); };   // kembalikan jika belum lengkap / tidak valid
+    n.addEventListener('change', function () { if (document.activeElement !== t) t.value = toTxt(n.value, month); });
+    b.onclick = function () { try { n.showPicker(); } catch (e) { n.focus(); n.click(); } };
+  }
+  function enh(r) {
+    if (r.nodeType !== 1) return;
+    if (r.matches && r.matches('input[type=date],input[type=month]') && !r.dataset.dd) wrap(r);
+    r.querySelectorAll('input[type=date]:not([data-dd]),input[type=month]:not([data-dd])').forEach(wrap);
+  }
+  new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(enh); }); })
+    .observe(document.body, {childList: true, subtree: true});
+  enh(document.body);
+})();
+</script>
 </body>
 </html>
