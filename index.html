@@ -2326,5 +2326,64 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
   try { render(); } catch (e) {}
 })();
 </script>
+<!-- ===== PATCH REKAPITULASI: pencarian + 10/25/50/100 baris + Sebelumnya/Selanjutnya =====
+     Tempel di index.html tepat sebelum </body>, SETELAH patch-tampilan. -->
+<style>
+.rekbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.rekctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rekctl select{width:auto;padding:8px 14px;border-radius:99px}
+.btn:disabled{opacity:.45;cursor:default}
+@media(max-width:599px){.rekbar{flex-direction:column;align-items:stretch}.rekctl{justify-content:space-between}}
+</style>
+<script>
+(function () {
+  var q = '', st = '', pg = 1, lastM = '', tm, SZ = [10, 25, 50, 100];
+  var sz = Number(store.get('ppob_rekrows')) || 10; if (SZ.indexOf(sz) < 0) sz = 10;
+
+  function hay(t) {
+    return [t.customer || 'Umum', t.aplikasi, t.produk, t.tujuan, t.status, t.catatan, t.tanggal,
+      String(t.tanggal).split('-').reverse().join('/'), t.jam, t.id, t.modal, t.jual, t.laba].join(' ').toLowerCase();
+  }
+  function rows() {
+    var k = q.trim().toLowerCase();
+    return sorted(db.trx.filter(function (t) {
+      return inMonth(t, rekapMonth) && (!st || t.status === st) && (!k || hay(t).indexOf(k) >= 0);
+    }));
+  }
+  function html() {
+    var l = rows(), n = l.length, pages = Math.max(1, Math.ceil(n / sz));
+    if (pg > pages) pg = pages; if (pg < 1) pg = 1;
+    var a = (pg - 1) * sz, b = Math.min(n, a + sz), v = l.slice(a, b), L = ' style="text-align:left"';
+    var tb = n ? '<div class="tw"><table><thead><tr><th>#</th><th>Tanggal</th><th>Jam</th><th' + L + '>Customer</th><th' + L + '>Aplikasi</th><th' + L + '>Produk</th><th' + L + '>Tujuan</th><th>Modal</th><th>Jual</th><th>Laba</th><th>Status</th></tr></thead><tbody>' +
+      v.map(function (t, i) {
+        return '<tr><td>' + (a + i + 1) + '</td><td>' + esc(t.tanggal) + '</td><td>' + esc(/^\d{1,2}:\d{2}/.test(t.jam) ? t.jam : '') + '</td><td' + L + '>' + esc(t.customer || 'Umum') + '</td><td' + L + '>' + esc(t.aplikasi) +
+          '</td><td' + L + '>' + esc(t.produk) + '</td><td' + L + '>' + esc(t.tujuan || '-') + '</td><td>' + rp(t.modal) + '</td><td>' + rp(t.jual) + '</td><td class="ok">' + rp(t.laba) +
+          '</td><td><span class="' + (t.status === 'Lunas' ? 'ok' : 'bad') + '">' + esc(t.status) + '</span></td></tr>';
+      }).join('') + '</tbody></table></div>' : '<div class="empty">Tidak ada transaksi yang cocok</div>';
+    return '<div class="mut" style="margin-bottom:8px">' + n + ' transaksi • Penjualan ' + rp(sum(l, 'jual')) + ' • Laba ' + rp(sum(l, 'laba')) + '</div>' + tb +
+      '<div class="rekbar"><span class="mut">' + (n ? 'Menampilkan ' + (a + 1) + '–' + b + ' dari ' + n : 'Menampilkan 0 data') + '</span>' +
+      '<span class="rekctl"><select onchange="rekSize(this.value)">' + SZ.map(function (x) { return '<option value="' + x + '"' + (x === sz ? ' selected' : '') + '>' + x + ' baris</option>'; }).join('') + '</select>' +
+      '<button class="btn sm ghost" onclick="rekGo(-1)"' + (pg <= 1 ? ' disabled' : '') + '>‹ Sebelumnya</button>' +
+      '<span class="mut">Hal ' + pg + '/' + pages + '</span>' +
+      '<button class="btn sm ghost" onclick="rekGo(1)"' + (pg >= pages ? ' disabled' : '') + '>Selanjutnya ›</button></span></div>';
+  }
+  function upd() { var e = document.getElementById('rekList'); if (e) e.innerHTML = html(); }
+
+  window.rekQ = function (v) { q = v; pg = 1; clearTimeout(tm); tm = setTimeout(upd, 200); };
+  window.rekSt = function (v) { st = v; pg = 1; upd(); };
+  window.rekSize = function (v) { sz = Number(v) || 10; store.set('ppob_rekrows', String(sz)); pg = 1; upd(); };
+  window.rekGo = function (d) { pg += d; upd(); };
+
+  var o = window.pRekap;
+  window.pRekap = function () {
+    if (lastM !== rekapMonth) { lastM = rekapMonth; pg = 1; }
+    return o() + '<div class="sec"><h2>Daftar transaksi</h2></div>' +
+      '<div class="tools"><input type="search" placeholder="🔍 Cari nama, aplikasi, produk, tujuan, tanggal, status…" value="' + esc(q) + '" oninput="rekQ(this.value)">' +
+      '<select onchange="rekSt(this.value)"><option value="">Semua status</option><option' + (st === 'Lunas' ? ' selected' : '') + '>Lunas</option><option' + (st === 'Belum Bayar' ? ' selected' : '') + '>Belum Bayar</option></select></div>' +
+      '<div id="rekList">' + html() + '</div>';
+  };
+  try { if (page === 'rekap') render(); } catch (e) {}
+})();
+</script>
 </body>
 </html>
