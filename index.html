@@ -2515,5 +2515,73 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
   try { render(); } catch (e) {}
 })();
 </script>
+<!-- ===== PATCH FOTO PROFIL =====
+     Tempel di index.html tepat sebelum </body>, setelah patch-tampilan / patch-desain-baru. -->
+<style>
+.avt{display:grid;place-items:center;overflow:hidden;border-radius:50%;background:var(--soft);flex:0 0 auto;line-height:1}
+.avt img{width:100%;height:100%;object-fit:cover;display:block}
+.prof .av{overflow:hidden}
+#hdrAv{width:38px;height:38px;font-size:20px;cursor:pointer;border:2px solid var(--bd)}
+.avBig{width:84px;height:84px;font-size:40px;border:3px solid var(--bd)}
+</style>
+<script>
+(function () {
+  var KEY = 'ppob_avatar', EMO = '🏪';
+  var photo = function () { return store.get(KEY) || ''; };
+
+  function inner() { var p = photo(); return p ? '<img alt="Foto profil" src="' + p + '">' : EMO; }
+  window.applyAvatar = function () {
+    var h = inner();
+    document.querySelectorAll('.prof .av,#hdrAv').forEach(function (e) { e.classList.add('avt'); e.innerHTML = h; });
+  };
+
+  // foto kecil di header (terlihat juga di HP)
+  var top = document.querySelector('.top');
+  if (top && !document.getElementById('hdrAv')) {
+    var a = document.createElement('span'); a.id = 'hdrAv'; a.title = 'Foto profil';
+    a.onclick = function () { go('set'); };
+    top.insertBefore(a, top.firstChild);
+  }
+
+  // unggah: dipotong persegi dari tengah, diperkecil 256px agar ringan
+  window.pickAvatar = function (inp) {
+    var f = inp.files && inp.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var n = Math.min(img.width, img.height), c = document.createElement('canvas');
+        c.width = c.height = 256;
+        c.getContext('2d').drawImage(img, (img.width - n) / 2, (img.height - n) / 2, n, n, 0, 0, 256, 256);
+        try { localStorage.setItem(KEY, c.toDataURL('image/jpeg', 0.85)); }
+        catch (e) { toast('Foto gagal disimpan (penyimpanan penuh)', 'err'); return; }
+        applyAvatar(); render(); toast('Foto profil diganti', 'good');
+      };
+      img.onerror = function () { toast('File bukan gambar yang valid', 'err'); };
+      img.src = rd.result;
+    };
+    rd.readAsDataURL(f); inp.value = '';
+  };
+  window.resetAvatar = function () { store.del(KEY); applyAvatar(); render(); toast('Foto profil dihapus'); };
+
+  // kartu di Pengaturan (sebelum kartu Keamanan)
+  var oSet = window.pSet;
+  window.pSet = function () {
+    var x = oSet(), card = '<div class="card"><h2 style="margin:0 0 8px">👤 Foto profil</h2>' +
+      '<div style="display:flex;align-items:center;gap:14px"><div class="avt avBig">' + inner() + '</div>' +
+      '<div class="mut">Foto tampil di menu samping dan di pojok kiri atas. Tersimpan di perangkat ini (JPG / PNG).</div></div>' +
+      '<input type="file" id="avFile" accept="image/*" hidden onchange="pickAvatar(this)">' +
+      '<div class="acts"><button class="btn sm" onclick="document.getElementById(\'avFile\').click()">📷 Unggah foto</button>' +
+      (photo() ? '<button class="btn sm red" onclick="resetAvatar()">Hapus foto</button>' : '') + '</div></div>';
+    var i = x.indexOf('<div class="card"><h2 style="margin:0 0 8px">🔐');
+    return i > 0 ? x.slice(0, i) + card + x.slice(i) : x;
+  };
+
+  // tampilkan ulang foto setiap menu samping dibangun ulang
+  var oNav = window.buildNav;
+  window.buildNav = function () { oNav(); applyAvatar(); };
+  applyAvatar();
+})();
+</script>
 </body>
 </html>
