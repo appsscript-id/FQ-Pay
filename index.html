@@ -2385,5 +2385,34 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
   try { if (page === 'rekap') render(); } catch (e) {}
 })();
 </script>
+<!-- ===== PATCH LEBAR: layar lebih terpakai + angka kartu satu baris =====
+     Tempel di index.html tepat sebelum </body>, paling akhir (setelah patch lain). -->
+<style>
+/* halaman memakai lebar layar (sebelumnya dibatasi 1100px) */
+html body #view{max-width:1760px}
+html body .grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+
+/* angka kartu tidak terpotong jadi dua baris */
+html body .stat .v{white-space:nowrap;overflow-wrap:normal;word-break:normal;font-size:clamp(16px,1.3vw,21px)}
+html body .stat .l{overflow-wrap:normal;word-break:normal}
+
+@media(min-width:600px){
+  html:not([data-ui="asli"]) body .stats .stat{grid-template-columns:40px minmax(0,1fr);column-gap:10px;padding:14px}
+  html:not([data-ui="asli"]) body .stats .stat::before{width:40px;height:40px;font-size:18px}
+}
+/* tablet & laptop: kartu 6 buah dibuat 3 kolom x 2 baris agar lebar */
+@media(min-width:900px){
+  html body .stats{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+  html body .stats:has(.stat:nth-child(6)){grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+/* layar sangat lebar: 6 kartu sebaris */
+@media(min-width:1720px){
+  html body .stats:has(.stat:nth-child(6)){grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+/* HP: 2 kolom, angka tetap satu baris dengan ukuran menyesuaikan */
+@media(max-width:599px){
+  html body .stat .v{font-size:clamp(13px,3.9vw,17px)}
+}
+</style>
 </body>
 </html>
