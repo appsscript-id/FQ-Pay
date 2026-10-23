@@ -2414,5 +2414,106 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
   html body .stat .v{font-size:clamp(13px,3.9vw,17px)}
 }
 </style>
+<!-- ===== PATCH DESAIN BARU: Drive, Cloud, Jiron, Fily =====
+     Tempel di index.html tepat sebelum </body>, SETELAH patch-tampilan (boleh sebelum/sesudah patch lain). -->
+<script>
+(function () {
+  var NEW = ['drive', 'cloud', 'jiron', 'fily'];
+  function V(ks, o) {
+    var s = '';
+    Object.keys(o).forEach(function (sel) {
+      s += sel.split('|').map(function (x) { return ks.map(function (k) { return 'html[data-ui][data-v="' + k + '"] ' + x; }).join(','); }).join(',') + '{' + o[sel] + '}\n';
+    });
+    return s;
+  }
+  function pal(k, p, p2, ptx, bg, soft, soft2) {
+    return 'html[data-ui][data-v="' + k + '"]:not([data-theme="malam"]){--p:' + p + ';--p2:' + p2 + ';--ptx:' + ptx + ';--bg:' + bg + ';--soft:' + soft + ';--soft2:' + soft2 + ';--ring:' + p + '33}\n';
+  }
+  var s = pal('drive', '#2f55d4', '#4f78f2', '#2f55d4', '#f2f5fb', '#e4ebff', '#f6f8ff') +
+    pal('cloud', '#3c6df0', '#6c95ff', '#3c6df0', '#eef2fb', '#e1e9ff', '#f5f8ff') +
+    pal('jiron', '#6c5ce7', '#a29bfe', '#6c5ce7', '#f6f7fb', '#ece9ff', '#f7f6ff') +
+    pal('fily', '#2196f3', '#42a5f5', '#1e88e5', '#eceef1', '#e3f2fd', '#f6f9fc');
+
+  // Sidebar biru (Drive & Cloud) — hanya menu samping, bukan menu bawah HP
+  s += V(['drive', 'cloud'], {
+    '.side': 'background:linear-gradient(180deg,var(--p2),var(--p));box-shadow:none',
+    '.side .brand': 'color:#fff', '.side .brand i': 'background:rgba(255,255,255,.22)',
+    '.side .nav': 'color:rgba(255,255,255,.9)', '.side .nav:hover': 'background:rgba(255,255,255,.16)',
+    '.side .nav.on': 'background:rgba(255,255,255,.26);color:#fff',
+    '.side .btn': 'background:#fff;color:var(--p)',
+    '.prof b|.prof small': 'color:#fff', '.prof .av': 'background:rgba(255,255,255,.22)',
+    '.top': 'background:transparent;box-shadow:none'
+  });
+  s += V(['drive'], {'.stat': 'background:#e8edfc', '.stat.hero': 'background:linear-gradient(135deg,#2f55d4,#4f78f2)'});
+  s += V(['cloud'], {'.bar span': 'background:linear-gradient(90deg,#ff9a3d,#ffb86b)', '.stat.hero': 'background:linear-gradient(135deg,#ff9a3d,#ffb347)'});
+  s += '@media(min-width:900px){\n' + V(['cloud'], {'.side': 'inset:14px auto 14px 14px;border-radius:26px;overflow-y:auto;scrollbar-width:none', 'main': 'margin-left:266px'}) + '}\n';
+
+  // Kartu statistik berwarna (Jiron & Fily)
+  var G = {
+    jiron: [['#a78bfa', '#7c5cf0'], ['#60a5fa', '#4f7cf0'], ['#fbbf24', '#f59e0b'], ['#f472b6', '#ec4899'], ['#34d399', '#10b981'], ['#818cf8', '#6366f1']],
+    fily: [['#2ed8a3', '#12b886'], ['#4dabf7', '#339af0'], ['#ff7a8a', '#fa5252'], ['#ffb142', '#ff9500'], ['#b197fc', '#845ef7'], ['#38d9a9', '#20c997']]
+  };
+  Object.keys(G).forEach(function (k) {
+    var o = {'.stats .stat .l': 'color:rgba(255,255,255,.9)', '.stats .stat .v': 'color:#fff!important', '.stats .stat::before': 'background:rgba(255,255,255,.26)!important', '.stats .stat': 'color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.1)'};
+    G[k].forEach(function (g, i) { o['.stats .stat:nth-child(6n+' + (i + 1) + ')'] = 'background:linear-gradient(135deg,' + g[0] + ',' + g[1] + ')'; });
+    s += V([k], o);
+  });
+  s += V(['jiron'], {'.side .nav': 'border-radius:10px', '.item|.card': 'border-radius:16px'});
+
+  // Fily: menu di atas (laptop), kartu lebih tegas
+  s += V(['fily'], {'.item|.card|.tw|.sheet': 'border-radius:8px', '.btn': 'border-radius:6px', '.tools input|.tools select': 'border-radius:8px'});
+  s += '@media(min-width:900px){\n' + V(['fily'], {
+    '.side': 'position:sticky;top:0;left:0;right:auto;bottom:auto;inset:auto;width:100%;height:auto;flex-direction:row;align-items:center;padding:6px 18px;gap:2px;overflow-x:auto;scrollbar-width:none;box-shadow:0 2px 12px rgba(0,0,0,.08)',
+    '.side .brand': 'padding:0 14px 0 0;font-size:18px', '.prof|.side .sp': 'display:none',
+    '.side .nav': 'width:auto;flex:0 0 auto;padding:8px 12px;font-size:13px;border-radius:6px;gap:6px',
+    '.side .btn': 'flex:0 0 auto;margin-left:auto;padding:8px 16px', 'main': 'margin-left:0', '.top': 'position:static'
+  }) + '}\n';
+  var st = document.createElement('style'); st.id = 'uiCss2'; st.textContent = s; document.head.appendChild(st);
+
+  // Daftar pilihan (semua desain)
+  var UIS = [
+    ['asli', 'Klasik (Asli)', 'Tampilan awal aplikasi.', ['#fff', '#4f46e5', '#f3f5fb', 0]],
+    ['boltz', 'Boltz', 'Biru bersih, menu bentuk pil, profil di sidebar.', ['#fff', '#2447b8', '#f5f6fa', 0]],
+    ['quix', 'Quixotic', 'Hijau hutan, menu ikon melayang di kiri.', ['#fff', '#0f7b4f', '#eceff0', 1]],
+    ['mint', 'Mint', 'Menu hijau mint penuh, aksen kuning pada grafik.', ['#3a9a86', '#f5c542', '#eaf4f1', 1]],
+    ['kristal', 'Kristal', 'Kartu kaca transparan di latar biru-ungu.', ['rgba(255,255,255,.7)', '#3b82f6', '#dbeafe', 0]],
+    ['drive', 'Drive Biru', 'Menu biru tua penuh dengan tombol putih dan kartu lavender.', ['#2f55d4', '#6f8cf0', '#f2f5fb', 0]],
+    ['cloud', 'Cloud', 'Menu biru melayang bersudut bulat dengan aksen oranye.', ['#3c6df0', '#ff9a3d', '#eef2fb', 0]],
+    ['jiron', 'Jiron', 'Kartu statistik berwarna-warni di atas latar putih bersih.', ['#fff', '#a78bfa', '#f6f7fb', 0]],
+    ['fily', 'Fily', 'Menu di bagian atas layar laptop, kartu hijau-biru-merah-oranye.', ['#fff', '#2ed8a3', '#eceef1', 2]]
+  ];
+  var h = document.documentElement;
+  function cur() { return h.dataset.v && NEW.indexOf(h.dataset.v) >= 0 ? h.dataset.v : (h.dataset.ui || 'boltz'); }
+  var saved = store.get('ppob_ui');
+  if (NEW.indexOf(saved) >= 0) { h.dataset.ui = 'boltz'; h.dataset.v = saved; }
+  window.setUi = function (k) {
+    if (NEW.indexOf(k) >= 0) { h.dataset.ui = 'boltz'; h.dataset.v = k; } else { h.dataset.ui = k; delete h.dataset.v; }
+    store.set('ppob_ui', k); render();
+    toast('Desain: ' + UIS.filter(function (u) { return u[0] === k; })[0][1], 'good');
+  };
+  function thumb(t) {
+    var top = t[3] === 2, W = t[3] === 1 ? 8 : top ? 0 : 18, ty = top ? 8 : 0;
+    var r = function (x, y, w, hh, f) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="3" fill="' + f + '"/>'; };
+    return '<svg viewBox="0 0 80 56" style="width:100%;height:auto;border-radius:10px;display:block"><rect width="80" height="56" fill="' + t[2] + '"/>' +
+      (top ? '<rect width="80" height="8" fill="' + t[0] + '"/>' : '<rect width="' + W + '" height="56" fill="' + t[0] + '"/>') +
+      r(W + 5, 6 + ty, 70 - W, 8, 'rgba(0,0,0,.1)') + r(W + 5, 18 + ty, 15, 14, t[1]) + r(W + 23, 18 + ty, 15, 14, '#fff') + r(W + 41, 18 + ty, 15, 14, '#fff') + r(W + 5, 36 + ty, 70 - W, 14 - ty, '#fff') + '</svg>';
+  }
+  function card() {
+    var c = cur();
+    return '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 4px">🖥️ Desain Aplikasi</h2><div class="mut">Pilih gaya tampilan seluruh aplikasi (' + UIS.length + ' pilihan). Langsung berlaku dan tersimpan di perangkat ini.</div><div class="tfgrid">' +
+      UIS.map(function (u) {
+        return '<div class="tfc' + (u[0] === c ? ' on' : '') + '">' + thumb(u[3]) + '<b>' + esc(u[1]) + (u[0] === c ? ' ✓' : '') + '</b><div class="mut">' + esc(u[2]) + '</div>' +
+          '<div class="acts"><button class="btn sm' + (u[0] === c ? '' : ' ghost') + '" onclick="setUi(\'' + u[0] + '\')">' + (u[0] === c ? 'Dipakai' : 'Pakai') + '</button></div></div>';
+      }).join('') + '</div></div>';
+  }
+  // ganti kartu pilihan lama (5 desain) dengan kartu baru (9 desain)
+  var oSet = window.pSet;
+  window.pSet = function () {
+    var x = oSet(), a = x.indexOf('<div class="grid">') + 18, b = x.indexOf('<div class="card"><h2 style="margin:0 0 8px">🏪');
+    return (a >= 18 && b > a) ? x.slice(0, a) + card() + x.slice(b) : x;
+  };
+  try { render(); } catch (e) {}
+})();
+</script>
 </body>
 </html>
