@@ -2933,6 +2933,31 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
   setTimeout(function () { toast('Suara hutang aktif'); }, 1500);   // PENANDA UJI (hapus setelah berhasil)
 })();
 </script>
+<!-- ===== PATCH SUARA HAPUS (semua menu) ===== -->
+<script>
+(function () {
+  var MSG = {
+    deleteNota:     'Transaksi berhasil dihapus',
+    deleteTrx:      'Transaksi berhasil dihapus',
+    deleteCustomer: 'Customer berhasil dihapus',
+    deleteAplikasi: 'Aplikasi berhasil dihapus',
+    deleteProduk:   'Produk berhasil dihapus',
+    deleteHutang:   'Hutang berhasil dihapus',
+    deleteAngsuran: 'Angsuran berhasil dihapus',
+    deleteKeluar:   'Pengeluaran berhasil dihapus'
+  };
+  var last = 0;
+  var oApi = window.api;
+  window.api = async function (action, data) {
+    var res = await oApi(action, data);          // jika gagal, error dilempar dan suara tidak berbunyi
+    if (MSG[action]) {
+      var n = Date.now();
+      if (n - last > 1000) { last = n; setTimeout(function () { sayBerhasil(MSG[action]); }, 0); }
+    }
+    return res;
+  };
+})();
+</script>
 <style>
 html,body{overflow-x:clip!important;overscroll-behavior:auto!important}
 </style>
