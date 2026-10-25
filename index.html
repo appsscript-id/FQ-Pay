@@ -2893,17 +2893,13 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
   };
 })();
 </script>
-<style>
-<!-- ===== PATCH SUARA HUTANG BARU (v3) =====
-     GANTIKAN blok "PATCH SUARA HUTANG BARU (v2)" yang ada di index.html dengan blok ini.
-     Biarkan blok <style> overflow-x:clip tetap ada setelahnya.
-     Dua jalur pemicu (hanya berbunyi sekali), plus penanda uji "Suara hutang aktif" saat aplikasi dibuka.
-     Setelah suara berhasil, hapus satu baris bertanda "PENANDA UJI". -->
+<!-- ===== PATCH SUARA HUTANG BARU (v3) ===== -->
 <script>
 (function () {
   var last = 0;
   function say() {
-    var n = Date.now(); if (n - last < 2000) return; last = n;   // cegah bunyi dobel
+    var n = Date.now(); if (n - last < 2000) return;   // cegah bunyi dobel
+    last = n;
     sayBerhasil('Hutang Baru Tersimpan');
   }
 
@@ -2925,7 +2921,7 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
     } catch (e) {}
   };
 
-  // Pancing izin suara saat tombol Simpan ditekan (beberapa HP menolak suara tanpa sentuhan)
+  // Pancing izin suara saat tombol Simpan ditekan
   document.addEventListener('click', function (e) {
     if (!e.target || e.target.id !== 'mOk') return;
     var t = document.getElementById('mTitle');
@@ -2934,7 +2930,7 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
     }
   }, true);
 
-  setTimeout(function () { toast('Suara hutang aktif'); }, 1500);   // PENANDA UJI (hapus baris ini setelah berhasil)
+  setTimeout(function () { toast('Suara hutang aktif'); }, 1500);   // PENANDA UJI (hapus setelah berhasil)
 })();
 </script>
 <style>
