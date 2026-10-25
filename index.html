@@ -2894,22 +2894,21 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
 })();
 </script>
 <style>
-<!-- ===== PATCH SUARA HUTANG BARU =====
-     Tempel di index.html tepat sebelum </body>, PALING AKHIR (setelah semua patch lain).
-     Saat menyimpan hutang BARU, aplikasi berbunyi dan mengucapkan "Hutang Baru Tersimpan".
-     Edit hutang tidak berbunyi. Mengikuti tombol suara 🔊 (jika dimatikan, tidak berbunyi). -->
+<!-- ===== PATCH SUARA HUTANG BARU (v2) =====
+     GANTIKAN patch-suara-hutang yang lama: hapus blok "PATCH SUARA HUTANG BARU" yang lama,
+     lalu tempel ini di index.html tepat sebelum </body>, PALING AKHIR.
+     Suara dipicu langsung saat server menjawab penyimpanan hutang BARU berhasil
+     (tidak bergantung pada jendela formulir). Edit hutang tidak berbunyi.
+     Mengikuti tombol suara 🔊 di pojok atas. -->
 <script>
 (function () {
-  var oForm = window.hutangForm;
-  window.hutangForm = function (id) {
-    oForm(id);
-    if (id) return;                       // hanya hutang baru
-    var orig = modalSubmit;               // bungkus aksi tombol Simpan
-    modalSubmit = async function () {
-      var r = await orig();               // jika ada galat (mis. nama kosong), berhenti di sini
-      if (r !== false) sayBerhasil('Hutang Baru Tersimpan');
-      return r;
-    };
+  var oApi = window.api;
+  window.api = async function (action, data) {
+    var res = await oApi(action, data);                 // jika gagal, galat diteruskan dan tidak berbunyi
+    if (action === 'saveHutang' && data && !data.id) {
+      setTimeout(function () { sayBerhasil('Hutang Baru Tersimpan'); }, 0);
+    }
+    return res;
   };
 })();
 </script>
