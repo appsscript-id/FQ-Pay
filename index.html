@@ -2880,5 +2880,42 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
   try { if (page === 'hutang' || page === 'home') render(); } catch (e) {}
 })();
 </script>
+<!-- ===== PATCH CEPAT SIMPAN =====
+     Tempel di index.html tepat sebelum </body>, PALING AKHIR (setelah semua patch lain).
+     Wajib dipasangkan dengan Code-v3.1.gs yang sudah di-deploy.
+     Setelah menyimpan, server hanya mengirim sheet yang berubah; patch ini menggabungkannya
+     dengan data yang sudah ada di layar (sebelumnya seluruh data diganti). -->
+<script>
+(function () {
+  window.setDb = function (d) {
+    db = Object.assign({}, db, d);
+    applySettings();
+  };
+})();
+</script>
+<style>
+/* Opsional: matikan tarik-ke-bawah bawaan browser yang memuat ulang seluruh halaman.
+   Gunakan tombol ⟳ di pojok atas untuk memuat ulang data saja. Hapus blok ini jika ingin tarik-ke-bawah tetap aktif. */
+html,body{overscroll-behavior-y:none}
+</style>
+<!-- ===== PATCH SUARA HUTANG BARU =====
+     Tempel di index.html tepat sebelum </body>, PALING AKHIR (setelah semua patch lain).
+     Saat menyimpan hutang BARU, aplikasi berbunyi dan mengucapkan "Hutang Baru Tersimpan".
+     Edit hutang tidak berbunyi. Mengikuti tombol suara 🔊 (jika dimatikan, tidak berbunyi). -->
+<script>
+(function () {
+  var oForm = window.hutangForm;
+  window.hutangForm = function (id) {
+    oForm(id);
+    if (id) return;                       // hanya hutang baru
+    var orig = modalSubmit;               // bungkus aksi tombol Simpan
+    modalSubmit = async function () {
+      var r = await orig();               // jika ada galat (mis. nama kosong), berhenti di sini
+      if (r !== false) sayBerhasil('Hutang Baru Tersimpan');
+      return r;
+    };
+  };
+})();
+</script>
 </body>
 </html>
