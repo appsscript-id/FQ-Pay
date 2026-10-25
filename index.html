@@ -2843,7 +2843,7 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
         render();
         var x = HT().filter(function (z) { return z.id === id; })[0];
         if (x && x.status === 'Lunas') { sayBerhasil('Hutang Lunas'); toast('✅ Angsuran dicatat — hutang LUNAS', 'good'); }
-        else { sayBerhasil('Angsuran berhasil'); toast('✅ Angsuran dicatat. Sisa ' + rp(x ? sisaOf(x) : 0), 'good'); }
+        else { sayBerhasil('Angsuran berhasil disimpan'); toast('✅ Angsuran dicatat. Sisa ' + rp(x ? sisaOf(x) : 0), 'good'); }
       }, 'Simpan Angsuran');
   };
 
