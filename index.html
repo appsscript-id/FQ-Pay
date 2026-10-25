@@ -2762,5 +2762,123 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
   };
 })();
 </script>
+<!-- ===== PATCH ANGSURAN HUTANG =====
+     Tempel di index.html tepat sebelum </body>, PALING AKHIR (setelah semua patch lain).
+     Wajib dipasangkan dengan Code.gs v2.9 (file Code.gs) yang sudah di-deploy ulang. -->
+<script>
+(function () {
+  var AN = function () { return db.angsuran || []; };
+  var byNew = function (a, b) { return (String(b.tanggal) + String(b.jam) + String(b.id)).localeCompare(String(a.tanggal) + String(a.jam) + String(a.id)); };
+  function listOf(id) { return AN().filter(function (a) { return a.hutangId === id; }).sort(byNew); }
+  function paidOf(h) {
+    var s = 0; listOf(h.id).forEach(function (a) { s += Number(a.jumlah) || 0; });
+    return (h.status === 'Lunas' && s < Number(h.jumlah)) ? Number(h.jumlah) : s;   // data lama yang sudah Lunas
+  }
+  function sisaOf(h) { return h.status === 'Lunas' ? 0 : Math.max(0, (Number(h.jumlah) || 0) - paidOf(h)); }
+  function totSisa(l) { return l.reduce(function (s, h) { return s + sisaOf(h); }, 0); }
+
+  /* ---------- kartu ringkasan di Beranda ---------- */
+  window.hutangStat = function () {
+    var b = HT().filter(function (h) { return h.status !== 'Lunas'; });
+    return '<div class="stat" style="cursor:pointer" onclick="go(\'hutang\')"><div class="l">Sisa hutang customer (' + b.length + ')</div><div class="v bad">' + rp(totSisa(b)) + '</div></div>';
+  };
+
+  /* ---------- daftar hutang ---------- */
+  window.hutangListHtml = function () {
+    var q = hq.trim().toLowerCase();
+    var l = HT().filter(function (h) {
+      return (!hs || (hs === 'Lunas' ? h.status === 'Lunas' : h.status !== 'Lunas')) &&
+        (!q || (String(h.nama) + ' ' + String(h.keterangan || '')).toLowerCase().indexOf(q) >= 0);
+    }).sort(function (a, b) { return ((a.status === 'Lunas') - (b.status === 'Lunas')) || String(b.tanggal).localeCompare(String(a.tanggal)); });
+    if (!l.length) return '<div class="empty">' + (HT().length ? 'Data tidak ditemukan' : 'Belum ada catatan hutang') + '</div>';
+    return '<div class="grid">' + l.map(function (h) {
+      var lunas = h.status === 'Lunas', paid = paidOf(h), sisa = sisaOf(h), n = listOf(h.id).length;
+      var pct = Number(h.jumlah) > 0 ? Math.min(100, paid / Number(h.jumlah) * 100) : 0;
+      return '<div class="item"><div class="row"><div><b>👤 ' + esc(h.nama) + '</b><div class="mut">' + esc(h.keterangan || '-') + '</div></div>' +
+        '<div class="r">' + (lunas ? '<b class="ok">' + rp(h.jumlah) + '</b>' : '<div class="mut">Sisa</div><b class="bad">' + rp(sisa) + '</b>') +
+        '<div><span class="badge ' + (lunas ? 'g' : 'o') + '">' + (lunas ? 'Lunas' : 'Belum Lunas') + '</span></div></div></div>' +
+        '<div class="row s"><span class="mut">Total ' + rp(h.jumlah) + '</span><span class="mut">Dibayar ' + rp(paid) + '</span></div>' +
+        '<div class="bar"><span style="width:' + pct + '%"></span></div>' +
+        '<div class="mut" style="margin-top:6px">📅 ' + esc(h.tanggal) + (lunas && h.tglLunas ? ' • lunas ' + esc(String(h.tglLunas).slice(0, 10)) : '') + (n ? ' • ' + n + 'x angsuran' : '') + '</div>' +
+        '<div class="acts">' + (lunas ? '' : '<button class="btn sm" onclick="angsurForm(\'' + h.id + '\')">💵 Bayar Angsuran</button><button class="btn sm green" onclick="payHutang(\'' + h.id + '\')">✔ Lunasi</button>') +
+        (n ? '<button class="btn sm ghost" onclick="angsurRiwayat(\'' + h.id + '\')">📜 Riwayat</button>' : '') +
+        '<button class="btn sm ghost" onclick="hutangForm(\'' + h.id + '\')">✏️ Edit</button>' +
+        '<button class="btn sm red" onclick="delItem(\'deleteHutang\',\'' + h.id + '\')">Hapus</button></div></div>';
+    }).join('') + '</div>';
+  };
+
+  /* ---------- halaman Hutang ---------- */
+  window.pHutang = function () {
+    var b = HT().filter(function (h) { return h.status !== 'Lunas'; });
+    var orang = {}; b.forEach(function (h) { orang[String(h.nama).toLowerCase()] = 1; });
+    var dibayar = HT().reduce(function (s, h) { return s + paidOf(h); }, 0);
+    return '<div class="stats"><div class="stat hero"><div class="l">Total sisa hutang</div><div class="v">' + rp(totSisa(b)) + '</div></div>' +
+      '<div class="stat"><div class="l">Jumlah orang</div><div class="v">' + Object.keys(orang).length + '</div></div>' +
+      '<div class="stat"><div class="l">Sudah dibayar (angsuran + lunas)</div><div class="v ok">' + rp(dibayar) + '</div></div></div>' +
+      '<div class="tools"><input placeholder="🔍 Cari nama / keterangan" value="' + esc(hq) + '" oninput="hq=this.value;updHutang()">' +
+      '<select onchange="hs=this.value;updHutang()"><option value="">Semua status</option><option value="Belum"' + (hs === 'Belum' ? ' selected' : '') + '>Belum Lunas</option><option value="Lunas"' + (hs === 'Lunas' ? ' selected' : '') + '>Lunas</option></select>' +
+      '<button class="btn" onclick="hutangForm()">+ Hutang</button></div>' +
+      '<div class="mut" style="margin-bottom:8px">Catatan uang yang dipinjam customer dari toko. Bisa dibayar sekaligus atau dicicil (angsuran). Tidak berhubungan dengan transaksi.</div>' +
+      '<div id="hutangList">' + hutangListHtml() + '</div>';
+  };
+
+  /* ---------- bayar angsuran ---------- */
+  window.angsurForm = function (id) {
+    var h = HT().filter(function (x) { return x.id === id; })[0]; if (!h) return;
+    var sisa = sisaOf(h);
+    if (sisa <= 0) { toast('Hutang ini sudah lunas', 'err'); return; }
+    var R = function (a, b, c) { return '<div class="row s"><span class="mut">' + a + '</span><b class="' + (c || '') + '">' + b + '</b></div>'; };
+    modal('Bayar Angsuran',
+      '<div class="card"><b>👤 ' + esc(h.nama) + '</b><div class="mut">' + esc(h.keterangan || '-') + '</div>' +
+      R('Total hutang', rp(h.jumlah)) + R('Sudah dibayar', rp(paidOf(h)), 'ok') + R('Sisa hutang', rp(sisa), 'bad') + '</div>' +
+      field('Jumlah angsuran', '<input id="aJml" type="text" inputmode="numeric" autocomplete="off" placeholder="0" oninput="fmtInput(this)">') +
+      '<div class="acts"><button type="button" class="btn sm ghost" onclick="$(\'#aJml\').value=fmtNum(' + sisa + ')">Isi sisa penuh (' + rp(sisa) + ')</button></div>' +
+      field('Tanggal bayar', '<input id="aTgl" type="date" value="' + esc(ymd()) + '">') +
+      field('Catatan (opsional)', '<input id="aCat" placeholder="mis. cicilan ke-2, transfer">'),
+      async function () {
+        var j = numVal('#aJml');
+        if (j <= 0) throw new Error('Jumlah angsuran wajib diisi');
+        if (j > sisa) throw new Error('Jumlah melebihi sisa hutang (' + rp(sisa) + ')');
+        setDb(await api('bayarHutang', {id: id, jumlah: j, tanggal: $('#aTgl').value, catatan: $('#aCat').value.trim()}));
+        render();
+        var x = HT().filter(function (z) { return z.id === id; })[0];
+        if (x && x.status === 'Lunas') { sayBerhasil('Hutang Lunas'); toast('✅ Angsuran dicatat — hutang LUNAS', 'good'); }
+        else { sayBerhasil('Angsuran berhasil'); toast('✅ Angsuran dicatat. Sisa ' + rp(x ? sisaOf(x) : 0), 'good'); }
+      }, 'Simpan Angsuran');
+  };
+
+  /* ---------- riwayat angsuran ---------- */
+  window.angsurRiwayat = function (id) {
+    var h = HT().filter(function (x) { return x.id === id; })[0]; if (!h) return;
+    var l = listOf(id);
+    modal('Riwayat Angsuran',
+      '<div class="mut">👤 <b>' + esc(h.nama) + '</b> • Total ' + rp(h.jumlah) + ' • Dibayar ' + rp(paidOf(h)) + ' • Sisa <b class="bad">' + rp(sisaOf(h)) + '</b></div>' +
+      '<div style="margin-top:10px">' + (l.length ? l.map(function (a) {
+        return '<div class="row s" style="border-top:1px solid var(--bd);padding-top:8px"><div><b class="ok">' + rp(a.jumlah) + '</b>' +
+          '<div class="mut">📅 ' + esc(a.tanggal) + ' ' + esc(/^\d{1,2}:\d{2}/.test(a.jam) ? a.jam : '') + (a.catatan ? ' • ' + esc(a.catatan) : '') + '</div></div>' +
+          '<button class="btn sm red" onclick="delAngsur(\'' + a.id + '\',\'' + id + '\')">Hapus</button></div>';
+      }).join('') : '<div class="empty">Belum ada angsuran</div>') + '</div>',
+      async function () {}, 'Tutup');
+  };
+
+  window.delAngsur = async function (aid, hid) {
+    if (!(await askConfirm('Hapus angsuran?', 'Angsuran dihapus dan sisa hutang dihitung ulang.', 'Hapus', '🗑️', true))) return;
+    try {
+      setBusy(true); setDb(await api('deleteAngsuran', {id: aid})); render(); toast('Angsuran dihapus');
+      if (listOf(hid).length) angsurRiwayat(hid); else closeModal();
+    } catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
+  };
+
+  /* ---------- tombol Lunasi = bayar seluruh sisa ---------- */
+  window.payHutang = async function (id) {
+    var h = HT().filter(function (x) { return x.id === id; })[0]; if (!h) return;
+    if (!(await askConfirm('Lunasi sisa hutang?', h.nama + ' — sisa ' + rp(sisaOf(h)) + ' akan dicatat sebagai pelunasan.', 'Ya, Lunas', '✅'))) return;
+    try { setBusy(true); setDb(await api('lunasHutang', {id: id})); render(); sayBerhasil('Hutang Lunas'); toast('✅ Hutang dilunasi', 'good'); }
+    catch (e) { toast(e.message, 'err'); } finally { setBusy(false); }
+  };
+
+  try { if (page === 'hutang' || page === 'home') render(); } catch (e) {}
+})();
+</script>
 </body>
 </html>
