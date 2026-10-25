@@ -2894,22 +2894,47 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
 })();
 </script>
 <style>
-<!-- ===== PATCH SUARA HUTANG BARU (v2) =====
-     GANTIKAN patch-suara-hutang yang lama: hapus blok "PATCH SUARA HUTANG BARU" yang lama,
-     lalu tempel ini di index.html tepat sebelum </body>, PALING AKHIR.
-     Suara dipicu langsung saat server menjawab penyimpanan hutang BARU berhasil
-     (tidak bergantung pada jendela formulir). Edit hutang tidak berbunyi.
-     Mengikuti tombol suara 🔊 di pojok atas. -->
+<!-- ===== PATCH SUARA HUTANG BARU (v3) =====
+     GANTIKAN blok "PATCH SUARA HUTANG BARU (v2)" yang ada di index.html dengan blok ini.
+     Biarkan blok <style> overflow-x:clip tetap ada setelahnya.
+     Dua jalur pemicu (hanya berbunyi sekali), plus penanda uji "Suara hutang aktif" saat aplikasi dibuka.
+     Setelah suara berhasil, hapus satu baris bertanda "PENANDA UJI". -->
 <script>
 (function () {
+  var last = 0;
+  function say() {
+    var n = Date.now(); if (n - last < 2000) return; last = n;   // cegah bunyi dobel
+    sayBerhasil('Hutang Baru Tersimpan');
+  }
+
+  // Jalur 1: saat server menjawab penyimpanan hutang baru
   var oApi = window.api;
   window.api = async function (action, data) {
-    var res = await oApi(action, data);                 // jika gagal, galat diteruskan dan tidak berbunyi
-    if (action === 'saveHutang' && data && !data.id) {
-      setTimeout(function () { sayBerhasil('Hutang Baru Tersimpan'); }, 0);
-    }
+    var res = await oApi(action, data);
+    if (action === 'saveHutang' && data && !data.id) setTimeout(say, 0);
     return res;
   };
+
+  // Jalur 2: saat pesan "Tersimpan" muncul dari jendela "Hutang Baru"
+  var oToast = window.toast;
+  window.toast = function (msg, type) {
+    oToast(msg, type);
+    try {
+      var t = document.getElementById('mTitle');
+      if (msg === 'Tersimpan' && t && t.textContent === 'Hutang Baru') say();
+    } catch (e) {}
+  };
+
+  // Pancing izin suara saat tombol Simpan ditekan (beberapa HP menolak suara tanpa sentuhan)
+  document.addEventListener('click', function (e) {
+    if (!e.target || e.target.id !== 'mOk') return;
+    var t = document.getElementById('mTitle');
+    if (t && t.textContent === 'Hutang Baru' && 'speechSynthesis' in window) {
+      try { var u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (x) {}
+    }
+  }, true);
+
+  setTimeout(function () { toast('Suara hutang aktif'); }, 1500);   // PENANDA UJI (hapus baris ini setelah berhasil)
 })();
 </script>
 <style>
