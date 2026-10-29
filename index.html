@@ -3032,5 +3032,35 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
 <style>
 html,body{overflow-x:clip!important;overscroll-behavior:auto!important}
 </style>
+<!-- ===== PATCH SIDEBAR LAYAR PENDEK =====
+     Tempel di index.html tepat sebelum </body>, PALING AKHIR (setelah semua patch lain).
+     Masalah: di layar laptop/monitor yang tinggi tampilannya pendek, menu paling bawah
+     ("+ Transaksi Baru" dan "Keluar") terpotong karena sidebar tidak bisa digulir.
+     Perbaikan: (1) sidebar bisa digulir jika masih tidak muat,
+                (2) jarak menu dirapatkan otomatis pada layar yang tingginya kurang. -->
+<style>
+@media(min-width:900px){
+  /* sidebar bisa digulir (tidak untuk desain Fily yang menunya di atas) */
+  html:not([data-v="fily"]) body .side{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+}
+
+/* tinggi layar <= 900px: rapatkan (tidak untuk desain ikon Quixotic/Mint dan Fily) */
+@media(min-width:900px) and (max-height:900px){
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side{padding-top:12px;padding-bottom:12px;gap:2px}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .brand{padding:0 10px 6px;font-size:17px}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .brand i{width:32px;height:32px;font-size:17px}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .prof{padding:0 0 6px}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .prof .av{width:40px;height:40px;font-size:20px;margin-bottom:2px}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .prof small:last-child{display:none}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .nav{padding:7px 14px}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .btn{padding:8px 16px}
+}
+
+/* tinggi layar <= 720px: sembunyikan profil agar semua menu muat */
+@media(min-width:900px) and (max-height:720px){
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .prof{display:none}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .nav{padding:5px 14px}
+}
+</style>
 </body>
 </html>
