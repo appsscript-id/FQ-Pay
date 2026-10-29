@@ -3032,23 +3032,36 @@ html body .stat .l{overflow-wrap:normal;word-break:normal}
 <style>
 html,body{overflow-x:clip!important;overscroll-behavior:auto!important}
 </style>
-<!-- ===== PATCH SIDEBAR LAYAR (v2) =====
-     GANTIKAN blok "PATCH SIDEBAR LAYAR PENDEK" yang lama dengan blok ini
-     (tempel tepat sebelum </body>, PALING AKHIR).
-     - Sidebar bisa digulir jika tidak muat.
-     - Layar pendek: jarak menu dirapatkan otomatis.
-     - Tombol "+ Transaksi Baru" dan "Keluar" langsung menempel di bawah menu Pengaturan
-       (tidak lagi didorong ke dasar layar sehingga tidak ada celah kosong di tengah). -->
+<!-- ===== PATCH SIDEBAR (v3) + FORM NAIK SAAT PAPAN KETIK MUNCUL =====
+     GANTIKAN blok "PATCH SIDEBAR LAYAR (v2)" (atau "PATCH SIDEBAR LAYAR PENDEK") yang lama dengan blok ini.
+     Tempel tepat sebelum </body>, PALING AKHIR (setelah semua patch lain).
+
+     BAGIAN 1 (komputer): tombol "+ Transaksi Baru" dan "Keluar" tetap di dasar sidebar.
+       Jarak antar menu di atasnya menyesuaikan otomatis dengan tinggi layar
+       (lebar bila layar tinggi, rapat bila layar pendek, bisa digulir jika masih tidak muat).
+     BAGIAN 2 (HP): saat papan ketik muncul, jendela formulir ikut naik dan kolom yang diketuk
+       (mis. Nama customer pada Hutang Baru) digulir ke area yang terlihat. -->
+
+<!-- ============ BAGIAN 1: SIDEBAR ============ -->
 <style>
 @media(min-width:900px){
   html:not([data-v="fily"]) body .side{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 
-  /* hilangkan celah kosong: tombol bawah mengikuti menu (tidak untuk Quixotic/Mint/Fily) */
-  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .sp{flex:0 0 10px}
+  /* jarak antar menu dibagi rata; tombol bawah tetap di dasar (tidak untuk Quixotic/Mint/Fily) */
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .sp{display:none}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .nav[data-nav]{margin-top:auto}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .btn{margin-top:auto}
 }
 
-/* tinggi layar <= 900px: rapatkan */
-@media(min-width:900px) and (max-height:900px){
+/* layar sangat tinggi: jangan terlalu renggang, kembali ke tombol di dasar saja */
+@media(min-width:900px) and (min-height:1101px){
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .sp{display:block;flex:1}
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .nav[data-nav],
+  html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .btn{margin-top:0}
+}
+
+/* tinggi layar <= 850px: rapatkan isi agar semua menu muat */
+@media(min-width:900px) and (max-height:850px){
   html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side{padding-top:12px;padding-bottom:12px;gap:2px}
   html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .brand{padding:0 10px 6px;font-size:17px}
   html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .brand i{width:32px;height:32px;font-size:17px}
@@ -3059,11 +3072,49 @@ html,body{overflow-x:clip!important;overscroll-behavior:auto!important}
   html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .btn{padding:8px 16px}
 }
 
-/* tinggi layar <= 720px: sembunyikan profil agar semua menu muat */
+/* tinggi layar <= 720px: sembunyikan profil */
 @media(min-width:900px) and (max-height:720px){
   html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .prof{display:none}
   html:not([data-ui="quix"]):not([data-ui="mint"]):not([data-v="fily"]) body .side .nav{padding:5px 14px}
 }
 </style>
+
+<!-- ============ BAGIAN 2: FORMULIR NAIK SAAT PAPAN KETIK MUNCUL (HP) ============ -->
+<style>
+@media(max-width:599px){
+  #modal.kbd .sheet{max-height:100%;border-radius:22px 22px 0 0}
+  #modal .cs{scroll-margin-top:12px}
+}
+</style>
+<script>
+(function () {
+  var m = document.getElementById('modal'), vv = window.visualViewport;
+  if (!m) return;
+
+  // Ikuti area layar yang benar-benar terlihat (di atas papan ketik)
+  function fit() {
+    if (!vv || window.innerWidth > 599) { m.style.top = m.style.height = m.style.bottom = ''; m.classList.remove('kbd'); return; }
+    var kb = window.innerHeight - vv.height - vv.offsetTop;      // perkiraan tinggi papan ketik
+    if (kb > 80) {
+      m.style.top = vv.offsetTop + 'px'; m.style.height = vv.height + 'px'; m.style.bottom = 'auto';
+      m.classList.add('kbd');
+    } else {
+      m.style.top = m.style.height = m.style.bottom = ''; m.classList.remove('kbd');
+    }
+  }
+  if (vv) { vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); }
+
+  // Saat kolom diketuk, gulir ke area yang terlihat (setelah papan ketik selesai muncul)
+  m.addEventListener('focusin', function (e) {
+    var t = e.target;
+    if (window.innerWidth > 599 || !t.matches || !t.matches('input,select,textarea')) return;
+    var box = t.closest('.cs') || t;                              // kolom pencarian customer: sertakan daftar di bawahnya
+    var block = t.closest('.cs') ? 'start' : 'center';
+    [250, 650].forEach(function (d) {
+      setTimeout(function () { try { box.scrollIntoView({block: block, behavior: 'smooth'}); } catch (x) {} }, d);
+    });
+  });
+})();
+</script>
 </body>
 </html>
