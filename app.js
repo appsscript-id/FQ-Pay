@@ -2891,3 +2891,90 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
     if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
   });
 })();
+/* ===== PATCH CEPAT v5: Customer & Aplikasi langsung berubah di layar ===== */
+(function () {
+  var queue = Promise.resolve(), pending = 0, prev = window.api;
+  var OPT = {saveCustomer: 1, deleteCustomer: 1, saveAplikasi: 1, deleteAplikasi: 1};
+  var SND = {deleteCustomer: 'Customer berhasil dihapus', deleteAplikasi: 'Aplikasi berhasil dihapus'};
+
+  function raw(action, data) {
+    return fetch(API_URL, {
+      method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({action: action, pin: pin, months: window.histMonths, data: data || {}})
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan');
+      return j.data;
+    });
+  }
+  function wib() {
+    return new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Jakarta'}).slice(0, 10);
+  }
+  function gid(p) {
+    var c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', s = '';
+    for (var i = 0; i < 8; i++) s += c.charAt(Math.floor(Math.random() * 36));
+    return p + s;
+  }
+
+  /* terapkan perubahan ke data di layar; kembalikan {res: data baru, send: data untuk server} */
+  function opt(action, d) {
+    var C = (db.customers || []).slice(), A = (db.apps || []).slice(), P = (db.products || []).slice();
+    var send = Object.assign({}, d), i;
+
+    if (action === 'saveCustomer') {
+      var nama = String(d.nama || '').trim();
+      if (!nama) throw new Error('Nama customer wajib diisi');
+      var f = {nama: nama, alamat: String(d.alamat || '').trim(), telepon: String(d.telepon || '').trim()};
+      if (d.id) {
+        i = C.findIndex(function (x) { return x.id === d.id; });
+        if (i < 0) throw new Error('Data tidak ditemukan');
+        C[i] = Object.assign({}, C[i], f);
+      } else {
+        send.newId = gid('C-');
+        C.push(Object.assign({id: send.newId, dibuat: wib()}, f));
+      }
+      return {res: {customers: C}, send: send};
+    }
+
+    if (action === 'deleteCustomer') {
+      return {res: {customers: C.filter(function (x) { return x.id !== d.id; })}, send: send};
+    }
+
+    if (action === 'saveAplikasi') {
+      var an = String(d.nama || '').trim();
+      if (!an) throw new Error('Nama aplikasi wajib diisi');
+      if (d.id) {
+        i = A.findIndex(function (x) { return x.id === d.id; });
+        if (i < 0) throw new Error('Data tidak ditemukan');
+        A[i] = Object.assign({}, A[i], {nama: an});
+        P = P.map(function (p) { return String(p.aplikasiId) === String(d.id) ? Object.assign({}, p, {aplikasi: an}) : p; });
+        return {res: {apps: A, products: P}, send: send};
+      }
+      send.newId = gid('A-');
+      A.push({id: send.newId, nama: an});
+      return {res: {apps: A}, send: send};
+    }
+
+    if (action === 'deleteAplikasi') {
+      return {res: {apps: A.filter(function (x) { return x.id !== d.id; })}, send: send};
+    }
+  }
+
+  window.api = async function (action, data) {
+    if (!OPT[action]) { await queue; return prev(action, data); }
+    var r = opt(action, data || {});            // jika tidak valid, error langsung tampil di form
+    pending++;
+    queue = queue.then(function () { return raw(action, r.send); })
+      .then(null, async function (e) {
+        toast((e && e.message ? e.message : 'Gagal menyimpan') + ' — perubahan dibatalkan', 'err');
+        try { setDb(await prev('getAll')); } catch (x) {}
+        render();
+      })
+      .then(function () { pending--; });
+    if (SND[action]) setTimeout(function () { sayBerhasil(SND[action]); }, 0);
+    return r.res;
+  };
+
+  window.addEventListener('beforeunload', function (e) {
+    if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
