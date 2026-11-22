@@ -1,24 +1,11 @@
-const V = 'fqpay-v2';
-const SHELL = ['./', 'index.html', 'keypad.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
-self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(V).then(function (c) {
-    return Promise.all(SHELL.map(function (u) { return c.add(u).catch(function () {}); }));
-  }).then(function () { return self.skipWaiting(); }));
-});
-self.addEventListener('activate', function (e) {
-  e.waitUntil(caches.keys().then(function (ks) {
-    return Promise.all(ks.filter(function (k) { return k !== V; }).map(function (k) { return caches.delete(k); }));
-  }).then(function () { return self.clients.claim(); }));
-});
-// Jaringan dulu (selalu versi terbaru); cache hanya cadangan saat offline. Data Apps Script tidak disentuh.
-self.addEventListener('fetch', function (e) {
+/* Service worker PPOB: jaringan dulu, cache hanya cadangan saat offline. */
+const V = 'ppob-1795324732921';
+const FILES = ["./","index.html","manifest.json","apple-touch-icon.png","style.css","app.js","js/tema-art.js"];
+self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => Promise.all(FILES.map(f => c.add(f).catch(() => {})))).then(() => self.skipWaiting())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== V).map(x => caches.delete(x)))).then(() => self.clients.claim())); });
+self.addEventListener('fetch', e => {
   const r = e.request;
-  if (r.method !== 'GET' || new URL(r.url).origin !== self.location.origin) return;
-  e.respondWith(fetch(r).then(function (res) {
-    const copy = res.clone();
-    caches.open(V).then(function (c) { c.put(r, copy); });
-    return res;
-  }).catch(function () {
-    return caches.match(r).then(function (m) { return m || caches.match('index.html'); });
-  }));
+  if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
+  e.respondWith(fetch(r).then(res => { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); return res; })
+    .catch(() => caches.match(r).then(m => m || caches.match('index.html'))));
 });
