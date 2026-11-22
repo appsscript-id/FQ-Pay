@@ -2822,3 +2822,72 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
     if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
   });
 })();
+/* ===== PATCH CEPAT v4: Edit Transaksi langsung berubah di layar ===== */
+(function () {
+  var queue = Promise.resolve(), pending = 0, prev = window.api;
+
+  function wib() {
+    var s = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Jakarta'});
+    return {tgl: s.slice(0, 10), jam: s.slice(11, 16), tb: s.slice(0, 16)};
+  }
+
+  window.api = async function (action, data) {
+    if (action !== 'editNota') { await queue; return prev(action, data); }
+
+    var d = data || {}, base = String(d.base || ''), items = d.items || [];
+    var old = db.trx.filter(function (x) { return nota(x.id) === base; });
+    if (!old.length) throw new Error('Transaksi tidak ditemukan');
+    if (!items.length) throw new Error('Tambahkan minimal 1 item');
+    if (items.length > 20) throw new Error('Maksimal 20 item per transaksi');
+    var keep = d.status === 'keep', status = d.status === 'Belum Bayar' ? 'Belum Bayar' : 'Lunas';
+    if ((keep || status === 'Belum Bayar') && !d.customerId) throw new Error('Pilih customer untuk transaksi belum bayar');
+    items.forEach(function (it, i) {
+      if (!it.aplikasi || !it.produk) throw new Error('Item ' + (i + 1) + ': aplikasi dan produk wajib dipilih');
+    });
+
+    var cu = d.customerId ? db.customers.filter(function (c) { return c.id === d.customerId; })[0] : null;
+    var cname = d.customerId ? (cu ? cu.nama : (d.customer || 'Umum')) : 'Umum';
+    var t = wib(), cat = String(d.catatan || ''), first = old[0];
+    var byId = {}, used = {}, gone = {}, rows = [], sendItems = [];
+    old.forEach(function (x) { byId[x.id] = x; used[x.id] = 1; gone[x.id] = 1; });
+
+    items.forEach(function (it) {
+      var modal = Number(it.modal) || 0, jual = Number(it.jual) || 0, o = it.id && byId[it.id], st, id;
+      var f = {customerId: d.customerId || '', customer: cname, aplikasi: String(it.aplikasi), produk: String(it.produk),
+               tujuan: String(it.tujuan || ''), modal: modal, jual: jual, laba: jual - modal, catatan: cat};
+      if (o) {
+        st = keep ? o.status : status;
+        rows.push(Object.assign({}, o, f, {status: st, tglBayar: st === 'Lunas' ? ((o.status === 'Lunas' && o.tglBayar) ? o.tglBayar : t.tb) : ''}));
+        sendItems.push(it);
+      } else {
+        var c = 0;
+        do { id = base + String.fromCharCode(97 + c); c++; } while (used[id]);
+        used[id] = 1;
+        st = keep ? 'Belum Bayar' : status;
+        rows.push(Object.assign({id: id, tanggal: first.tanggal, jam: first.jam}, f, {status: st, tglBayar: st === 'Lunas' ? t.tb : ''}));
+        sendItems.push(Object.assign({}, it, {id: id}));
+      }
+    });
+
+    var res = {trx: db.trx.filter(function (x) { return !gone[x.id]; }).concat(rows)};
+    if (db.info) {
+      var dl = rows.length - old.length;
+      res.info = Object.assign({}, db.info, {totalTrx: (db.info.totalTrx || 0) + dl, shownTrx: (db.info.shownTrx || 0) + dl});
+    }
+
+    var send = Object.assign({}, d, {items: sendItems});
+    pending++;
+    queue = queue.then(function () { return prev('editNota', send); })
+      .then(null, async function (e) {
+        toast((e && e.message ? e.message : 'Gagal menyimpan') + ' — perubahan dibatalkan', 'err');
+        try { setDb(await prev('getAll')); } catch (x) {}
+        render();
+      })
+      .then(function () { pending--; });
+    return res;
+  };
+
+  window.addEventListener('beforeunload', function (e) {
+    if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
