@@ -2679,3 +2679,146 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
     bg('deleteNota', {ids: ids}, null, function () { db.trx = db.trx.concat(rows); });
   };
 })();
+/* ===== PATCH CEPAT v3: Hutang, Angsuran & Pengeluaran langsung berubah di layar ===== */
+(function () {
+  var queue = Promise.resolve(), pending = 0, prev = window.api;
+  var OPT = {saveHutang: 1, bayarHutang: 1, lunasHutang: 1, deleteAngsuran: 1, deleteHutang: 1, saveKeluar: 1, deleteKeluar: 1};
+  var SND = {deleteHutang: 'Hutang berhasil dihapus', deleteAngsuran: 'Angsuran berhasil dihapus', deleteKeluar: 'Pengeluaran berhasil dihapus'};
+
+  function raw(action, data) {
+    return fetch(API_URL, {
+      method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({action: action, pin: pin, months: window.histMonths, data: data || {}})
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan');
+      return j.data;
+    });
+  }
+  function wib() {
+    var s = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Jakarta'});
+    return {tgl: s.slice(0, 10), jam: s.slice(11, 16), tb: s.slice(0, 16)};
+  }
+  function gid(p) {
+    var c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', s = '';
+    for (var i = 0; i < 8; i++) s += c.charAt(Math.floor(Math.random() * 36));
+    return p + s;
+  }
+  function paidOf(A, hid) {
+    var t = 0; A.forEach(function (a) { if (String(a.hutangId) === String(hid)) t += Number(a.jumlah) || 0; });
+    return t;
+  }
+
+  /* terapkan perubahan ke data di layar; kembalikan {res: data baru, send: data untuk server} */
+  function opt(action, d) {
+    var H = (db.hutang || []).slice(), A = (db.angsuran || []).slice(), K = (db.keluar || []).slice();
+    var t = wib(), send = Object.assign({}, d), i, h, paid;
+
+    if (action === 'saveKeluar') {
+      var jml = Number(d.jumlah) || 0;
+      if (jml <= 0) throw new Error('Jumlah pengeluaran harus lebih dari 0');
+      var kat = String(d.kategori || '').trim() || 'Lainnya', ket = String(d.keterangan || '').trim(), tg = String(d.tanggal || '').trim() || t.tgl;
+      if (d.id) {
+        i = K.findIndex(function (x) { return x.id === d.id; });
+        if (i < 0) throw new Error('Data tidak ditemukan');
+        K[i] = Object.assign({}, K[i], {kategori: kat, keterangan: ket, jumlah: jml, tanggal: tg});
+      } else {
+        send.newId = gid('K-');
+        K.push({id: send.newId, tanggal: tg, jam: t.jam, kategori: kat, keterangan: ket, jumlah: jml});
+      }
+      return {res: {keluar: K}, send: send};
+    }
+
+    if (action === 'deleteKeluar') {
+      return {res: {keluar: K.filter(function (x) { return x.id !== d.id; })}, send: send};
+    }
+
+    if (action === 'saveHutang') {
+      var nama = String(d.nama || '').trim(), jm = Number(d.jumlah) || 0;
+      if (!nama) throw new Error('Nama customer wajib diisi');
+      if (jm <= 0) throw new Error('Jumlah hutang harus lebih dari 0');
+      var kt = String(d.keterangan || '').trim(), tgl = String(d.tanggal || '').trim() || t.tgl;
+      if (d.id) {
+        i = H.findIndex(function (x) { return x.id === d.id; });
+        if (i < 0) throw new Error('Data hutang tidak ditemukan');
+        h = H[i]; paid = paidOf(A, d.id);
+        if (jm < paid) throw new Error('Jumlah hutang tidak boleh lebih kecil dari total angsuran yang sudah dibayar');
+        var st = d.status === 'Lunas' ? 'Lunas' : 'Belum Lunas';
+        if (st !== 'Lunas' && paid > 0 && jm <= paid) st = 'Lunas';
+        if (st === 'Lunas' && h.status !== 'Lunas' && jm - paid > 0) {
+          send.angId = gid('G-');
+          A.push({id: send.angId, hutangId: d.id, tanggal: t.tgl, jam: t.jam, jumlah: jm - paid, catatan: 'Pelunasan'});
+        }
+        var tl = st === 'Lunas' ? ((h.status === 'Lunas' && h.tglLunas) ? h.tglLunas : t.tb) : '';
+        H[i] = Object.assign({}, h, {nama: nama, keterangan: kt, jumlah: jm, tanggal: tgl, status: st, tglLunas: tl});
+      } else {
+        send.newId = gid('H-');
+        H.push({id: send.newId, tanggal: tgl, nama: nama, keterangan: kt, jumlah: jm, status: 'Belum Lunas', tglLunas: ''});
+      }
+      return {res: {hutang: H, angsuran: A}, send: send};
+    }
+
+    if (action === 'bayarHutang') {
+      i = H.findIndex(function (x) { return x.id === d.id; });
+      if (i < 0) throw new Error('Data hutang tidak ditemukan');
+      h = H[i]; paid = paidOf(A, d.id);
+      if (h.status === 'Lunas') throw new Error('Hutang ini sudah lunas');
+      var j2 = Number(d.jumlah) || 0, sisa = (Number(h.jumlah) || 0) - paid;
+      if (j2 <= 0) throw new Error('Jumlah angsuran harus lebih dari 0');
+      if (j2 > sisa) throw new Error('Jumlah melebihi sisa hutang (sisa ' + sisa + ')');
+      send.angId = gid('G-');
+      A.push({id: send.angId, hutangId: d.id, tanggal: String(d.tanggal || '').trim() || t.tgl, jam: t.jam, jumlah: j2, catatan: String(d.catatan || '').trim()});
+      if (j2 >= sisa) H[i] = Object.assign({}, h, {status: 'Lunas', tglLunas: t.tb});
+      return {res: {hutang: H, angsuran: A}, send: send};
+    }
+
+    if (action === 'lunasHutang') {
+      i = H.findIndex(function (x) { return x.id === d.id; });
+      if (i < 0) throw new Error('Data hutang tidak ditemukan');
+      h = H[i];
+      if (h.status !== 'Lunas') {
+        var ss = (Number(h.jumlah) || 0) - paidOf(A, d.id);
+        if (ss > 0) {
+          send.angId = gid('G-');
+          A.push({id: send.angId, hutangId: d.id, tanggal: t.tgl, jam: t.jam, jumlah: ss, catatan: 'Pelunasan'});
+        }
+        H[i] = Object.assign({}, h, {status: 'Lunas', tglLunas: t.tb});
+      }
+      return {res: {hutang: H, angsuran: A}, send: send};
+    }
+
+    if (action === 'deleteAngsuran') {
+      var a = A.filter(function (x) { return x.id === d.id; })[0];
+      if (!a) throw new Error('Data angsuran tidak ditemukan');
+      A = A.filter(function (x) { return x.id !== d.id; });
+      i = H.findIndex(function (x) { return String(x.id) === String(a.hutangId); });
+      if (i >= 0 && H[i].status === 'Lunas' && (Number(H[i].jumlah) || 0) - paidOf(A, a.hutangId) > 0) {
+        H[i] = Object.assign({}, H[i], {status: 'Belum Lunas', tglLunas: ''});
+      }
+      return {res: {hutang: H, angsuran: A}, send: send};
+    }
+
+    if (action === 'deleteHutang') {
+      return {res: {hutang: H.filter(function (x) { return x.id !== d.id; }),
+                    angsuran: A.filter(function (x) { return String(x.hutangId) !== String(d.id); })}, send: send};
+    }
+  }
+
+  window.api = async function (action, data) {
+    if (!OPT[action]) { await queue; return prev(action, data); }
+    var r = opt(action, data || {});            // jika tidak valid, error langsung tampil di form
+    pending++;
+    queue = queue.then(function () { return raw(action, r.send); })
+      .then(null, async function (e) {
+        toast((e && e.message ? e.message : 'Gagal menyimpan') + ' — perubahan dibatalkan', 'err');
+        try { setDb(await raw('getAll')); } catch (x) {}
+        render();
+      })
+      .then(function () { pending--; });
+    if (SND[action]) setTimeout(function () { sayBerhasil(SND[action]); }, 0);
+    return r.res;
+  };
+
+  window.addEventListener('beforeunload', function (e) {
+    if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
