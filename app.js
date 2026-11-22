@@ -3044,3 +3044,133 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
     if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
   });
 })();
+/* ===== PATCH CEPAT v7: Favorit & Pengaturan langsung berubah di layar ===== */
+(function () {
+  var queue = Promise.resolve(), pending = 0, prev = window.api;
+  var OPT = {toggleFav: 1, saveSettings: 1, setBackup: 1};
+
+  function raw(action, data) {
+    return fetch(API_URL, {
+      method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({action: action, pin: pin, months: window.histMonths, data: data || {}})
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan');
+      return j.data;
+    });
+  }
+
+  function opt(action, d) {
+    var S = Object.assign({}, db.settings || {});
+    if (action === 'toggleFav') {
+      var id = String(d.id || '');
+      if (!id) throw new Error('Produk tidak valid');
+      var f = (S.fav || []).slice(), i = f.indexOf(id);
+      if (i >= 0) f.splice(i, 1); else f.push(id);
+      S.fav = f;
+    } else if (action === 'saveSettings') {
+      var nama = String(d.namaApp || '').trim().slice(0, 40);
+      if (!nama) throw new Error('Nama aplikasi wajib diisi');
+      S.namaApp = nama;
+      S.namaToko = String(d.namaToko || '').trim().slice(0, 60);
+      S.wa = String(d.wa || '').trim().slice(0, 20);
+    } else if (action === 'setBackup') {
+      S.autoBackup = !!d.on;
+    }
+    return {res: {settings: S}, send: Object.assign({}, d)};
+  }
+
+  window.api = async function (action, data) {
+    if (!OPT[action]) { await queue; return prev(action, data); }
+    var r = opt(action, data || {});            // jika tidak valid, error langsung tampil
+    pending++;
+    queue = queue.then(function () { return raw(action, r.send); })
+      .then(null, async function (e) {
+        toast((e && e.message ? e.message : 'Gagal menyimpan') + ' — perubahan dibatalkan', 'err');
+        try { setDb(await raw('getAll')); } catch (x) {}
+        render();
+      })
+      .then(function () { pending--; });
+    return r.res;
+  };
+
+  window.addEventListener('beforeunload', function (e) {
+    if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
+/* ===== PATCH CEPAT v8: login & buka aplikasi langsung tampil dari data tersimpan ===== */
+(function () {
+  var KEY = 'ppob_cache2', busy = false, wcount = 0, tm;
+  var hasCrypto = !!(window.crypto && crypto.subtle && window.TextEncoder);
+
+  async function hash(p) {
+    var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ppob|' + p));
+    return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+  }
+  async function readCache(p) {
+    try {
+      if (!hasCrypto) return null;
+      var s = store.get(KEY); if (!s) return null;
+      var c = JSON.parse(s);
+      if (!c || !c.db || c.m !== window.histMonths) return null;
+      return c.h === await hash(p) ? c : null;
+    } catch (e) { return null; }
+  }
+  async function saveCache() {
+    try {
+      if (!hasCrypto || !pin || !db.settings) return;
+      store.set(KEY, JSON.stringify({h: await hash(pin), t: Date.now(), m: window.histMonths, db: db}));
+    } catch (e) {}
+  }
+
+  // simpan salinan setiap data berubah (ditunda agar ringan)
+  var oSetDb = window.setDb;
+  window.setDb = function (d) { oSetDb(d); clearTimeout(tm); tm = setTimeout(saveCache, 1000); };
+
+  window.load = async function () {
+    setBusy(true);
+    try { setDb(await api('getAll')); render(); }
+    finally { setBusy(false); }
+  };
+
+  // hitung perubahan yang dikirim pengguna, agar data lama dari server tidak menimpanya
+  var base = window.api;
+  window.api = function (a, d) { if (a !== 'getAll' && a !== 'ping') wcount++; return base(a, d); };
+
+  async function revalidate() {
+    var w0 = wcount;
+    try {
+      var fresh = await api('getAll');
+      sess.set('ppob_pin', pin); store.set('ppob_pinlen', String(pin.length));
+      if (wcount === w0) { setDb(fresh); render(); }
+    } catch (e) {
+      if (/PIN/.test(e.message)) {            // PIN sudah diganti di perangkat lain
+        store.del(KEY); sess.del('ppob_pin'); pin = '';
+        db = {customers: [], apps: [], products: [], trx: []}; closeModal();
+        var v = $('#view'); if (v) v.innerHTML = '';
+        showLogin(); toast(e.message, 'err');
+      } else toast('Server belum terjangkau — memakai data tersimpan', 'err');
+    }
+  }
+
+  var oLogin = window.doLogin;
+  window.doLogin = async function () {
+    if (busy) return;
+    busy = true;
+    try {
+      var p = String($('#pinIn').value || '').trim();
+      var c = p ? await readCache(p) : null;
+      if (!c) return await oLogin();
+      clearTimeout(window._pinT); unlockAudio();
+      pin = p; page = 'home'; fq = ''; fs = ''; fd = ''; cq = '';
+      setDb(c.db); render();
+      $('#login').classList.remove('show');
+      window.scrollTo(0, 0); playIntro();
+      revalidate();                            // cek PIN & ambil data terbaru di belakang
+    } finally { busy = false; }
+  };
+
+  // buka ulang tab yang sudah login: tampilkan data tersimpan dulu
+  if (pin) readCache(pin).then(function (c) {
+    if (c && !db.settings) { setDb(c.db); render(); setBusy(false); }
+  });
+})();
