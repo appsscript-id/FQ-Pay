@@ -2978,3 +2978,69 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
     if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
   });
 })();
+/* ===== PATCH CEPAT v6: Produk (+ tambah cepat dari form transaksi) langsung berubah di layar ===== */
+(function () {
+  var queue = Promise.resolve(), pending = 0, prev = window.api;
+  var OPT = {saveProduk: 1, deleteProduk: 1};
+  var SND = {deleteProduk: 'Produk berhasil dihapus'};
+
+  function raw(action, data) {
+    return fetch(API_URL, {
+      method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({action: action, pin: pin, months: window.histMonths, data: data || {}})
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan');
+      return j.data;
+    });
+  }
+  function gid(p) {
+    var c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', s = '';
+    for (var i = 0; i < 8; i++) s += c.charAt(Math.floor(Math.random() * 36));
+    return p + s;
+  }
+
+  /* terapkan perubahan ke data di layar; kembalikan {res: data baru, send: data untuk server} */
+  function opt(action, d) {
+    var P = (db.products || []).slice(), send = Object.assign({}, d), i;
+
+    if (action === 'saveProduk') {
+      var nama = String(d.nama || '').trim();
+      if (!nama) throw new Error('Nama produk wajib diisi');
+      var app = (db.apps || []).filter(function (a) { return a.id === d.aplikasiId; })[0];
+      if (!app) throw new Error('Pilih aplikasi');
+      var f = {aplikasiId: app.id, aplikasi: app.nama, nama: nama, modal: Number(d.modal) || 0, jual: Number(d.jual) || 0};
+      if (d.id) {
+        i = P.findIndex(function (x) { return x.id === d.id; });
+        if (i < 0) throw new Error('Data tidak ditemukan');
+        P[i] = Object.assign({}, P[i], f);
+      } else {
+        send.newId = gid('P-');
+        P.push(Object.assign({id: send.newId}, f));
+      }
+      return {res: {products: P}, send: send};
+    }
+
+    if (action === 'deleteProduk') {
+      return {res: {products: P.filter(function (x) { return x.id !== d.id; })}, send: send};
+    }
+  }
+
+  window.api = async function (action, data) {
+    if (!OPT[action]) { await queue; return prev(action, data); }
+    var r = opt(action, data || {});            // jika tidak valid, error langsung tampil di form
+    pending++;
+    queue = queue.then(function () { return raw(action, r.send); })
+      .then(null, async function (e) {
+        toast((e && e.message ? e.message : 'Gagal menyimpan') + ' — perubahan dibatalkan', 'err');
+        try { setDb(await prev('getAll')); } catch (x) {}
+        render();
+      })
+      .then(function () { pending--; });
+    if (SND[action]) setTimeout(function () { sayBerhasil(SND[action]); }, 0);
+    return r.res;
+  };
+
+  window.addEventListener('beforeunload', function (e) {
+    if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
