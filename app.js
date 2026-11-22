@@ -2605,3 +2605,77 @@ window.addEventListener('load', function () { window.scrollTo(0, 0); });
     });
   });
 })();
+
+
+/* ===== PATCH SIMPAN CEPAT v2: layar langsung berubah, server menyusul ===== */
+(function () {
+  var queue = Promise.resolve(), pending = 0, oApi = window.api;
+
+  // panggilan lain menunggu simpanan latar belakang selesai, supaya urutan tetap aman
+  window.api = async function (a, d) { await queue; return oApi(a, d); };
+
+  function bg(action, data, onOk, onFail) {
+    pending++;
+    var p = queue.then(function () { return oApi(action, data); })
+      .then(function (r) { if (onOk) onOk(r); }, async function (e) {
+        if (onFail) onFail();
+        toast((e && e.message ? e.message : 'Gagal menyimpan') + ' — perubahan dibatalkan', 'err');
+        try { setDb(await oApi('getAll')); } catch (x) {}
+        render();
+      })
+      .then(function () { pending--; }, function () { pending--; });
+    queue = p;
+    return p;
+  }
+
+  window.addEventListener('beforeunload', function (e) {
+    if (pending > 0) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  var wib = function () {
+    var s = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Jakarta'});
+    return {tgl: s.slice(0, 10), jam: s.slice(11, 16), tb: s.slice(0, 16), id: s.replace(/\D/g, '')};
+  };
+
+  /* --- transaksi baru --- */
+  window.tfPost = async function (cid, st, cat, items) {
+    var t = wib(), multi = items.length > 1;
+    var cu = db.customers.filter(function (x) { return x.id === cid; })[0], nm = cu ? cu.nama : 'Umum';
+    var base = 'T-' + t.id + '-' + Math.floor(Math.random() * 900 + 100);
+    var rows = items.map(function (it, i) {
+      return {id: multi ? base + String.fromCharCode(97 + i) : base, tanggal: t.tgl, jam: t.jam, customerId: cid || '', customer: nm,
+        aplikasi: it.aplikasi, produk: it.produk, tujuan: it.tujuan || '', modal: it.modal, jual: it.jual, laba: it.jual - it.modal,
+        status: st, tglBayar: st === 'Lunas' ? t.tb : '', catatan: cat || ''};
+    });
+    db.trx = db.trx.concat(rows);
+    if (db.info) { db.info.totalTrx = (db.info.totalTrx || 0) + rows.length; db.info.shownTrx = (db.info.shownTrx || 0) + rows.length; }
+    render(); sayBerhasil();
+    toast((multi ? '✅ ' + items.length + ' item berhasil disimpan' : '✅ Transaksi Berhasil') + ' — ' + (st === 'Lunas' ? 'LUNAS' : 'BELUM BAYAR'), 'good');
+
+    var data = Object.assign({id: base, customerId: cid, customerName: cu ? cu.nama : '', status: st, catatan: cat}, multi ? {items: items} : items[0]);
+    bg(multi ? 'addTrxMulti' : 'addTrx', data,
+      function (r) { if (r && r.trx) { setDb(r); render(); } },
+      function () { var g = {}; rows.forEach(function (x) { g[x.id] = 1; }); db.trx = db.trx.filter(function (x) { return !g[x.id]; }); });
+  };
+
+  /* --- lunasi --- */
+  window.payIds = async function (ids) {
+    if (!(await askConfirm('Tandai lunas?', ids.length + ' transaksi akan ditandai LUNAS.', 'Ya, Lunas', '✅'))) return;
+    var t = wib(), set = {}, old = {};
+    ids.forEach(function (i) { set[i] = 1; });
+    db.trx = db.trx.map(function (x) { if (!set[x.id]) return x; old[x.id] = x; return Object.assign({}, x, {status: 'Lunas', tglBayar: t.tb}); });
+    render(); sayBerhasil(page === 'unpaid' ? 'Tagihan Lunas' : 'Transaksi Berhasil'); toast('✅ Pembayaran dilunasi', 'good');
+    bg('pay', {ids: ids}, null, function () { db.trx = db.trx.map(function (x) { return old[x.id] || x; }); });
+  };
+
+  /* --- hapus transaksi --- */
+  window.delTrx = async function (id) {
+    var t0 = db.trx.filter(function (x) { return x.id === id; })[0]; if (!t0) return;
+    var rows = grpOf(t0), ids = rows.map(function (x) { return x.id; }), g = {};
+    if (!(await askConfirm('Hapus transaksi?', ids.length > 1 ? 'Semua ' + ids.length + ' item dalam transaksi ini akan dihapus. Tidak bisa dikembalikan.' : 'Transaksi yang dihapus tidak bisa dikembalikan.', 'Hapus', '🗑️', true))) return;
+    ids.forEach(function (i) { g[i] = 1; });
+    db.trx = db.trx.filter(function (x) { return !g[x.id]; });
+    render(); toast('Transaksi dihapus');
+    bg('deleteNota', {ids: ids}, null, function () { db.trx = db.trx.concat(rows); });
+  };
+})();
